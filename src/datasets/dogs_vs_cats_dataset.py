@@ -2,6 +2,7 @@ import glob
 from enum import Enum
 from pathlib import Path
 import pandas as pd
+import torch
 from PIL import Image
 
 from torch.utils.data import Dataset
@@ -11,7 +12,7 @@ class DogsVsCatsLabels(int, Enum):
     DOG = 1
 
 class DogsVsCatsDataset(Dataset):
-    def __init__(self, images_path: str, transform=None, cache_data=True):
+    def __init__(self, images_path: str, transform=None, cache_data=True, shuffle=False):
         self.cache_data = cache_data
         self.transform = transform
 
@@ -30,6 +31,9 @@ class DogsVsCatsDataset(Dataset):
         self.metadata['id'] = ids
         self.metadata['path'] = file_list
         self.metadata['label'] = labels
+
+        if shuffle:
+            self.metadata = self.metadata.sample(frac=1)
 
         self.cache = {}
 
@@ -51,7 +55,7 @@ class DogsVsCatsDataset(Dataset):
                 self.cache[item] = image
 
         label = item_metadata['label']
-
+        label = torch.Tensor([label])
         return image, label
 
 
