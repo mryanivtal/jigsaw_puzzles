@@ -41,7 +41,7 @@ if __name__ == '__main__':
     criterion = BCEWithLogitsLoss()
 
     # --- Lightning wrapper module
-    l_module = LightningWrapper(model, Adam, criterion)
+    l_module = LightningWrapper(model, optimizer, criterion)
 
     loggers = [CSVLogger(outputs_path, name='csv_logs', version=None, prefix='', flush_logs_every_n_steps=20),
                TensorBoardLogger(outputs_path, name='tb_logs')]

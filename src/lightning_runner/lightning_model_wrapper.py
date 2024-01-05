@@ -6,11 +6,11 @@ from torchmetrics.functional import confusion_matrix
 
 
 class LightningWrapper(L.LightningModule):
-    def __init__(self, model, optimizer_fn, criterion):
+    def __init__(self, model, optimizer, criterion):
         super(LightningWrapper, self).__init__()
 
         self.model = model
-        self.optimizer_fn = optimizer_fn
+        self.optimizer = optimizer
         self.criterion = criterion
 
     def forward(self, inputs, target):
@@ -40,7 +40,7 @@ class LightningWrapper(L.LightningModule):
         return loss
 
     def configure_optimizers(self) -> OptimizerLRScheduler:
-        return self.optimizer_fn(self.model.parameters())
+        return self.optimizer
 
     def on_validation_start(self) -> None:
         self._reset_epoch_metrics()
