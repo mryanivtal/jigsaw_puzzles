@@ -64,12 +64,12 @@ class LightningWrapper(L.LightningModule):
         fp = conf_matrix[0][1]
         fn = conf_matrix[1][0]
 
-        accuracy = torch.sum(torch.diag(conf_matrix)/torch.sum(conf_matrix))
-        sensitivity = tp / (tp + fn)
-        precision = tp / (tp + fp)
+        accuracy = (tn + tp) / torch.sum(conf_matrix)
+        # sensitivity = tp / (tp + fn)
+        # precision = tp / (tp + fp)
 
         self.log('accuracy', accuracy, logger=True)
-        self.log('sensitivity', sensitivity, logger=True)
-        self.log('precision', precision, logger=True)
+        # self.log('sensitivity', sensitivity, logger=True)
+        # self.log('precision', precision, logger=True)
 
 
