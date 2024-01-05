@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     NUM_EPOCHS = 10
 
-    trainer = L.Trainer(max_epochs=NUM_EPOCHS, check_val_every_n_epoch=1)
+    trainer = L.Trainer(max_epochs=NUM_EPOCHS, check_val_every_n_epoch=1, num_sanity_val_steps=0)
     trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
 
