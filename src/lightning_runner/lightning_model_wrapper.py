@@ -30,13 +30,12 @@ class LightningWrapper(L.LightningModule):
     def on_validation_epoch_end(self) -> None:
         self._report_metrics()
 
-
     def _calc_batch_loss(self, batch, collect_metrics: bool=False):
         inputs, labels = batch
         logits = self.model(inputs)
         loss = self.criterion(logits, labels)
         if collect_metrics:
-            self._update_epoch_metrics(labels, logits, loss)
+            self._update_epoch_metrics(labels, logits)
 
         return loss
 
@@ -46,30 +45,26 @@ class LightningWrapper(L.LightningModule):
     def on_validation_start(self) -> None:
         self._reset_epoch_metrics()
 
+    def on_train_start(self) -> None:
+        self._reset_epoch_metrics()
+
     def _reset_epoch_metrics(self):
         self.epoch_metrics_data = {
             'confusion_matrix': 0,
-            'epoch_loss': 0
         }
 
-    def _update_epoch_metrics(self, labels, logits, loss):
+    def _update_epoch_metrics(self, labels, logits):
         preds = torch.nn.functional.sigmoid(logits).round()
         self.epoch_metrics_data['confusion_matrix'] += confusion_matrix(preds, labels, task='binary')
-        self.epoch_metrics_data['epoch_loss'] += loss
 
     def _report_metrics(self):
-        conf_matrix = self.epoch_metrics_data['confusion_matrix']
-        tn = conf_matrix[0][0]
-        tp = conf_matrix[1][1]
-        fp = conf_matrix[0][1]
-        fn = conf_matrix[1][0]
-
-        accuracy = (tn + tp) / torch.sum(conf_matrix)
-        # sensitivity = tp / (tp + fn)
-        # precision = tp / (tp + fp)
-
-        self.log('accuracy', accuracy, logger=True)
-        # self.log('sensitivity', sensitivity, logger=True)
-        # self.log('precision', precision, logger=True)
+        if 'confusion_matrix' in self.epoch_metrics_data:
+            conf_matrix = self.epoch_metrics_data['confusion_matrix']
+            tn = conf_matrix[0][0]
+            tp = conf_matrix[1][1]
+            fp = conf_matrix[0][1]
+            fn = conf_matrix[1][0]
+            accuracy = (tn + tp) / torch.sum(conf_matrix)
+            self.log('accuracy', accuracy, logger=True)
 
 

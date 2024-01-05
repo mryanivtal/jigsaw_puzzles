@@ -1,5 +1,5 @@
 import numpy as np
-import torch
+from lightning.pytorch.loggers import CSVLogger, TensorBoardLogger
 from torch.nn import BCEWithLogitsLoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
@@ -14,19 +14,18 @@ import lightning as L
 
 
 if __name__ == '__main__':
-    run_name = 'yaniv_test'
+    RUN_NAME = 'yaniv_test'
 
-    outputs_path = create_output_dir(PROJECT_PATH, run_name, True)
+    outputs_path = create_output_dir(PROJECT_PATH, RUN_NAME, True)
 
+    # --- Datasets
     train_transform = get_train_transform()
     train_val_dataset = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=train_transform, cache_data=True, shuffle=True)
 
     # --- Split train and validation
     train_split_ratio = 0.75
-
     train_split_th = int(np.floor(train_split_ratio * len(train_val_dataset)))
     train_val_indices = list(range(len(train_val_dataset)))
-
     train_dataset, valid_dataset = random_split(train_val_dataset, [train_split_th, len(train_val_dataset) - train_split_th])
 
     # --- Dataloaders
@@ -44,12 +43,12 @@ if __name__ == '__main__':
     # --- Lightning wrapper module
     l_module = LightningWrapper(model, Adam, criterion)
 
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print('Using device:', device)
+    loggers = [CSVLogger(outputs_path, name='csv_logs', version=None, prefix='', flush_logs_every_n_steps=20),
+               TensorBoardLogger(outputs_path, name='tb_logs')]
 
     NUM_EPOCHS = 10
 
-    trainer = L.Trainer(max_epochs=NUM_EPOCHS, check_val_every_n_epoch=1, num_sanity_val_steps=0)
+    trainer = L.Trainer(max_epochs=NUM_EPOCHS, logger=loggers, check_val_every_n_epoch=1, num_sanity_val_steps=0)
     trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
 
