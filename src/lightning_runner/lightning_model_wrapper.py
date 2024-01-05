@@ -68,8 +68,8 @@ class LightningWrapper(L.LightningModule):
         sensitivity = tp / (tp + fn)
         precision = tp / (tp + fp)
 
-        self.log('accuracy', accuracy, on_epoch=True, logger=True)
-        self.log('sensitivity', sensitivity, on_epoch=True, logger=True)
-        self.log('precision', precision, on_epoch=True, logger=True)
+        self.log('accuracy', accuracy, logger=True)
+        self.log('sensitivity', sensitivity, logger=True)
+        self.log('precision', precision, logger=True)
 
 
