@@ -10,6 +10,7 @@ def get_train_transform():
     ])
     return transform
 
+
 def get_test_transform():
     transform = transforms.Compose([
         transforms.Resize((224, 224)),
@@ -17,3 +18,4 @@ def get_test_transform():
         transforms.Normalize((0.5), (0.5)),
     ])
     return transform
+
