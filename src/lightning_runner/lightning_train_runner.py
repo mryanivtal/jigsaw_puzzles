@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader, random_split
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.transform_factory import get_train_transform
 from src.env_constants import *
+from src.lightning_runner.csv_logs_callback import CsvLogsCallback
 from src.lightning_runner.lightning_model_wrapper import LightningWrapper
 from src.models.model_getter import get_resnet18
 from src.util_functions import create_output_dir
@@ -14,24 +15,28 @@ import lightning as L
 
 
 if __name__ == '__main__':
-    RUN_NAME = 'yaniv_test'
 
-    outputs_path = create_output_dir(PROJECT_PATH, RUN_NAME, True)
+    # --- Const parameters
+    RUN_NAME = 'yaniv_test'
+    ADD_TIMESTAMP_TO_OUT_DIR = False
+
+    NUM_EPOCHS = 50
+    BATCH_SIZE = 2
+    NUM_WORKERS = 0
+
+    # --- output dir creation
+    outputs_path = create_output_dir(PROJECT_PATH, RUN_NAME, ADD_TIMESTAMP_TO_OUT_DIR)
 
     # --- Datasets
     train_transform = get_train_transform()
-    train_val_dataset = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=train_transform, cache_data=True, shuffle=True)
+    train_val_dataset = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=train_transform, cache_data=False, shuffle=True)
 
     # --- Split train and validation
     train_split_ratio = 0.75
     train_split_th = int(np.floor(train_split_ratio * len(train_val_dataset)))
-    train_val_indices = list(range(len(train_val_dataset)))
     train_dataset, valid_dataset = random_split(train_val_dataset, [train_split_th, len(train_val_dataset) - train_split_th])
 
     # --- Dataloaders
-    BATCH_SIZE = 2
-    NUM_WORKERS = 0
-
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
     valid_dataloader = DataLoader(valid_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
 
@@ -43,32 +48,15 @@ if __name__ == '__main__':
     # --- Lightning wrapper module
     l_module = LightningWrapper(model, optimizer, criterion)
 
-    loggers = [CSVLogger(outputs_path, name='csv_logs', version=None, prefix='', flush_logs_every_n_steps=20),
-               TensorBoardLogger(outputs_path, name='tb_logs')]
+    logger = TensorBoardLogger(outputs_path, name='tb_logs')
 
-    NUM_EPOCHS = 10
+    train_csv_log_path = str(outputs_path / Path('train_log.csv'))
+    test_csv_log_path = str(outputs_path / Path('test_log.csv'))
 
-    trainer = L.Trainer(max_epochs=NUM_EPOCHS, logger=loggers, check_val_every_n_epoch=1, num_sanity_val_steps=0)
+    callbacks = [CsvLogsCallback(train_csv_log_path, train=True, validation=True, test=False),
+                 CsvLogsCallback(train_csv_log_path, train=False, validation=False, test=True)]
+
+    trainer = L.Trainer(max_epochs=NUM_EPOCHS, logger=logger, callbacks=callbacks, check_val_every_n_epoch=1, num_sanity_val_steps=0)
     trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

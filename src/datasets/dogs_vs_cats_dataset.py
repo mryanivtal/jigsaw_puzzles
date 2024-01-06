@@ -12,7 +12,7 @@ class DogsVsCatsLabels(int, Enum):
     DOG = 1
 
 class DogsVsCatsDataset(Dataset):
-    def __init__(self, images_path: str, transform=None, cache_data=True, shuffle=False):
+    def __init__(self, images_path: str, transform=None, cache_data=False, shuffle=False):
         self.cache_data = cache_data
         self.transform = transform
 
