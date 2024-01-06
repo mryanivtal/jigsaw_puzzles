@@ -24,7 +24,8 @@ class MyTestCase(unittest.TestCase):
         b = train_dl.__iter__().__next__()
 
         self.assertEqual(list(b[0].shape), [50, 3, 224, 224])
-        self.assertEqual(len(b[1]), 50)
+        self.assertEqual(len(b[1]['label']), 50)
+        self.assertEqual(len(b[1]['original_size']), 50)
 
 
 if __name__ == '__main__':

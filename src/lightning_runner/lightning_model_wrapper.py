@@ -26,7 +26,9 @@ class LightningWrapper(L.LightningModule):
         return loss
 
     def _calc_batch_loss(self, batch):
-        inputs, labels = batch
+        inputs, metadatas = batch
+        labels = metadatas['label']
+
         logits = self.model(inputs)
         loss = self.criterion(logits, labels)
 

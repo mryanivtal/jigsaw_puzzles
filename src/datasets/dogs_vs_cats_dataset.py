@@ -44,24 +44,23 @@ class DogsVsCatsDataset(Dataset):
         item_metadata = self.metadata.iloc[item]
 
         if item in self.cache:
-            image = self.cache[item]
+            image, sample_metadata = self.cache[item]
         else:
             image = Image.open(item_metadata['path'])
+
+            label = item_metadata['label']
+            label = torch.Tensor([label])
+            original_size = image.size
 
             if self.transform:
                 image = self.transform(image)
 
+            sample_metadata = {
+                'label': label,
+                'original_size': str(original_size)
+            }
+
             if self.cache_data:
-                self.cache[item] = image
+                self.cache[item] = (image, sample_metadata)
 
-        label = item_metadata['label']
-        label = torch.Tensor([label])
-        return image, label
-
-
-
-
-
-
-
-
+        return image, sample_metadata
