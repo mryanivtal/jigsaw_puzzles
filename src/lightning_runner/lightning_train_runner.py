@@ -21,7 +21,7 @@ if __name__ == '__main__':
     ADD_TIMESTAMP_TO_OUT_DIR = False
 
     NUM_EPOCHS = 50
-    BATCH_SIZE = 2
+    BATCH_SIZE = 3
     NUM_WORKERS = 0
 
     # --- output dir creation

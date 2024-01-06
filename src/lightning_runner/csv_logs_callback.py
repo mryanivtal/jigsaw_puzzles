@@ -22,7 +22,7 @@ class CsvLogsCallback(L.Callback):
         Path(save_file_path).parent.mkdir(exist_ok=True, parents=True)
 
         self.train_data: pd.DataFrame = None
-        self.epoch_cumulative_metrics: dict = None
+        self.epoch_cumulative_metrics: dict = {}
 
         print(f'TrainLogsCallback: Saving train logs to: {self.save_file_path}')
 
@@ -31,11 +31,11 @@ class CsvLogsCallback(L.Callback):
 
     def on_train_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_train:
-            self._reset_epoch_metrics()
+            self._reset_epoch_metrics('train')
 
     def on_train_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if self.log_train:
-            self._update_epoch_metrics(pl_module)
+            self._update_epoch_metrics(pl_module, 'train')
 
     def on_train_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_train:
@@ -44,11 +44,11 @@ class CsvLogsCallback(L.Callback):
 
     def on_validation_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
-            self._reset_epoch_metrics()
+            self._reset_epoch_metrics('validation')
 
     def on_validation_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if self.log_validation:
-            self._update_epoch_metrics(pl_module)
+            self._update_epoch_metrics(pl_module, 'validation')
 
     def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
@@ -57,34 +57,33 @@ class CsvLogsCallback(L.Callback):
 
     def on_test_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_test:
-            self._reset_epoch_metrics()
+            self._reset_epoch_metrics('test')
 
     def on_test_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if self.log_test:
-            self._update_epoch_metrics(pl_module)
+            self._update_epoch_metrics(pl_module, 'test')
 
     def on_test_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
         if self.log_test:
             current_epoch = trainer.current_epoch
             self._report_metrics('test', current_epoch)
 
-    def _reset_epoch_metrics(self):
-        self.epoch_cumulative_metrics = {'confusion_matrix': 0, 'loss': 0}
+    def _reset_epoch_metrics(self, trainer_stage: str):
+        self.epoch_cumulative_metrics[trainer_stage] = {'confusion_matrix': 0, 'loss': 0}
 
-    def _update_epoch_metrics(self, pl_module: LightningModule):
+    def _update_epoch_metrics(self, pl_module: LightningModule, trainer_stage: str):
         labels = pl_module.current_step_data['labels']
         logits = pl_module.current_step_data['logits']
         loss = pl_module.current_step_data['loss']
 
         preds = torch.nn.functional.sigmoid(logits).round()
 
-        self.epoch_cumulative_metrics['confusion_matrix'] += confusion_matrix(preds, labels, task='binary')
-        self.epoch_cumulative_metrics['loss'] += loss
-
+        self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(preds, labels, task='binary')
+        self.epoch_cumulative_metrics[trainer_stage]['loss'] += loss
 
     def _report_metrics(self, trainer_stage: str, epoch: int):
-        conf_matrix = self.epoch_cumulative_metrics['confusion_matrix']
-        loss = self.epoch_cumulative_metrics['loss'].item()
+        conf_matrix = self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix']
+        loss = self.epoch_cumulative_metrics[trainer_stage]['loss'].item()
 
         tn = conf_matrix[0][0].item()
         tp = conf_matrix[1][1].item()
