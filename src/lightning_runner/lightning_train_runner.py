@@ -25,6 +25,8 @@ if __name__ == '__main__':
     BATCH_SIZE = 3
     NUM_WORKERS = 0
 
+    VERY_SHORT_DEBUG_RUN = True
+
     # --- output dir creation
     outputs_path = create_output_dir(PROJECT_PATH, RUN_NAME, ADD_TIMESTAMP_TO_OUT_DIR)
 
@@ -36,6 +38,11 @@ if __name__ == '__main__':
     train_split_ratio = 0.75
     train_split_th = int(np.floor(train_split_ratio * len(train_val_dataset)))
     train_dataset, valid_dataset = random_split(train_val_dataset, [train_split_th, len(train_val_dataset) - train_split_th])
+
+    # --- Debug option for very short run (5 batches in each dataloader)
+    if VERY_SHORT_DEBUG_RUN:
+        train_dataset, valid_dataset, _ = random_split(train_val_dataset,
+                                                    [5, 5, len(train_val_dataset) - 10])
 
     # --- Dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
