@@ -17,7 +17,7 @@ from src.util_functions import create_output_dir
 
 if __name__ == '__main__':
 
-    # --- Const parameters
+    # --- Run parameters
     RUN_NAME = 'yaniv_test'
     ADD_TIMESTAMP_TO_OUT_DIR = False
 
@@ -36,7 +36,6 @@ if __name__ == '__main__':
     train_split_ratio = 0.75
     train_split_th = int(np.floor(train_split_ratio * len(train_val_dataset)))
     train_dataset, valid_dataset = random_split(train_val_dataset, [train_split_th, len(train_val_dataset) - train_split_th])
-
 
     # --- Dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
