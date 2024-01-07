@@ -2,7 +2,7 @@ import random
 import unittest
 import torch
 
-from src.datasets.jigsaw_puzzle import create_jigsaw_puzzle
+from src.datasets.jigsaw_tensor import create_jigsaw_tensor
 
 
 class TestJigsawPuzzleCreator(unittest.TestCase):
@@ -22,10 +22,10 @@ class TestJigsawPuzzleCreator(unittest.TestCase):
         random.shuffle(shuffled_list)
         shuffled_order = {block_list[i]: shuffled_list[i] for i in range(len(block_list))}
 
-        jigsaw_tensor = create_jigsaw_puzzle(original_tensor, parts_x, parts_y, shuffled_order)
+        jigsaw_tensor = create_jigsaw_tensor(original_tensor, parts_x, parts_y, shuffled_order)
 
         reverse_shuffle = {shuffled_order[key]: key for key in shuffled_order.keys()}
-        back_tensor = create_jigsaw_puzzle(jigsaw_tensor, parts_x, parts_y, reverse_shuffle)
+        back_tensor = create_jigsaw_tensor(jigsaw_tensor, parts_x, parts_y, reverse_shuffle)
 
         self.assertTrue(all(original_tensor.flatten() == back_tensor.flatten()))  # add assertion here
 

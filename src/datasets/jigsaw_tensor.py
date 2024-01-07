@@ -2,7 +2,7 @@ import numpy as np
 import torch
 
 
-def create_jigsaw_puzzle(image: torch.Tensor, parts_x: int, parts_y: int, new_order: dict) -> torch.Tensor:
+def create_jigsaw_tensor(image: torch.Tensor, parts_x: int, parts_y: int, new_order: dict) -> torch.Tensor:
     """
     Gets a 3d tensor image, num of parts on x and y, and new order, returns a shuffled tensor image
     :param image:
