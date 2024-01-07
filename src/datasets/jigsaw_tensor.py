@@ -2,7 +2,15 @@ import numpy as np
 import torch
 
 
-def create_jigsaw_puzzle(image: torch.Tensor, parts_x: int, parts_y: int, new_order: dict) -> (torch.Tensor, torch.Tensor):
+def create_jigsaw_puzzle(image: torch.Tensor, parts_x: int, parts_y: int, new_order: dict) -> torch.Tensor:
+    """
+    Gets a 3d tensor image, num of parts on x and y, and new order, returns a shuffled tensor image
+    :param image:
+    :param parts_x:
+    :param parts_y:
+    :param new_order: dict of part shuffle.  e.g. {(1, 0): (3,5)} will move the block with index (x=1, y=0) to location of block with index (x=3, y=5)
+    :return:torch.Tensor: new shuffled (Jigsaw) image
+    """
     image_ch, image_x, image_y = image.shape
 
     assert image_x % parts_x == 0, f'Only equal and whole part cropping is supported, got size_x={image_x}, parts_x={parts_x}'
@@ -33,7 +41,13 @@ def create_jigsaw_puzzle(image: torch.Tensor, parts_x: int, parts_y: int, new_or
     return new_image
 
 
-def find_small_big_whole_parts(length, parts_num):
+def find_small_big_whole_parts(length: int, parts_num: int) -> tuple[int, int, int, int]:
+    """
+    get length, and num of parts, returns sizes of big and small part and number of each kind to cover the length fully
+    :param length:
+    :param parts_num:
+    :return:
+    """
     part_size_small = int(np.floor(length / parts_num))
     part_size_big = int(np.ceil(length / parts_num))
 
@@ -49,7 +63,13 @@ def find_small_big_whole_parts(length, parts_num):
     return num_big, part_size_big, num_small, part_size_small
 
 
-def get_split_lines(length: int, part_num: int) -> list:
+def get_split_lines(length: int, part_num: int) -> list[int]:
+    """
+    get length, and num of parts, returns borderlines between the parts
+    :param length:
+    :param part_num:
+    :return:
+    """
     num_big, size_big, num_small, size_small = find_small_big_whole_parts(length, part_num)
     split_lines = [0]
 
