@@ -70,7 +70,7 @@ class PerSampleCsvLogCallback(L.Callback):
 
     def _reset_epoch_metrics(self, trainer_stage: str):
         self.epoch_cumulative_metrics[trainer_stage] = {'id': [], 'file_path': [], 'original_size': [],
-                                                        'label': [], 'logit': torch.Tensor()}
+                                                        'label': [], 'probability': torch.Tensor()}
         if self.file_per_epoch:
             self.log_dataframes[trainer_stage] = pd.DataFrame()
 
@@ -80,7 +80,7 @@ class PerSampleCsvLogCallback(L.Callback):
         self.epoch_cumulative_metrics[trainer_stage]['file_path'] += batch[1]['file_path']
         self.epoch_cumulative_metrics[trainer_stage]['original_size'] += batch[1]['original_size']
         self.epoch_cumulative_metrics[trainer_stage]['label'] += pl_module.current_step_data['labels'].squeeze().int().tolist()
-        self.epoch_cumulative_metrics[trainer_stage]['logit'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['logit'], pl_module.current_step_data['logits'].squeeze().cpu()])
+        self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_data['probabilities'].squeeze().cpu()])
 
     def _report_metrics(self, trainer_stage: str, epoch: int):
         epoch_log = pd.DataFrame()
@@ -91,13 +91,11 @@ class PerSampleCsvLogCallback(L.Callback):
         epoch_log['original_size'] = self.epoch_cumulative_metrics[trainer_stage]['original_size']
         epoch_log['label'] = self.epoch_cumulative_metrics[trainer_stage]['label']
 
-        logit = self.epoch_cumulative_metrics[trainer_stage]['logit']
-        sigmoid = logit.sigmoid()
-        pred = sigmoid.round().int()
+        probabilities = self.epoch_cumulative_metrics[trainer_stage]['probability']
+        predictions = probabilities.round().int()
 
-        epoch_log['logit'] = logit
-        epoch_log['sigmoid'] = sigmoid
-        epoch_log['pred'] = pred
+        epoch_log['probability'] = probabilities.tolist()
+        epoch_log['prediction'] = predictions.tolist()
 
         self.log_dataframes[trainer_stage] = pd.concat([self.log_dataframes[trainer_stage], epoch_log], axis=0)
         self._save_log_to_csv(trainer_stage, epoch)

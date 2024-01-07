@@ -12,8 +12,8 @@ class LightningWrapper(L.LightningModule):
         self.criterion = criterion
         self.current_step_data = {}
 
-    def forward(self, inputs, target):
-        logits =  self.model(inputs)
+    def forward(self, inputs):
+        logits = self.model(inputs)
         return torch.nn.functional.sigmoid(logits)
 
     def training_step(self, batch, batch_idx):
@@ -31,13 +31,13 @@ class LightningWrapper(L.LightningModule):
         inputs, metadatas = batch
         labels = metadatas['label']
 
-        logits = self.model(inputs)
-        loss = self.criterion(logits, labels)
+        probabilities = self.forward(inputs)
+        loss = self.criterion(probabilities, labels)
 
         # --- store temp batch data for callbacks to use
         self.current_step_data['inputs'] = inputs
         self.current_step_data['labels'] = labels
-        self.current_step_data['logits'] = logits
+        self.current_step_data['probabilities'] = probabilities
         self.current_step_data['loss'] = loss
 
         return loss

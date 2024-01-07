@@ -2,7 +2,7 @@ import numpy as np
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
 from lightning.pytorch.loggers import TensorBoardLogger
-from torch.nn import BCEWithLogitsLoss
+from torch.nn import BCELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     # --- model, optimizer, loss
     model = get_resnet18(pretrained=False, out_features=1)
     optimizer = Adam(model.parameters())
-    criterion = BCEWithLogitsLoss()
+    criterion = BCELoss()
 
     # --- Lightning wrapper module and callbacks
     l_module = LightningWrapper(model, optimizer, criterion)

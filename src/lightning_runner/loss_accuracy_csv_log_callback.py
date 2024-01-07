@@ -28,7 +28,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
         print(f'Running on: Train: {train}, Validation: {validation}, Test: {test}')
         print(f'Saving logs to: {self.save_file_path}\n')
 
-    def on_fit_start(self, trainer: "Trainer", pl_module: "pl.LightningModule") -> None:
+    def on_fit_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         self._reset_train_data()
 
     def on_train_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
@@ -75,12 +75,11 @@ class LossAccuracyCsvLogCallback(L.Callback):
 
     def _update_epoch_metrics(self, pl_module: LightningModule, trainer_stage: str):
         labels = pl_module.current_step_data['labels']
-        logits = pl_module.current_step_data['logits']
+        probabilities = pl_module.current_step_data['probabilities']
         loss = pl_module.current_step_data['loss']
+        predictions = probabilities.round()
 
-        preds = torch.nn.functional.sigmoid(logits).round()
-
-        self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(preds, labels, task='binary')
+        self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(predictions, labels, task='binary')
         self.epoch_cumulative_metrics[trainer_stage]['loss'] += loss
 
     def _report_metrics(self, trainer_stage: str, epoch: int, pl_module: LightningModule):
