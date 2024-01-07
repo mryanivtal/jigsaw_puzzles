@@ -11,6 +11,7 @@ from src.datasets.transform_factory import get_train_transform
 from src.env_constants import *
 from src.lightning_runner.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
 from src.lightning_runner.lightning_model_wrapper import LightningWrapper
+from src.lightning_runner.per_sample_csv_log_callback import PerSampleCsvLogCallback
 from src.models.model_getter import get_resnet18
 from src.util_functions import create_output_dir
 
@@ -60,11 +61,14 @@ if __name__ == '__main__':
 
     train_csv_log_path = str(outputs_path / Path('train_log.csv'))
     test_csv_log_path = str(outputs_path / Path('test_log.csv'))
+    per_sample_validation_csv_log_path = str(outputs_path / Path('sample_predictions_log.csv'))
+
     checkpoint_path = str(outputs_path / Path('checkpoints'))
 
     callbacks = [
         LossAccuracyCsvLogCallback(train_csv_log_path, train=True, validation=True, test=False),   # train and validation logs
         LossAccuracyCsvLogCallback(test_csv_log_path, train=False, validation=False, test=True),  # test logs
+        PerSampleCsvLogCallback(per_sample_validation_csv_log_path, train=False, validation=True, test=False),
         ModelCheckpoint(save_top_k=5, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{validation_loss:.2f}')]   # Model checkpoints
 
     trainer = L.Trainer(max_epochs=NUM_EPOCHS, logger=logger, callbacks=callbacks, check_val_every_n_epoch=1, num_sanity_val_steps=0)
