@@ -12,6 +12,9 @@ from torchmetrics.functional import confusion_matrix
 
 class PerSampleCsvLogCallback(L.Callback):
     def __init__(self, save_file_path: str, train: bool, validation: bool, test: bool):
+        raise NotImplementedError('Not implemented yet!')
+        # TODO:Yaniv: implement
+
         super(PerSampleCsvLogCallback, self).__init__()
 
         self.log_train = train
