@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, random_split
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.transform_factory import get_train_transform
 from src.env_constants import *
-from src.lightning_runner.csv_logs_callback import CsvLogsCallback
+from src.lightning_runner.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
 from src.lightning_runner.lightning_model_wrapper import LightningWrapper
 from src.models.model_getter import get_resnet18
 from src.util_functions import create_output_dir
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     BATCH_SIZE = 3
     NUM_WORKERS = 0
 
-    VERY_SHORT_DEBUG_RUN = True
+    VERY_SHORT_DEBUG_RUN = True     #TODO: change in production!
 
     # --- output dir creation
     outputs_path = create_output_dir(PROJECT_PATH, RUN_NAME, ADD_TIMESTAMP_TO_OUT_DIR)
@@ -63,8 +63,8 @@ if __name__ == '__main__':
     checkpoint_path = str(outputs_path / Path('checkpoints'))
 
     callbacks = [
-        CsvLogsCallback(train_csv_log_path, train=True, validation=True, test=False),   # train and validation logs
-        CsvLogsCallback(train_csv_log_path, train=False, validation=False, test=True),  # test logs
+        LossAccuracyCsvLogCallback(train_csv_log_path, train=True, validation=True, test=False),   # train and validation logs
+        LossAccuracyCsvLogCallback(test_csv_log_path, train=False, validation=False, test=True),  # test logs
         ModelCheckpoint(save_top_k=5, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{validation_loss:.2f}')]   # Model checkpoints
 
     trainer = L.Trainer(max_epochs=NUM_EPOCHS, logger=logger, callbacks=callbacks, check_val_every_n_epoch=1, num_sanity_val_steps=0)

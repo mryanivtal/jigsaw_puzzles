@@ -10,9 +10,9 @@ from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torchmetrics.functional import confusion_matrix
 
 
-class CsvLogsCallback(L.Callback):
+class LossAccuracyCsvLogCallback(L.Callback):
     def __init__(self, save_file_path: str, train: bool, validation: bool, test: bool):
-        super(CsvLogsCallback, self).__init__()
+        super(LossAccuracyCsvLogCallback, self).__init__()
 
         self.log_train = train
         self.log_test = test
@@ -24,7 +24,9 @@ class CsvLogsCallback(L.Callback):
         self.train_data: pd.DataFrame = None
         self.epoch_cumulative_metrics: dict = {}
 
-        print(f'TrainLogsCallback: Saving train logs to: {self.save_file_path}')
+        print(f'TrainLogsCallback:')
+        print(f'Running on: Train: {train}, Validation: {validation}, Test: {test}')
+        print(f'Saving logs to: {self.save_file_path}\n')
 
     def on_fit_start(self, trainer: "Trainer", pl_module: "pl.LightningModule") -> None:
         self._reset_train_data()
