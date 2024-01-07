@@ -69,7 +69,7 @@ if __name__ == '__main__':
         LossAccuracyCsvLogCallback(train_csv_log_path, train=True, validation=True, test=False),   # train and validation logs
         LossAccuracyCsvLogCallback(test_csv_log_path, train=False, validation=False, test=True),  # test logs
         PerSampleCsvLogCallback(per_sample_validation_csv_log_path, train=False, validation=True, test=False),
-        ModelCheckpoint(save_top_k=5, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{validation_loss:.2f}')]   # Model checkpoints
+        ModelCheckpoint(save_top_k=5, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{validation_loss:.3f}_{validation_accuracy:.4f}')]   # Model checkpoints
 
     trainer = L.Trainer(max_epochs=NUM_EPOCHS, logger=logger, callbacks=callbacks, check_val_every_n_epoch=1, num_sanity_val_steps=0)
     trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)

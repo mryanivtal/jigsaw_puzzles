@@ -1,4 +1,5 @@
 import lightning as L
+import torch
 from lightning.pytorch.utilities.types import OptimizerLRScheduler
 
 
@@ -12,7 +13,8 @@ class LightningWrapper(L.LightningModule):
         self.current_step_data = {}
 
     def forward(self, inputs, target):
-        return self.model(inputs)
+        logits =  self.model(inputs)
+        return torch.nn.functional.sigmoid(logits)
 
     def training_step(self, batch, batch_idx):
         loss = self._calc_batch_loss(batch)

@@ -42,7 +42,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
     def on_train_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_train:
             current_epoch = trainer.current_epoch
-            self._report_metrics('train', current_epoch)
+            self._report_metrics('train', current_epoch, pl_module)
 
     def on_validation_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
@@ -55,7 +55,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
     def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
             current_epoch = trainer.current_epoch
-            self._report_metrics('validation', current_epoch)
+            self._report_metrics('validation', current_epoch, pl_module)
 
     def on_test_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_test:
@@ -65,10 +65,10 @@ class LossAccuracyCsvLogCallback(L.Callback):
         if self.log_test:
             self._update_epoch_metrics(pl_module, 'test')
 
-    def on_test_epoch_end(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+    def on_test_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_test:
             current_epoch = trainer.current_epoch
-            self._report_metrics('test', current_epoch)
+            self._report_metrics('test', current_epoch, pl_module)
 
     def _reset_epoch_metrics(self, trainer_stage: str):
         self.epoch_cumulative_metrics[trainer_stage] = {'confusion_matrix': 0, 'loss': 0}
@@ -83,7 +83,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
         self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(preds, labels, task='binary')
         self.epoch_cumulative_metrics[trainer_stage]['loss'] += loss
 
-    def _report_metrics(self, trainer_stage: str, epoch: int):
+    def _report_metrics(self, trainer_stage: str, epoch: int, pl_module: LightningModule):
         conf_matrix = self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix']
         loss = self.epoch_cumulative_metrics[trainer_stage]['loss'].item()
 
@@ -93,6 +93,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
         fn = conf_matrix[1][0].item()
 
         accuracy = (tn + tp) / torch.sum(conf_matrix).item()
+        pl_module.log(f'{trainer_stage}_accuracy', accuracy, logger=True)
 
         conf_matrix_dict = {
             'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}
