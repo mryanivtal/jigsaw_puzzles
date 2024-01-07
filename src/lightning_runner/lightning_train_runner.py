@@ -59,9 +59,9 @@ if __name__ == '__main__':
 
     logger = TensorBoardLogger(outputs_path, name='tb_logs')
 
-    train_csv_log_path = str(outputs_path / Path('train_log.csv'))
-    test_csv_log_path = str(outputs_path / Path('test_log.csv'))
-    per_sample_validation_csv_log_path = str(outputs_path / Path('sample_predictions_log.csv'))
+    train_csv_log_path = str(outputs_path / Path('train_log'))
+    test_csv_log_path = str(outputs_path / Path('test_log'))
+    per_sample_validation_csv_log_path = str(outputs_path / Path('sample_predictions_log'))
 
     checkpoint_path = str(outputs_path / Path('checkpoints'))
 

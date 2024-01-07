@@ -104,11 +104,11 @@ class PerSampleCsvLogCallback(L.Callback):
 
     def _save_log_to_csv(self, trainer_stage: str, epoch: int):
         if self.file_per_epoch:
-            file_path = str(self.save_file_path) + f'_{trainer_stage}_{epoch}'
+            file_path = str(self.save_file_path) + f'_{trainer_stage}_{epoch}.csv'
             self.log_dataframes[trainer_stage].to_csv(file_path, index=False, sep='\t')
 
         else:
-            file_path = str(self.save_file_path) + f'_{trainer_stage}'
+            file_path = str(self.save_file_path) + f'_{trainer_stage}.csv'
             self.log_dataframes[trainer_stage].to_csv(file_path, index=False, sep='\t')
 
     def _reset_train_data(self):

@@ -104,7 +104,8 @@ class LossAccuracyCsvLogCallback(L.Callback):
         self._save_log_to_csv()
 
     def _save_log_to_csv(self):
-        self.train_data.to_csv(self.save_file_path, index_label='epoch', sep='\t')
+        file_path = str(self.save_file_path) + '.csv'
+        self.train_data.to_csv(file_path, index_label='epoch', sep='\t')
 
     def _reset_train_data(self):
         self.train_data = pd.DataFrame()
