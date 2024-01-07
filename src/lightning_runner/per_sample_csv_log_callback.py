@@ -81,6 +81,7 @@ class PerSampleCsvLogCallback(L.Callback):
     def _report_metrics(self, trainer_stage: str, epoch: int):
         epoch_log = pd.DataFrame()
 
+        epoch_log['epoch'] = [epoch] * len(self.epoch_cumulative_metrics[trainer_stage]['id'])
         epoch_log['id'] = self.epoch_cumulative_metrics[trainer_stage]['id']
         epoch_log['file_path'] = self.epoch_cumulative_metrics[trainer_stage]['file_path']
         epoch_log['original_size'] = self.epoch_cumulative_metrics[trainer_stage]['original_size']
