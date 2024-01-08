@@ -10,24 +10,27 @@ class LightningWrapper(L.LightningModule):
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
-        self.current_step_data = {}
+        self.current_step_outputs = {}
 
     def forward(self, inputs):
         logits = self.model(inputs)
         return torch.nn.functional.sigmoid(logits)
 
     def training_step(self, batch, batch_idx):
-        loss = self._calc_batch_loss(batch)
-        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self._calc_step_outputs(batch)
 
+        loss = self.current_step_outputs['loss']
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
-        loss = self._calc_batch_loss(batch)
+        self._calc_step_outputs(batch)
+
+        loss = self.current_step_outputs['loss']
         self.log("validation_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
-    def _calc_batch_loss(self, batch):
+    def _calc_step_outputs(self, batch):
         inputs, metadatas = batch
         labels = metadatas['label']
 
@@ -35,12 +38,10 @@ class LightningWrapper(L.LightningModule):
         loss = self.criterion(probabilities, labels)
 
         # --- store temp batch data for callbacks to use
-        self.current_step_data['inputs'] = inputs
-        self.current_step_data['labels'] = labels
-        self.current_step_data['probabilities'] = probabilities
-        self.current_step_data['loss'] = loss
-
-        return loss
+        self.current_step_outputs['inputs'] = inputs
+        self.current_step_outputs['labels'] = labels
+        self.current_step_outputs['probabilities'] = probabilities
+        self.current_step_outputs['loss'] = loss
 
     def configure_optimizers(self) -> OptimizerLRScheduler:
         return self.optimizer

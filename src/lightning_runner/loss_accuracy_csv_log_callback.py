@@ -74,9 +74,9 @@ class LossAccuracyCsvLogCallback(L.Callback):
         self.epoch_cumulative_metrics[trainer_stage] = {'confusion_matrix': 0, 'loss': 0}
 
     def _update_epoch_metrics(self, pl_module: LightningModule, trainer_stage: str):
-        labels = pl_module.current_step_data['labels']
-        probabilities = pl_module.current_step_data['probabilities']
-        loss = pl_module.current_step_data['loss']
+        labels = pl_module.current_step_outputs['labels']
+        probabilities = pl_module.current_step_outputs['probabilities']
+        loss = pl_module.current_step_outputs['loss']
         predictions = probabilities.round()
 
         self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(predictions, labels, task='binary')
