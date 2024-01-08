@@ -37,7 +37,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
 
     def on_train_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if self.log_train:
-            self._update_epoch_metrics(pl_module, 'train')
+            self._update_epoch_metrics(pl_module, batch, 'train')
 
     def on_train_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_train:
@@ -50,7 +50,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
 
     def on_validation_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if self.log_validation:
-            self._update_epoch_metrics(pl_module, 'validation')
+            self._update_epoch_metrics(pl_module, batch,'validation')
 
     def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
@@ -63,7 +63,7 @@ class LossAccuracyCsvLogCallback(L.Callback):
 
     def on_test_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
         if self.log_test:
-            self._update_epoch_metrics(pl_module, 'test')
+            self._update_epoch_metrics(pl_module,  batch, 'test')
 
     def on_test_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_test:
@@ -73,8 +73,8 @@ class LossAccuracyCsvLogCallback(L.Callback):
     def _reset_epoch_metrics(self, trainer_stage: str):
         self.epoch_cumulative_metrics[trainer_stage] = {'confusion_matrix': 0, 'loss': 0}
 
-    def _update_epoch_metrics(self, pl_module: LightningModule, trainer_stage: str):
-        labels = pl_module.current_step_outputs['labels']
+    def _update_epoch_metrics(self, pl_module: LightningModule,  batch, trainer_stage: str):
+        labels = batch[1]['label']
         probabilities = pl_module.current_step_outputs['probabilities']
         loss = pl_module.current_step_outputs['loss']
         predictions = probabilities.round()

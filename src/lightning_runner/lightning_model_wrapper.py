@@ -38,8 +38,6 @@ class LightningWrapper(L.LightningModule):
         loss = self.criterion(probabilities, labels)
 
         # --- store temp batch data for callbacks to use
-        self.current_step_outputs['inputs'] = inputs
-        self.current_step_outputs['labels'] = labels
         self.current_step_outputs['probabilities'] = probabilities
         self.current_step_outputs['loss'] = loss
 

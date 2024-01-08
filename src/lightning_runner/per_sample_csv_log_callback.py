@@ -76,10 +76,12 @@ class PerSampleCsvLogCallback(L.Callback):
 
 
     def _update_epoch_metrics(self, pl_module: LightningModule, batch, trainer_stage: str):
+        label = batch[1]['label'].squeeze().int().tolist()
+
         self.epoch_cumulative_metrics[trainer_stage]['id'] += batch[1]['id']
         self.epoch_cumulative_metrics[trainer_stage]['file_path'] += batch[1]['file_path']
         self.epoch_cumulative_metrics[trainer_stage]['original_size'] += batch[1]['original_size']
-        self.epoch_cumulative_metrics[trainer_stage]['label'] += pl_module.current_step_outputs['labels'].squeeze().int().tolist()
+        self.epoch_cumulative_metrics[trainer_stage]['label'] += label
         self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].squeeze().cpu()])
 
     def _report_metrics(self, trainer_stage: str, epoch: int):
