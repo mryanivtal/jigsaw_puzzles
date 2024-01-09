@@ -46,29 +46,28 @@ class DogsVsCatsDataset(Dataset):
         if item in self.cache:
             image, sample_metadata = self.cache[item]
         else:
-            image = Image.open(item_metadata['path'])
-
-            label = item_metadata['label']
-
-            # --- image metadata
-            id = item_metadata['id']
-            file_path = item_metadata['path']
-            original_size = image.size
-            image_mode = image.mode
-
-            label = torch.Tensor([label])
-            if self.transform:
-                image = self.transform(image)
-
-            sample_metadata = {
-                'id': id,
-                'file_path': file_path,
-                'original_size': str(original_size),
-                'image_mode': image_mode,
-                'label': label
-            }
-
+            image, sample_metadata = self._load_sample_from_disk(item_metadata)
             if self.cache_data:
                 self.cache[item] = (image, sample_metadata)
 
+        return image, sample_metadata
+
+    def _load_sample_from_disk(self, item_metadata):
+        image = Image.open(item_metadata['path'])
+        label = item_metadata['label']
+        # --- image metadata
+        id = item_metadata['id']
+        file_path = item_metadata['path']
+        original_size = image.size
+        image_mode = image.mode
+        label = torch.Tensor([label])
+        if self.transform:
+            image = self.transform(image)
+        sample_metadata = {
+            'id': id,
+            'file_path': file_path,
+            'original_size': str(original_size),
+            'image_mode': image_mode,
+            'label': label
+        }
         return image, sample_metadata

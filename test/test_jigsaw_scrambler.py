@@ -1,12 +1,14 @@
 import random
 import unittest
+from enum import Enum
+
 import torch
 
-from src.datasets.jigsaw_tensor import create_jigsaw_tensor
+from src.datasets.jigsaw_scrambler import JigsawScrambler
 
 
-class TestJigsawPuzzleCreator(unittest.TestCase):
-    def test_jigsaw(self):
+class TestJigsawScrambler(unittest.TestCase):
+    def test_create_jigsaw_tensor_deterministic(self):
         image_size_x = 6
         image_size_y = 6
         image_channels = 2
@@ -22,12 +24,17 @@ class TestJigsawPuzzleCreator(unittest.TestCase):
         random.shuffle(shuffled_list)
         shuffled_order = {block_list[i]: shuffled_list[i] for i in range(len(block_list))}
 
-        jigsaw_tensor = create_jigsaw_tensor(original_tensor, parts_x, parts_y, shuffled_order)
+        jigsaw_tensor = JigsawScrambler._create_jigsaw_tensor_deterministic(original_tensor, parts_x, parts_y, shuffled_order)
 
         reverse_shuffle = {shuffled_order[key]: key for key in shuffled_order.keys()}
-        back_tensor = create_jigsaw_tensor(jigsaw_tensor, parts_x, parts_y, reverse_shuffle)
+        back_tensor = JigsawScrambler._create_jigsaw_tensor_deterministic(jigsaw_tensor, parts_x, parts_y, reverse_shuffle)
 
         self.assertTrue(all(original_tensor.flatten() == back_tensor.flatten()))  # add assertion here
+
+    def test_scrambler_class(self):
+        scrambler_params = {
+            'same_for_all_samples'
+        }
 
 
 if __name__ == '__main__':
