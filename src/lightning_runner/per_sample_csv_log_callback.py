@@ -11,7 +11,7 @@ from torchmetrics.functional import confusion_matrix
 
 
 class PerSampleCsvLogCallback(L.Callback):
-    def __init__(self, save_file_path: str, train: bool, validation: bool, test: bool, file_per_epoch: bool=True):
+    def __init__(self, save_file_path: str, train: bool=False, validation: bool=False, test: bool=True, predict: bool=True, file_per_epoch: bool=True):
         super(PerSampleCsvLogCallback, self).__init__()
 
         self.log_train = train
@@ -25,11 +25,15 @@ class PerSampleCsvLogCallback(L.Callback):
         self.epoch_cumulative_metrics: dict = None
         self.log_dataframes: dict = None
 
+        self._reset_train_data()
+
         print(f'PerSampleCsvLogCallback:')
         print(f'Running on: Train: {train}, Validation: {validation}, Test: {test}')
         print(f'Saving logs to: {self.save_file_path}\n')
 
-    def on_fit_start(self, trainer: "Trainer", pl_module: "pl.LightningModule") -> None:
+
+    # ------- Train
+    def on_fit_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         self._reset_train_data()
 
     def on_train_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
@@ -44,6 +48,8 @@ class PerSampleCsvLogCallback(L.Callback):
         if self.log_train:
             self._report_metrics('train', trainer.current_epoch)
 
+    # ------- Validation
+
     def on_validation_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
             self._reset_epoch_metrics('validation')
@@ -55,6 +61,10 @@ class PerSampleCsvLogCallback(L.Callback):
     def on_validation_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_validation:
             self._report_metrics('validation', trainer.current_epoch)
+
+    # ------- Test
+    def on_tes_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        self._reset_train_data()
 
     def on_test_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_test:
@@ -68,6 +78,22 @@ class PerSampleCsvLogCallback(L.Callback):
         if self.log_test:
             self._report_metrics('test', trainer.current_epoch)
 
+    # ------- Predict
+    def on_predict_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        self._reset_train_data()
+
+    def on_predict_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        if self.log_predict:
+            self._reset_epoch_metrics('predict')
+
+    def on_predict_batch_end(self, trainer: Trainer, pl_module: LightningModule, outputs: STEP_OUTPUT, batch: Any, batch_idx: int, dataloader_idx: int = 0):
+        if self.log_predict:
+            self._update_epoch_metrics(pl_module, batch, 'predict')
+
+    def on_predict_epoch_end(self, trainer: Trainer, pl_module: LightningModule) -> None:
+        if self.log_predict:
+            self._report_metrics('predict', trainer.current_epoch)
+
     def _reset_epoch_metrics(self, trainer_stage: str):
         self.epoch_cumulative_metrics[trainer_stage] = {'id': [], 'file_path': [], 'original_size': [],
                                                         'label': [], 'probability': torch.Tensor()}
@@ -76,13 +102,14 @@ class PerSampleCsvLogCallback(L.Callback):
 
 
     def _update_epoch_metrics(self, pl_module: LightningModule, batch, trainer_stage: str):
-        label = batch[1]['label'].squeeze().int().tolist()
+        label = batch[1]['label'].squeeze().int().tolist() if 'label' in batch[1] else None
 
         self.epoch_cumulative_metrics[trainer_stage]['id'] += batch[1]['id']
         self.epoch_cumulative_metrics[trainer_stage]['file_path'] += batch[1]['file_path']
         self.epoch_cumulative_metrics[trainer_stage]['original_size'] += batch[1]['original_size']
-        self.epoch_cumulative_metrics[trainer_stage]['label'] += label
         self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].squeeze().cpu()])
+        self.epoch_cumulative_metrics[trainer_stage]['label'] += label
+
 
     def _report_metrics(self, trainer_stage: str, epoch: int):
         epoch_log = pd.DataFrame()
@@ -118,4 +145,3 @@ class PerSampleCsvLogCallback(L.Callback):
             'test': pd.DataFrame()
         }
         self.epoch_cumulative_metrics = {}
-

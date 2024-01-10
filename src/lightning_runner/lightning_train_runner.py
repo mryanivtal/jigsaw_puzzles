@@ -19,7 +19,7 @@ from src.util_functions import create_output_dir
 if __name__ == '__main__':
 
     # --- Run parameters
-    RUN_NAME = 'yaniv_test'
+    RUN_NAME = 'yaniv_train'
     ADD_TIMESTAMP_TO_OUT_DIR = False
 
     NUM_EPOCHS = 50
