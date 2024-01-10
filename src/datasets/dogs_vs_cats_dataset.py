@@ -16,32 +16,40 @@ class DogsVsCatsDataset(Dataset):
         self.cache_data = cache_data
         self.transform = transform
 
-        images_path = Path(images_path)
-        assert images_path.exists(), f'data path not found: {images_path}'
-
-        file_list = glob.glob(str(images_path / Path('*.jpg')))
-        labels_and_ids = [Path(file).name.split('.')[:2] for file in file_list]
-
-        labels = [item[0] for item in labels_and_ids]
-        labels = [DogsVsCatsLabels.DOG if label == 'dog' else DogsVsCatsLabels.CAT for label in labels]
-
-        ids = [item[1] for item in labels_and_ids]
-
-        self.metadata = pd.DataFrame()
-        self.metadata['id'] = ids
-        self.metadata['path'] = file_list
-        self.metadata['label'] = labels
-
-        if shuffle:
-            self.metadata = self.metadata.sample(frac=1)
-
+        self._build_index(images_path, shuffle)
         self.cache = {}
 
+    def _build_index(self, images_path, shuffle):
+        """
+        Load file list from disk, parse labels
+        :param images_path:
+        :param shuffle:
+        :return:
+        """
+        self.images_path = Path(images_path)
+        assert self.images_path.exists(), f'data path not found: {images_path}'
+
+        file_list = glob.glob(str(self.images_path / Path('*.jpg')))
+
+        # --- Parse id and label
+        labels_and_ids = [Path(file).name.split('.')[:-1] for file in file_list]
+        ids = [item[-1] for item in labels_and_ids]
+
+        labels = [item[0] if len(item) == 2 else None for item in labels_and_ids]
+        labels = [DogsVsCatsLabels.DOG if label == 'dog' else DogsVsCatsLabels.CAT if label == 'cat' else None for label in labels]
+
+        self.index = pd.DataFrame()
+        self.index['id'] = ids
+        self.index['path'] = file_list
+        self.index['label'] = labels
+        if shuffle:
+            self.index = self.index.sample(frac=1)
+
     def __len__(self):
-        return len(self.metadata)
+        return len(self.index)
 
     def __getitem__(self, item):
-        item_metadata = self.metadata.iloc[item]
+        item_metadata = self.index.iloc[item]
 
         if item in self.cache:
             image, sample_metadata = self.cache[item]
@@ -60,7 +68,6 @@ class DogsVsCatsDataset(Dataset):
         file_path = item_metadata['path']
         original_size = image.size
         image_mode = image.mode
-        label = torch.Tensor([label])
         if self.transform:
             image = self.transform(image)
         sample_metadata = {
@@ -68,6 +75,9 @@ class DogsVsCatsDataset(Dataset):
             'file_path': file_path,
             'original_size': str(original_size),
             'image_mode': image_mode,
-            'label': label
         }
+
+        if not pd.isna(label):
+            sample_metadata['label'] = torch.Tensor([label])
+
         return image, sample_metadata

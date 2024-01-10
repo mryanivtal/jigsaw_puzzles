@@ -1,7 +1,6 @@
 import unittest
 
 from torch.utils.data import DataLoader
-from torchvision.transforms import transforms
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset, DogsVsCatsLabels
 from src.datasets.transform_factory import get_train_transform
@@ -15,7 +14,7 @@ class MyTestCase(unittest.TestCase):
         train_ds = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=transform, cache_data=True)
         self.assertEqual(len(train_ds), 25000)
 
-        num_dogs = len(train_ds.metadata[train_ds.metadata['label'] == DogsVsCatsLabels.DOG])
+        num_dogs = len(train_ds.index[train_ds.index['label'] == DogsVsCatsLabels.DOG])
         self.assertEqual(num_dogs, 12500)
 
         a = train_ds[15]
@@ -27,6 +26,17 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual(len(b[1]['label']), 50)
         self.assertEqual(len(b[1]['original_size']), 50)
 
+    def test_labels(self):
+        DATA_FOLDER = Path(__file__).parent / Path('resources')
+
+        mixed_ds = DogsVsCatsDataset(DATA_FOLDER, cache_data=True)
+        self.assertEqual(len(mixed_ds), 9)
+
+        index = mixed_ds.index
+
+        data = [mixed_ds[i] for i in range(len(mixed_ds))]
+
+        print()
 
 if __name__ == '__main__':
     unittest.main()
