@@ -65,7 +65,7 @@ if __name__ == '__main__':
     test_dataloader = DataLoader(test_dataset, batch_size=run_params['batch_size'], num_workers=run_params['num_workers'])
 
     # --- model, optimizer, loss
-    model = get_resnet18(pretrained=False, out_features=1)
+    model = get_resnet18(pretrained=True, out_features=1)
     optimizer = Adam(model.parameters())
     criterion = BCELoss()
 
