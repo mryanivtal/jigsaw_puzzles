@@ -107,7 +107,7 @@ class PerSampleCsvLogCallback(L.Callback):
         self.epoch_cumulative_metrics[trainer_stage]['id'] += batch[1]['id']
         self.epoch_cumulative_metrics[trainer_stage]['file_path'] += batch[1]['file_path']
         self.epoch_cumulative_metrics[trainer_stage]['original_size'] += batch[1]['original_size']
-        self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].squeeze().cpu()])
+        self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].cpu()])
         self.epoch_cumulative_metrics[trainer_stage]['label'] += label
 
 
