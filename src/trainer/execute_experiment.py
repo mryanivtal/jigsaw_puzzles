@@ -27,7 +27,7 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
 
     # --- output dir creation
     outputs_path = create_output_dir(project_path, trainer_params['run_name'], trainer_params['add_timestamp_to_out_dir'])
-    save_dict_to_json(trainer_params, Path(outputs_path) / Path('trainer_params.json'))
+    save_dict_to_json(run_params, Path(outputs_path) / Path('experiment_params.json'))
 
     # --- Datasets
     print('Creating Datasets')
