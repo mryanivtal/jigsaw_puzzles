@@ -1,9 +1,8 @@
 import argparse
 from pathlib import Path
 from src.runners import env_constants
-from src.trainer.lightning_train_runner import run_train_test
-
-from src.trainer.util_functions import load_dict_from_json
+from src.trainer.execute_experiment import execute_experiment
+from src.trainer.util_functions.util_functions import load_dict_from_json
 
 if __name__ == '__main__':
     # ---  Handle arguments
@@ -21,7 +20,7 @@ if __name__ == '__main__':
 
     run_params = load_dict_from_json(run_config_path)
 
-    run_train_test(run_params, project_path, train_data_path, test_data_path)
+    execute_experiment(run_params, project_path, train_data_path, test_data_path)
 
 
 

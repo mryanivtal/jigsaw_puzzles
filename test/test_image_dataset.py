@@ -3,7 +3,7 @@ import unittest
 from torch.utils.data import DataLoader
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset, DogsVsCatsLabels
-from src.datasets.transform_factory import get_train_transform
+from src.trainer.factories.transform_factory import get_train_transform
 from src.runners.env_constants import *
 
 
