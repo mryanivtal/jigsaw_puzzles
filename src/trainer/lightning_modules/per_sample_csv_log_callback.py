@@ -95,18 +95,16 @@ class PerSampleCsvLogCallback(L.Callback):
             self._report_metrics('predict', trainer.current_epoch)
 
     def _reset_epoch_metrics(self, trainer_stage: str):
-        self.epoch_cumulative_metrics[trainer_stage] = {'id': [], 'file_path': [], 'original_size': [],
+        self.epoch_cumulative_metrics[trainer_stage] = {'image_metadata': [],
                                                         'label': [], 'probability': torch.Tensor()}
         if self.file_per_epoch:
             self.log_dataframes[trainer_stage] = pd.DataFrame()
 
 
     def _update_epoch_metrics(self, pl_module: LightningModule, batch, trainer_stage: str):
-        label = batch[1]['label'].squeeze().int().tolist() if 'label' in batch[1] else None
+        label = batch[1]['label'].squeeze(axis=0).int().tolist() if 'label' in batch[1] else None
 
-        self.epoch_cumulative_metrics[trainer_stage]['id'] += batch[1]['id']
-        self.epoch_cumulative_metrics[trainer_stage]['file_path'] += batch[1]['file_path']
-        self.epoch_cumulative_metrics[trainer_stage]['original_size'] += batch[1]['original_size']
+        self.epoch_cumulative_metrics[trainer_stage]['image_metadata'] += batch[1]['image_metadata']
         self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].cpu()])
         self.epoch_cumulative_metrics[trainer_stage]['label'] += label
 
@@ -114,10 +112,8 @@ class PerSampleCsvLogCallback(L.Callback):
     def _report_metrics(self, trainer_stage: str, epoch: int):
         epoch_log = pd.DataFrame()
 
-        epoch_log['epoch'] = [epoch] * len(self.epoch_cumulative_metrics[trainer_stage]['id'])
-        epoch_log['id'] = self.epoch_cumulative_metrics[trainer_stage]['id']
-        epoch_log['file_path'] = self.epoch_cumulative_metrics[trainer_stage]['file_path']
-        epoch_log['original_size'] = self.epoch_cumulative_metrics[trainer_stage]['original_size']
+        epoch_log['epoch'] = [epoch] * len(self.epoch_cumulative_metrics[trainer_stage]['label'])
+        epoch_log['metadata'] = self.epoch_cumulative_metrics[trainer_stage]['image_metadata']
         epoch_log['label'] = self.epoch_cumulative_metrics[trainer_stage]['label']
 
         probabilities = self.epoch_cumulative_metrics[trainer_stage]['probability']

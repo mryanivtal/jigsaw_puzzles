@@ -2,7 +2,7 @@
   "trainer": {
     "run_name": "small_test_run",
     "add_timestamp_to_out_dir": false,
-    "max_epochs": 200,
+    "max_epochs": 6,
     "batch_size": 3,
     "train_val_split_ratio": 0.8,
     "check_val_every_n_epoch": 1,
