@@ -10,7 +10,7 @@ from src.runners.env_constants import *
 class MyTestCase(unittest.TestCase):
     def test_train_dataset(self):
 
-        transform = get_train_transform()
+        transform = get_train_transform({'resize_0': 224, 'resize_1': 224})
         train_ds = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=transform, cache_data=True)
         self.assertEqual(len(train_ds), 25000)
 
@@ -24,7 +24,9 @@ class MyTestCase(unittest.TestCase):
 
         self.assertEqual(list(b[0].shape), [50, 3, 224, 224])
         self.assertEqual(len(b[1]['label']), 50)
-        self.assertEqual(len(b[1]['original_size']), 50)
+        self.assertEqual(len(b[1]['image_metadata']), 50)
+        self.assertEqual(len(b[1]['label']), 50)
+
 
     def test_labels(self):
         DATA_FOLDER = Path(__file__).parent / Path('resources')

@@ -26,7 +26,7 @@ if __name__ == '__main__':
     outputs_path = create_output_dir(PROJECT_PATH, RUN_NAME, ADD_TIMESTAMP_TO_OUT_DIR)
 
     # --- Datasets
-    test_transform = get_predict_transform()
+    test_transform = get_predict_transform({'resize_0': 224, 'resize_1': 224})
     test_dataset = DogsVsCatsDataset(TEST_DATA_PATH, transform=test_transform, cache_data=False, shuffle=False)
 
     # --- Debug option for very short run (5 batches in each dataloader)

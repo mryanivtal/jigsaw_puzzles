@@ -28,8 +28,8 @@ def run_train_test(run_params: dict, project_path: Union[str, Path], train_data_
 
     # --- Datasets
     print('Creating Datasets')
-    train_transform = get_train_transform()
-    predict_transform = get_predict_transform()
+    train_transform = get_train_transform({'resize_0': 224, 'resize_1': 224})
+    predict_transform = get_predict_transform({'resize_0': 224, 'resize_1': 224})
     train_val_dataset = DogsVsCatsDataset(train_data_path, transform=train_transform, cache_data=False, shuffle=True)
     test_dataset = DogsVsCatsDataset(test_data_path, transform=predict_transform, cache_data=False, shuffle=False)
 

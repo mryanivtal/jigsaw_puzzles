@@ -1,9 +1,12 @@
 from torchvision.transforms import transforms
 
 
-def get_train_transform():
+def get_train_transform(params: dict):
+    resize_0 = params['resize_0']
+    resize_1 = params['resize_1']
+
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((resize_0, resize_1)),
         transforms.ToTensor(),
         transforms.Normalize((0.5), (0.5)),
         transforms.RandomErasing(),
@@ -11,9 +14,12 @@ def get_train_transform():
     return transform
 
 
-def get_predict_transform():
+def get_predict_transform(params: dict):
+    resize_0 = params['resize_0']
+    resize_1 = params['resize_1']
+
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize((resize_0, resize_1)),
         transforms.ToTensor(),
         transforms.Normalize((0.5), (0.5)),
     ])

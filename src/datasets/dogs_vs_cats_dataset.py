@@ -1,4 +1,5 @@
 import glob
+import json
 from enum import Enum
 from pathlib import Path
 import pandas as pd
@@ -48,7 +49,7 @@ class DogsVsCatsDataset(Dataset):
     def __len__(self):
         return len(self.index)
 
-    def __getitem__(self, item):
+    def get_item(self, item):
         item_metadata = self.index.iloc[item]
 
         if item in self.cache:
@@ -58,6 +59,11 @@ class DogsVsCatsDataset(Dataset):
             if self.cache_data:
                 self.cache[item] = (image, sample_metadata)
 
+        return image, sample_metadata
+
+    def __getitem__(self, item):
+        image, sample_metadata = self.get_item(item)
+        sample_metadata['image_metadata'] = json.dumps(sample_metadata['image_metadata'])
         return image, sample_metadata
 
     def _load_sample_from_disk(self, item_metadata):
@@ -72,10 +78,11 @@ class DogsVsCatsDataset(Dataset):
         if self.transform:
             image = self.transform(image)
         sample_metadata = {
-            'id': id,
-            'file_path': file_path,
-            'original_size': str(original_size),
-            'image_mode': image_mode,
+            'image_metadata': {
+                'id': id,
+                'file_path': file_path,
+                'original_size': str(original_size),
+                'image_mode': image_mode,}
         }
 
         if not pd.isna(label):
