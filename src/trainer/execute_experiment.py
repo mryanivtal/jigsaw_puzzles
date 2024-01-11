@@ -9,9 +9,9 @@ from torch.utils.data import DataLoader
 
 from src.trainer.factories.criterion_factory import get_criterion
 from src.trainer.factories.dataset_factory import get_datasets
-from src.trainer.callbacks.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
-from src.trainer.lightning_model_wrapper import LightningWrapper
-from src.trainer.callbacks.per_sample_csv_log_callback import PerSampleCsvLogCallback
+from src.trainer.lightning_modules.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
+from src.trainer.lightning_modules.lightning_model_wrapper import LightningWrapper
+from src.trainer.lightning_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
 from src.trainer.factories.model_factory import get_model
 from src.trainer.util_functions.util_functions import create_output_dir, save_dict_to_json
 

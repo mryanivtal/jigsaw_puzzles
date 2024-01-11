@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader, random_split
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.trainer.factories.transform_factory import get_predict_transform
 from src.runners.env_constants import *
-from src.trainer.lightning_model_wrapper import LightningWrapper
+from src.trainer.lightning_modules.lightning_model_wrapper import LightningWrapper
 from src.trainer.factories.model_factory import get_resnet18
 from src.trainer.util_functions import create_output_dir
 
