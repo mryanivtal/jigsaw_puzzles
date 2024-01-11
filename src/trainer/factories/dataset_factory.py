@@ -10,6 +10,15 @@ from src.trainer.util_functions.printc import printc
 def get_datasets(dataset_params, test_data_path, train_data_path) -> tuple:
     # --- params
     transform_params = dataset_params['transforms']
+
+    # --- fix transform resize params so images can be divided to requested blocks
+    if dataset_params['dataset_type'] == 'jigsaw':
+        parts_0 = dataset_params['scrambler']['parts_x']
+        parts_1 = dataset_params['scrambler']['parts_y']
+
+        dataset_params['transforms']['resize_0'] = round(dataset_params['transforms']['resize_0'] / parts_0) * parts_0
+        dataset_params['transforms']['resize_1'] = round(dataset_params['transforms']['resize_1'] / parts_1) * parts_1
+
     train_transform = get_train_transform(transform_params)
     predict_transform = get_predict_transform(transform_params)
 

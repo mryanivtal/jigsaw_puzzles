@@ -4,7 +4,6 @@ from typing import Union
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
-from torch.nn import BCELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
