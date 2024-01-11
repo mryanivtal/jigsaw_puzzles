@@ -100,14 +100,12 @@ class PerSampleCsvLogCallback(L.Callback):
         if self.file_per_epoch:
             self.log_dataframes[trainer_stage] = pd.DataFrame()
 
-
     def _update_epoch_metrics(self, pl_module: LightningModule, batch, trainer_stage: str):
-        label = batch[1]['label'].squeeze(axis=0).int().tolist() if 'label' in batch[1] else None
+        label = batch[1]['label'].squeeze(axis=1).int().tolist() if 'label' in batch[1] else None
 
         self.epoch_cumulative_metrics[trainer_stage]['image_metadata'] += batch[1]['image_metadata']
-        self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].cpu()])
+        self.epoch_cumulative_metrics[trainer_stage]['probability'] = torch.concat([self.epoch_cumulative_metrics[trainer_stage]['probability'], pl_module.current_step_outputs['probabilities'].squeeze(axis=1).cpu()])
         self.epoch_cumulative_metrics[trainer_stage]['label'] += label
-
 
     def _report_metrics(self, trainer_stage: str, epoch: int):
         epoch_log = pd.DataFrame()
