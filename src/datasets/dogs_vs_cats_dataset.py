@@ -63,6 +63,7 @@ class DogsVsCatsDataset(Dataset):
     def _load_sample_from_disk(self, item_metadata):
         image = Image.open(item_metadata['path'])
         label = item_metadata['label']
+
         # --- image metadata
         id = item_metadata['id']
         file_path = item_metadata['path']

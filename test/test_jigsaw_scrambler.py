@@ -1,8 +1,10 @@
 import random
 import unittest
-from enum import Enum
+from pathlib import Path
 
 import torch
+from PIL import Image
+from torchvision import transforms
 
 from src.datasets.jigsaw_scrambler import JigsawScrambler
 
@@ -31,10 +33,99 @@ class TestJigsawScrambler(unittest.TestCase):
 
         self.assertTrue(all(original_tensor.flatten() == back_tensor.flatten()))  # add assertion here
 
-    def test_scrambler_class(self):
-        scrambler_params = {
-            'same_for_all_samples'
+    def test_predefined_permutation(self):
+        original = torch.arange(600).view(30, 20)[None, :, :]
+
+        permutation = {
+            (0, 0): (0, 1),
+            (0, 1): (0, 0),
+            (1, 0): (1, 1),
+            (1, 1): (1, 0),
+            (2, 0): (2, 1),
+            (2, 1): (2, 0),
         }
+
+        scrambler_params = {
+            'mode': 'same_for_all_samples',
+            '_mode': 'random_per_sample',
+
+            'parts_x': 3,
+            'parts_y': 2,
+
+            'permutation_type': 'predefined',
+            'predefined_permutation': permutation
+        }
+
+        scrambler = JigsawScrambler(scrambler_params)
+        permuted, permutation = scrambler(original)
+
+    def test_predefined_permutation_image(self):
+        image_path = Path(__file__).parent / Path('resources/22.jpg')
+
+        permutation = {
+            (0, 0): (0, 1),
+            (0, 1): (0, 0),
+            (1, 0): (1, 1),
+            (1, 1): (1, 0),
+            (2, 0): (2, 1),
+            (2, 1): (2, 0),
+        }
+
+        scrambler_params = {
+            'mode': 'same_for_all_samples',
+            '_mode': 'random_per_sample',
+
+            'parts_x': 3,
+            'parts_y': 2,
+
+            'permutation_type': 'predefined',
+            'predefined_permutation': permutation
+        }
+
+        self._permute_and_show_by_params(image_path, scrambler_params)
+
+    def test_random_permutation_image(self):
+        image_path = Path(__file__).parent / Path('resources/22.jpg')
+
+        scrambler_params = {
+            'mode': 'same_for_all_samples',
+            '_mode': 'random_per_sample',
+
+            'parts_x': 4,
+            'parts_y': 3,
+
+            'permutation_type': 'random',
+        }
+
+        self._permute_and_show_by_params(image_path, scrambler_params)
+
+    def test_switch_permutation_image(self):
+        image_path = Path(__file__).parent / Path('resources/22.jpg')
+
+        scrambler_params = {
+            'mode': 'same_for_all_samples',
+            '_mode': 'random_per_sample',
+
+            'parts_x': 4,
+            'parts_y': 3,
+
+            'permutation_type': 'switch',
+        }
+
+        self._permute_and_show_by_params(image_path, scrambler_params)
+
+    def _permute_and_show_by_params(self, image_path, scrambler_params):
+        image = Image.open(image_path)
+        resize_x = 230 // scrambler_params['parts_x'] * scrambler_params['parts_x']
+        resize_y = 230 // scrambler_params['parts_y'] * scrambler_params['parts_y']
+
+        transform = transforms.Compose([transforms.Resize((resize_x, resize_y)), transforms.ToTensor()])
+        image_tensor = transform(image)
+        scrambler = JigsawScrambler(scrambler_params)
+        permuted, permutation = scrambler(image_tensor)
+        new_image = transforms.ToPILImage()(permuted)
+        image.show()
+        new_image.show()
 
 
 if __name__ == '__main__':
