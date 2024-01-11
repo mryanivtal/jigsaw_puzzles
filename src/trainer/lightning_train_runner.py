@@ -1,4 +1,6 @@
-import json
+import argparse
+from pathlib import Path
+from typing import Union
 
 import numpy as np
 import lightning as L
@@ -10,41 +12,26 @@ from torch.utils.data import DataLoader, random_split
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.transform_factory import get_train_transform, get_predict_transform
-from src.env_constants import *
-from src.lightning_runner.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
-from src.lightning_runner.lightning_model_wrapper import LightningWrapper
-from src.lightning_runner.per_sample_csv_log_callback import PerSampleCsvLogCallback
-from src.lightning_runner.printc import printc
-from src.lightning_runner.util_functions import save_dict_to_json
+from src.trainer.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
+from src.trainer.lightning_model_wrapper import LightningWrapper
+from src.trainer.per_sample_csv_log_callback import PerSampleCsvLogCallback
+from src.trainer.printc import printc
+from src.trainer.util_functions import save_dict_to_json, load_dict_from_json
 from src.models.model_getter import get_resnet18
-from src.util_functions import create_output_dir
+from src.trainer.util_functions import create_output_dir
 
 
-if __name__ == '__main__':
-
-    # --- Run parameters
-    run_params = {
-        'run_name': 'yaniv_train',
-        'add_timestamp_to_out_dir': False,
-
-        'train_val_split_ratio': 0.8,
-        'num_epochs': 10,
-        'batch_size': 3,
-
-        'num_workers': 0,
-        'short_debug_run': True
-    }
-
+def run_train_test(run_params: dict, project_path: Union[str, Path], train_data_path: Union[str, Path], test_data_path: Union[str, Path]) -> None:
     # --- output dir creation
-    outputs_path = create_output_dir(PROJECT_PATH, run_params['run_name'], run_params['add_timestamp_to_out_dir'])
+    outputs_path = create_output_dir(project_path, run_params['run_name'], run_params['add_timestamp_to_out_dir'])
     save_dict_to_json(run_params, Path(outputs_path) / Path('run_params.json'))
 
     # --- Datasets
     print('Creating Datasets')
     train_transform = get_train_transform()
     predict_transform = get_predict_transform()
-    train_val_dataset = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=train_transform, cache_data=False, shuffle=True)
-    test_dataset = DogsVsCatsDataset(TEST_DATA_PATH, transform=predict_transform, cache_data=False, shuffle=False)
+    train_val_dataset = DogsVsCatsDataset(train_data_path, transform=train_transform, cache_data=False, shuffle=True)
+    test_dataset = DogsVsCatsDataset(test_data_path, transform=predict_transform, cache_data=False, shuffle=False)
 
     # --- Split train and validation
     train_val_split_ratio = 0.8
@@ -72,23 +59,34 @@ if __name__ == '__main__':
     # --- Lightning wrapper module and callbacks
     l_module = LightningWrapper(model, optimizer, criterion)
 
-    logger = TensorBoardLogger(outputs_path, name='tb_logs')
+    # --- Trainer inputs
+    trainer_args = dict()
 
+    # --- Logger
+    trainer_args['logger'] = TensorBoardLogger(outputs_path, name='tb_logs')
+
+    # --- Callbacks
     train_csv_log_path = str(outputs_path / Path('train_log'))
     test_csv_log_path = str(outputs_path / Path('test_log'))
     per_sample_test_csv_log_path = str(outputs_path / Path('test_predictions_log'))
 
     checkpoint_path = str(outputs_path / Path('checkpoints'))
 
-    callbacks = [
+    trainer_args['callbacks'] = [
         LossAccuracyCsvLogCallback(train_csv_log_path, train=True, validation=True, test=False),
         LossAccuracyCsvLogCallback(test_csv_log_path, train=False, validation=False, test=True),
         PerSampleCsvLogCallback(per_sample_test_csv_log_path, train=False, validation=False, test=True),
-        ModelCheckpoint(save_top_k=5, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{validation_loss:.3f}_{validation_accuracy:.4f}'),
-        EarlyStopping(monitor="validation_loss", mode="min", patience=5)]
+        ModelCheckpoint(save_top_k=5, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{step:04d}{validation_loss:.5f}_{validation_accuracy:.5f}'),
+        EarlyStopping(monitor="validation_loss", mode="min", patience=5)
+    ]
 
-    trainer = L.Trainer(max_epochs=run_params['num_epochs'], logger=logger, callbacks=callbacks, check_val_every_n_epoch=1, num_sanity_val_steps=0)
+    # --- Others
+    trainer_args['max_epochs'] = run_params['max_epochs']
+    trainer_args['check_val_every_n_epoch'] = run_params['check_val_every_n_epoch']
+    trainer_args['num_sanity_val_steps'] = 1
 
+    # --- Vamos
+    trainer = L.Trainer(**trainer_args)
     trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
     test_results = trainer.test(model=l_module, dataloaders=test_dataloader)

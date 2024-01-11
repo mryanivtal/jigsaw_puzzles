@@ -1,20 +1,14 @@
-import numpy as np
 import lightning as L
-import torch
-from lightning.pytorch.callbacks import ModelCheckpoint
-from lightning.pytorch.loggers import TensorBoardLogger
 from torch.nn import BCELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
-from src.datasets.transform_factory import get_train_transform, get_predict_transform
-from src.env_constants import *
-from src.lightning_runner.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
-from src.lightning_runner.lightning_model_wrapper import LightningWrapper
-from src.lightning_runner.per_sample_csv_log_callback import PerSampleCsvLogCallback
+from src.datasets.transform_factory import get_predict_transform
+from src.runners.env_constants import *
+from src.trainer.lightning_model_wrapper import LightningWrapper
 from src.models.model_getter import get_resnet18
-from src.util_functions import create_output_dir
+from src.trainer.util_functions import create_output_dir
 
 
 if __name__ == '__main__':

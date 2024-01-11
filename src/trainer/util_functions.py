@@ -1,5 +1,8 @@
+import json
 from datetime import datetime
 from pathlib import Path
+from typing import Union
+
 
 def create_output_dir(parent_path, run_name: str, add_timestamp: bool) -> str:
     """
@@ -21,3 +24,15 @@ def create_output_dir(parent_path, run_name: str, add_timestamp: bool) -> str:
     print(f'Run output path: {output_path}')
 
     return str(output_path)
+
+
+def save_dict_to_json(dictionary: dict, output_path: Union[str, Path]):
+    with open(Path(output_path), 'w') as file:
+        json.dump(dictionary, file)
+
+
+def load_dict_from_json(input_path: Union[str, Path]) -> dict:
+    with open(Path(input_path), 'r') as file:
+        dictionary = json.load(file)
+
+    return dictionary
