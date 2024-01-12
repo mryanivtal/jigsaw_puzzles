@@ -18,7 +18,7 @@ def create_output_dir(parent_path, run_name: str, add_timestamp: bool) -> str:
     :return: output folder path string
     """
     if add_timestamp:
-        timestamp_str = datetime.now().strftime("%d_%m_%Y__%H_%M_%S")
+        timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S")
         relative_output_dir = Path(f'{run_name}_{timestamp_str}')
     else:
         relative_output_dir = Path(f'{run_name}')
