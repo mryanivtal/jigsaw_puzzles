@@ -8,7 +8,7 @@ from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 class LightningWrapper(L.LightningModule):
     def __init__(self, model, optimizer, criterion):
         super(LightningWrapper, self).__init__()
-        self.save_hyperparameters(ignore=['model', 'criterion'])
+        # self.save_hyperparameters(ignore=['model', 'criterion'])
 
         self.model = model
         self.optimizer = optimizer
@@ -23,21 +23,21 @@ class LightningWrapper(L.LightningModule):
         self._calc_step_outputs(batch)
 
         loss = self.current_step_outputs['loss']
-        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log("train_loss", loss, batch_size = len(batch[0]), on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
         self._calc_step_outputs(batch)
 
         loss = self.current_step_outputs['loss']
-        self.log("validation_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log("validation_loss", loss, batch_size = len(batch[0]), on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def test_step(self, batch, *args: Any, **kwargs: Any) -> STEP_OUTPUT:
         self._calc_step_outputs(batch)
 
         loss = self.current_step_outputs['loss']
-        self.log("test_loss", loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log("test_loss", loss, batch_size = len(batch[0]), on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
 
