@@ -1,10 +1,9 @@
 import numpy as np
 from torch.utils.data import random_split
 
-from src.datasets import DogsVsCatsDataset
-from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
-from src.binary_class_trainer.trainer.factories.transform_factory import get_train_transform, get_predict_transform
-from src.binary_class_trainer.trainer import printc
+from src.datasets.dogs_vs_cats_jigsaw_bin_class_dataset import DogsVsCatsDataset, DogsVsCatsJigsawBinClassDataset
+from src.datasets.transform_factory import get_train_transform, get_predict_transform
+from src.util_functions.printc import printc
 
 
 def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
@@ -32,8 +31,8 @@ def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
 
     elif dataset_params['dataset_type'] == 'jigsaw':
         scrambler_params = dataset_params['scrambler']
-        train_val_dataset = DogsVsCatsJigsawDataset(train_data_path, scrambler_params, transform=train_transform, transform_for_display=train_transform_for_display, cache_data=False, shuffle=True)
-        test_dataset = DogsVsCatsJigsawDataset(test_data_path, scrambler_params, transform=predict_transform, transform_for_display=predict_transform_for_display, cache_data=False, shuffle=False)
+        train_val_dataset = DogsVsCatsJigsawBinClassDataset(train_data_path, scrambler_params, transform=train_transform, transform_for_display=train_transform_for_display, cache_data=False, shuffle=True)
+        test_dataset = DogsVsCatsJigsawBinClassDataset(test_data_path, scrambler_params, transform=predict_transform, transform_for_display=predict_transform_for_display, cache_data=False, shuffle=False)
 
     else:
         raise NotImplementedError(f'dataset of type {dataset_params["dataset_type"]} is not available!')

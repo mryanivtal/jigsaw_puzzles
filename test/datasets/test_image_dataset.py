@@ -4,8 +4,8 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset, DogsVsCatsLabels
-from src.binary_class_trainer.runners.env_constants import TRAIN_DATA_PATH
-from src.binary_class_trainer.trainer.factories.transform_factory import get_train_transform
+from src.env_constants import TRAIN_DATA_PATH
+from src.datasets.transform_factory import get_train_transform
 
 
 class MyTestCase(unittest.TestCase):

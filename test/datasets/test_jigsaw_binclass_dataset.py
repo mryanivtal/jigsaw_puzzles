@@ -3,9 +3,9 @@ import unittest
 from torch.utils.data import DataLoader
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsLabels
-from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
-from src.binary_class_trainer.runners.env_constants import TRAIN_DATA_PATH
-from src.binary_class_trainer.trainer.factories.transform_factory import get_train_transform
+from src.datasets.dogs_vs_cats_jigsaw_bin_class_dataset import DogsVsCatsJigsawBinClassDataset
+from src.env_constants import TRAIN_DATA_PATH
+from src.datasets.transform_factory import get_train_transform
 
 
 class MyTestCase(unittest.TestCase):
@@ -25,7 +25,7 @@ class MyTestCase(unittest.TestCase):
         }
         transform = get_train_transform(transform_params)
 
-        train_ds = DogsVsCatsJigsawDataset(TRAIN_DATA_PATH, scrambler_params, transform=transform, cache_data=True)
+        train_ds = DogsVsCatsJigsawBinClassDataset(TRAIN_DATA_PATH, scrambler_params, transform=transform, cache_data=True)
         self.assertEqual(len(train_ds), 25000)
 
         num_dogs = len(train_ds.index[train_ds.index['label'] == DogsVsCatsLabels.DOG])

@@ -14,9 +14,9 @@ from src.binary_class_trainer.trainer.lightning_modules.loss_accuracy_csv_log_ca
 from src.binary_class_trainer.trainer.lightning_modules.binary_classifier_lt_wrapper import BinaryClassifierLtWrapper
 from src.binary_class_trainer.trainer.lightning_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
 from src.binary_class_trainer.trainer.factories.model_factory import get_model
-from src.binary_class_trainer.trainer.util_functions.printc import printc
-from src.binary_class_trainer.trainer.util_functions.sample_saver import save_samples_to_output_dir
-from src.binary_class_trainer.trainer.util_functions.util_functions import create_output_dir, save_dict_to_json
+from src.util_functions.printc import printc
+from src.util_functions.sample_saver import save_samples_to_output_dir
+from src.util_functions.util_functions import create_output_dir, save_dict_to_json
 
 
 def execute_experiment(run_params: dict, project_path: Union[str, Path], train_data_path: Union[str, Path], test_data_path: Union[str, Path], stop_before_fit = False) -> None:

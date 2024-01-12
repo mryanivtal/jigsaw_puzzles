@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
-from src.binary_class_trainer.runners import env_constants
+from src import env_constants
 from src.binary_class_trainer.trainer.execute_experiment import execute_experiment
-from src.binary_class_trainer.trainer.util_functions.util_functions import load_dict_from_json
+from src.util_functions.util_functions import load_dict_from_json
 
 if __name__ == '__main__':
     # ---  Handle arguments

@@ -1,6 +1,6 @@
 import argparse
 from pathlib import Path
-from src.binary_class_trainer.runners import env_constants
+from src import env_constants
 from src.binary_class_trainer.trainer import execute_experiment
 from src.binary_class_trainer.trainer import load_dict_from_json
 
