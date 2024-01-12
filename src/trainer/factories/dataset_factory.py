@@ -7,7 +7,7 @@ from src.trainer.factories.transform_factory import get_train_transform, get_pre
 from src.trainer.util_functions.printc import printc
 
 
-def get_datasets(dataset_params, test_data_path, train_data_path) -> tuple:
+def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
     # --- params
     transform_params = dataset_params['transforms']
 

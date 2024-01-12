@@ -33,7 +33,7 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
 
     # --- Datasets
     print('Creating Datasets')
-    train_dataset, valid_dataset, test_dataset = get_datasets(dataset_params, test_data_path, train_data_path)
+    train_dataset, valid_dataset, test_dataset = get_datasets(dataset_params, train_data_path, test_data_path)
 
     # --- Save samples to folder
     num_samples_to_save = trainer_params['num_samples_to_save']
