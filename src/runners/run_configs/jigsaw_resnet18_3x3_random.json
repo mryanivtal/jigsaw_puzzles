@@ -16,7 +16,8 @@
     "train_val_split_ratio": 0.8,
     "transforms": {
       "resize_0": 224,
-      "resize_1": 224
+      "resize_1": 224,
+      "random_erasing": true
     },
 
     "scrambler": {
@@ -28,7 +29,8 @@
   },
 
   "model": {
-    "name": "resnet18"
+    "name": "resnet18",
+    "pretrained": true
   },
 
   "loss": {

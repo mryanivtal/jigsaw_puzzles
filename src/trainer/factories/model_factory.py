@@ -3,7 +3,8 @@ import torchvision
 
 def get_model(params: dict):
     if params['name'] == 'resnet18':
-        model = get_resnet18(pretrained=True, out_features=1)
+        pretrained = params['pretrained']
+        model = get_resnet18(pretrained=pretrained, out_features=1)
     else:
         raise NotImplementedError(f'Model {params["name"]} is not implemented')
 

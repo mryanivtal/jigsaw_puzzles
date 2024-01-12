@@ -8,8 +8,10 @@ def get_train_transform(params: dict, normalize=True):
     transform = [
         transforms.Resize((resize_0, resize_1)),
         transforms.ToTensor(),
-        transforms.RandomErasing(),
     ]
+
+    if params['random_erasing']:
+        transform = transform + [transforms.RandomErasing()]
 
     if normalize:
         transform = transform + [transforms.Normalize((0.5), (0.5))]
