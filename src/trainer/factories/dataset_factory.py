@@ -51,4 +51,4 @@ def get_datasets(dataset_params, test_data_path, train_data_path) -> tuple:
         train_dataset, valid_dataset, _ = random_split(train_val_dataset, [5, 5, len(train_val_dataset) - 10])
         test_dataset, _ = random_split(test_dataset, [10, len(test_dataset) - 10])
 
-    return test_dataset, train_dataset, valid_dataset
+    return train_dataset, valid_dataset, test_dataset

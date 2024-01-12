@@ -7,10 +7,10 @@ import torch
 from torchvision import transforms
 
 
-def save_samples_to_output_dir(outputs_path, num_samples_to_save, train_dataset, test_dataset, valid_dataset):
+def save_samples_to_output_dir(outputs_path, num_samples_to_save, train_dataset, valid_dataset, test_dataset):
     samples_path = Path(outputs_path) / Path('samples')
 
-    for dataset_idx, dataset in enumerate([test_dataset, train_dataset, valid_dataset]):
+    for dataset_idx, dataset in enumerate([train_dataset, valid_dataset, test_dataset]):
         if type(dataset) == torch.utils.data.Subset:
             dataset = dataset.dataset
 

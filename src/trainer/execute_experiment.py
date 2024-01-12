@@ -14,11 +14,12 @@ from src.trainer.lightning_modules.loss_accuracy_csv_log_callback import LossAcc
 from src.trainer.lightning_modules.lightning_model_wrapper import LightningWrapper
 from src.trainer.lightning_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
 from src.trainer.factories.model_factory import get_model
+from src.trainer.util_functions.printc import printc
 from src.trainer.util_functions.sample_saver import save_samples_to_output_dir
 from src.trainer.util_functions.util_functions import create_output_dir, save_dict_to_json
 
 
-def execute_experiment(run_params: dict, project_path: Union[str, Path], train_data_path: Union[str, Path], test_data_path: Union[str, Path]) -> None:
+def execute_experiment(run_params: dict, project_path: Union[str, Path], train_data_path: Union[str, Path], test_data_path: Union[str, Path], stop_before_fit = False) -> None:
 
     # --- Handle run param dicts
     trainer_params = run_params['trainer']
@@ -32,12 +33,12 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
 
     # --- Datasets
     print('Creating Datasets')
-    test_dataset, train_dataset, valid_dataset = get_datasets(dataset_params, test_data_path, train_data_path)
+    train_dataset, valid_dataset, test_dataset = get_datasets(dataset_params, test_data_path, train_data_path)
 
     # --- Save samples to folder
     num_samples_to_save = trainer_params['num_samples_to_save']
     if num_samples_to_save > 0:
-        save_samples_to_output_dir(outputs_path, num_samples_to_save, train_dataset, test_dataset, valid_dataset)
+        save_samples_to_output_dir(outputs_path, num_samples_to_save, train_dataset, valid_dataset, test_dataset)
 
     # --- Dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'])
@@ -79,6 +80,10 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     trainer_args['num_sanity_val_steps'] = 1
 
     # --- Vamos
+    if stop_before_fit:
+        printc.cyan('**** Stopped before actual run ****')
+        return
+
     trainer = L.Trainer(**trainer_args)
     trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
