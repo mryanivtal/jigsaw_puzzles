@@ -1,6 +1,6 @@
 {
   "trainer": {
-    "run_name": "jigsaw_resnet18_2x2_random",
+    "run_name": "jigsaw_resnet18_3x3_random",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
     "batch_size": 64,
@@ -20,8 +20,8 @@
 
     "scrambler": {
       "mode": "same_for_all_samples",
-      "parts_x": 2,
-      "parts_y": 2,
+      "parts_x": 3,
+      "parts_y": 3,
       "permutation_type": "random"
     }
   },
