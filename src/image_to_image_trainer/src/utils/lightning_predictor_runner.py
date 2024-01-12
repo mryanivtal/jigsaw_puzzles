@@ -7,7 +7,7 @@ from src.datasets import DogsVsCatsDataset
 from src.binary_class_trainer.trainer.factories.transform_factory import get_predict_transform
 from src.binary_class_trainer.trainer.lightning_modules.binary_classifier_lt_wrapper import BinaryClassifierLtWrapper
 from src.binary_class_trainer.trainer.factories.model_factory import get_resnet18
-from src.binary_class_trainer.trainer.util_functions import create_output_dir
+from src.binary_class_trainer.trainer import create_output_dir
 
 
 if __name__ == '__main__':

@@ -1,6 +1,3 @@
-import json
-from enum import Enum
-
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.jigsaw_scrambler import JigsawScrambler
 
