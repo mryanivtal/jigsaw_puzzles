@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Union
 
 import lightning as L
+
 from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
 from torch.optim import Adam
@@ -13,6 +14,7 @@ from src.trainer.lightning_modules.loss_accuracy_csv_log_callback import LossAcc
 from src.trainer.lightning_modules.lightning_model_wrapper import LightningWrapper
 from src.trainer.lightning_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
 from src.trainer.factories.model_factory import get_model
+from src.trainer.util_functions.sample_saver import save_samples_to_output_dir
 from src.trainer.util_functions.util_functions import create_output_dir, save_dict_to_json
 
 
@@ -31,6 +33,11 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     # --- Datasets
     print('Creating Datasets')
     test_dataset, train_dataset, valid_dataset = get_datasets(dataset_params, test_data_path, train_data_path)
+
+    # --- Save samples to folder
+    num_samples_to_save = trainer_params['num_samples_to_save']
+    if num_samples_to_save > 0:
+        save_samples_to_output_dir(outputs_path, num_samples_to_save, train_dataset, test_dataset, valid_dataset)
 
     # --- Dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'])
@@ -77,6 +84,10 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
 
     test_results = trainer.test(model=l_module, dataloaders=test_dataloader)
     save_dict_to_json(test_results, Path(outputs_path) / Path('test_results.json'))
+
+
+
+
 
 
 

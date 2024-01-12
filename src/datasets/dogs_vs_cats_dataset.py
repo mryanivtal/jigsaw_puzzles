@@ -13,9 +13,10 @@ class DogsVsCatsLabels(int, Enum):
     DOG = 1
 
 class DogsVsCatsDataset(Dataset):
-    def __init__(self, images_path: str, transform=None, cache_data=False, shuffle=False):
+    def __init__(self, images_path: str, transform=None, transform_for_display=None, cache_data=False, shuffle=False):
         self.cache_data = cache_data
         self.transform = transform
+        self.transform_for_display = transform_for_display if transform_for_display else transform
 
         self._build_index(images_path, shuffle)
         self.cache = {}
@@ -54,10 +55,25 @@ class DogsVsCatsDataset(Dataset):
 
         if item in self.cache:
             image, sample_metadata = self.cache[item]
+
         else:
             image, sample_metadata = self._load_sample_from_disk(item_metadata)
+
+            if self.transform:
+                image = self.transform(image)
+
             if self.cache_data:
                 self.cache[item] = (image, sample_metadata)
+
+        return image, sample_metadata
+
+    def get_item_for_display(self, item):
+        item_metadata = self.index.iloc[item]
+
+        image, sample_metadata = self._load_sample_from_disk(item_metadata)
+
+        if self.transform_for_display:
+            image = self.transform_for_display(image)
 
         return image, sample_metadata
 
@@ -75,8 +91,7 @@ class DogsVsCatsDataset(Dataset):
         file_path = item_metadata['path']
         original_size = image.size
         image_mode = image.mode
-        if self.transform:
-            image = self.transform(image)
+
         sample_metadata = {
             'image_metadata': {
                 'id': id,

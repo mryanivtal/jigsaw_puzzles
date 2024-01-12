@@ -20,17 +20,20 @@ def get_datasets(dataset_params, test_data_path, train_data_path) -> tuple:
         dataset_params['transforms']['resize_1'] = round(dataset_params['transforms']['resize_1'] / parts_1) * parts_1
 
     train_transform = get_train_transform(transform_params)
+    train_transform_for_display = get_train_transform(transform_params, normalize=False)
+
     predict_transform = get_predict_transform(transform_params)
+    predict_transform_for_display = get_predict_transform(transform_params, normalize=False)
 
     # --- Datasets
     if dataset_params['dataset_type'] == 'plain_images':
-        train_val_dataset = DogsVsCatsDataset(train_data_path, transform=train_transform, cache_data=False, shuffle=True)
-        test_dataset = DogsVsCatsDataset(test_data_path, transform=predict_transform, cache_data=False, shuffle=False)
+        train_val_dataset = DogsVsCatsDataset(train_data_path, transform=train_transform, transform_for_display=train_transform_for_display, cache_data=False, shuffle=True)
+        test_dataset = DogsVsCatsDataset(test_data_path, transform=predict_transform, transform_for_display=predict_transform_for_display, cache_data=False, shuffle=False)
 
     elif dataset_params['dataset_type'] == 'jigsaw':
         scrambler_params = dataset_params['scrambler']
-        train_val_dataset = DogsVsCatsJigsawDataset(train_data_path, scrambler_params, transform=train_transform, cache_data=False, shuffle=True)
-        test_dataset = DogsVsCatsJigsawDataset(test_data_path, scrambler_params, transform=predict_transform, cache_data=False, shuffle=False)
+        train_val_dataset = DogsVsCatsJigsawDataset(train_data_path, scrambler_params, transform=train_transform, transform_for_display=train_transform_for_display, cache_data=False, shuffle=True)
+        test_dataset = DogsVsCatsJigsawDataset(test_data_path, scrambler_params, transform=predict_transform, transform_for_display=predict_transform_for_display, cache_data=False, shuffle=False)
 
     else:
         raise NotImplementedError(f'dataset of type {dataset_params["dataset_type"]} is not available!')
