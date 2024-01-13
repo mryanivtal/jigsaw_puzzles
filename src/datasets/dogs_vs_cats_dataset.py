@@ -50,12 +50,18 @@ class DogsVsCatsDataset(Dataset):
     def __len__(self):
         return len(self.index)
 
-    def get_item(self, item):
+    def get_item(self, item, for_display: bool=False):
+        if for_display:
+            item = self._get_item_for_display(item)
+        else:
+            item = self._get_item_for_model(item)
+        return item
+
+    def _get_item_for_model(self, item):
         item_metadata = self.index.iloc[item]
 
         if item in self.cache:
             image, sample_metadata = self.cache[item]
-
         else:
             image, sample_metadata = self._load_sample_from_disk(item_metadata)
 
@@ -67,9 +73,8 @@ class DogsVsCatsDataset(Dataset):
 
         return image, sample_metadata
 
-    def get_item_for_display(self, item):
+    def _get_item_for_display(self, item):
         item_metadata = self.index.iloc[item]
-
         image, sample_metadata = self._load_sample_from_disk(item_metadata)
 
         if self.transform_for_display:

@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from src import env_constants
-from src.image_binary_classifier.trainer.execute_experiment import execute_experiment
+from src.jigsaw_trainer.trainer.execute_experiment import execute_experiment
 from src.util_functions.util_functions import load_dict_from_json
 
 if __name__ == '__main__':

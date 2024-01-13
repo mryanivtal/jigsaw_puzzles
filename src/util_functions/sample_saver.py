@@ -26,7 +26,7 @@ def save_dataset_samples_to_disk(dataset, dataset_name, num_samples_to_save, sam
     for sample_idx in sample_idxs:
         sample_dict = {}
 
-        perm_image, metadata = dataset.get_item_for_display(sample_idx)
+        perm_image, metadata = dataset.get_item(sample_idx, for_display=True)
 
         # --- Copy original image to samples path
         unperm_path = Path(metadata['image_metadata']['file_path'])
