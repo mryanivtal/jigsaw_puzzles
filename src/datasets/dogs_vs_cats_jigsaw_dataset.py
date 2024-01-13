@@ -5,8 +5,8 @@ from src.datasets.jigsaw_scrambler import JigsawScrambler
 
 
 class DogsVsCatsJigsawDataset(DogsVsCatsDataset):
-    def __init__(self, images_path: str, scrambler_params: dict, target: str, transform=None, transform_for_display=None, cache_data=False, shuffle=False):
-        super(DogsVsCatsJigsawDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, cache_data=cache_data, shuffle=shuffle)
+    def __init__(self, images_path: str, scrambler_params: dict, target: str, transform=None, transform_for_display=None, shuffle=False):
+        super(DogsVsCatsJigsawDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
 
         assert target in ['probability', 'reverse_permutation', 'original_image']
         self.target = target

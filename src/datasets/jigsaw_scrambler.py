@@ -33,6 +33,22 @@ class JigsawScrambler:
         return perm_image, permutation
 
     @classmethod
+    def spatial_to_index_permutation(cls, permutation: dict):
+        parts_y = max([item[0] for item in permutation]) + 1
+        parts_x = max([item[1] for item in permutation]) + 1
+        index_perm = [permutation[(y, x)][0] * parts_x + permutation[(y, x)][1] for y in range(parts_y) for x in range(parts_x)]
+
+        return index_perm
+
+    @classmethod
+    def index_to_spatial_permutation(cls, index_perm: list[int], parts_y: int, parts_x: int):
+        natural_perm_list = [(y, x) for y in range(parts_y) for x in range(parts_x)]
+        target_perm_list = [(index // parts_x, index - (index // parts_x) * parts_x) for index in index_perm]
+
+        spatial_perm = {natural_perm_list[i]: target_perm_list[i] for i in range(len(natural_perm_list))}
+        return spatial_perm
+
+    @classmethod
     def _generate_order_by_params(cls, params: dict) -> dict:
         num_parts_y = params['parts_y']
         num_parts_x = params['parts_x']
@@ -129,6 +145,16 @@ class JigsawScrambler:
             shifted_places.append((y, x))
         permutation = {places[i]: shifted_places[i] for i in range(len(shifted_places))}
         return permutation
+
+
+    @classmethod
+    def crop_image(cls, image: torch.Tensor, x: int, y: int, size_x: int, size_y: int) -> torch.Tensor:
+        assert x + size_x < image.shape[2], f'illegal crop, git x={x}, size_x={size_x}, image shape is {image.shape}'
+        assert y + size_y < image.shape[1], f'illegal crop, git y={y}, size_y={size_y}, image shape is {image.shape}'
+
+        patch = image[:, x: x+size_x, y: y+size_y]
+        return patch
+
 
     @classmethod
     def _create_jigsaw_tensor_deterministic(cls, image: torch.Tensor, parts_y: int, parts_x: int,

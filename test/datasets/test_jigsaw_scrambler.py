@@ -102,6 +102,26 @@ class TestJigsawScrambler(unittest.TestCase):
         image.show()
         new_image.show()
 
+    def test_spatial_vs_index_permutation(self):
+        permutation = {
+            (0, 0): (0, 1),
+            (0, 1): (0, 0),
+            (0, 2): (0, 2),
+            (1, 0): (1, 1),
+            (1, 1): (1, 0),
+            (1, 2): (1, 2),
+        }
+
+        parts_y = 2
+        parts_x = 3
+
+        index_perm = JigsawScrambler.spatial_to_index_permutation(permutation)
+        spatial_perm = JigsawScrambler.index_to_spatial_permutation(index_perm, parts_y, parts_x)
+
+        assert permutation == spatial_perm
+        assert index_perm == [1, 0, 2, 4, 3, 5]
+
+
 
 if __name__ == '__main__':
     unittest.main()

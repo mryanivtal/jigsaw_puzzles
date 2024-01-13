@@ -13,13 +13,11 @@ class DogsVsCatsLabels(int, Enum):
     DOG = 1
 
 class DogsVsCatsDataset(Dataset):
-    def __init__(self, images_path: str, transform=None, transform_for_display=None, cache_data=False, shuffle=False):
-        self.cache_data = cache_data
+    def __init__(self, images_path: str, transform=None, transform_for_display=None, shuffle=False):
         self.transform = transform
         self.transform_for_display = transform_for_display if transform_for_display else transform
 
         self._build_index(images_path, shuffle)
-        self.cache = {}
 
     def _build_index(self, images_path, shuffle):
         """
@@ -51,33 +49,12 @@ class DogsVsCatsDataset(Dataset):
         return len(self.index)
 
     def get_item(self, item, for_display: bool=False):
-        if for_display:
-            item = self._get_item_for_display(item)
-        else:
-            item = self._get_item_for_model(item)
-        return item
-
-    def _get_item_for_model(self, item):
-        item_metadata = self.index.iloc[item]
-
-        if item in self.cache:
-            image, sample_metadata = self.cache[item]
-        else:
-            image, sample_metadata = self._load_sample_from_disk(item_metadata)
-
-            if self.transform:
-                image = self.transform(image)
-
-            if self.cache_data:
-                self.cache[item] = (image, sample_metadata)
-
-        return image, sample_metadata
-
-    def _get_item_for_display(self, item):
         item_metadata = self.index.iloc[item]
         image, sample_metadata = self._load_sample_from_disk(item_metadata)
 
-        if self.transform_for_display:
+        if not for_display and self.transform:
+            image = self.transform(image)
+        elif for_display and self.transform_for_display:
             image = self.transform_for_display(image)
 
         return image, sample_metadata

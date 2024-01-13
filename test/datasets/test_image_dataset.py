@@ -12,7 +12,7 @@ class MyTestCase(unittest.TestCase):
     def test_train_dataset(self):
 
         transform = get_train_transform({'resize_y': 224, 'resize_x': 224, 'random_erasing': False})
-        train_ds = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=transform, cache_data=True)
+        train_ds = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=transform)
         self.assertEqual(len(train_ds), 25000)
 
         num_dogs = len(train_ds.index[train_ds.index['label'] == DogsVsCatsLabels.DOG])
@@ -32,7 +32,7 @@ class MyTestCase(unittest.TestCase):
     def test_labels(self):
         DATA_FOLDER = Path(__file__).parent / Path('resources')
 
-        mixed_ds = DogsVsCatsDataset(DATA_FOLDER, cache_data=True)
+        mixed_ds = DogsVsCatsDataset(DATA_FOLDER)
         self.assertEqual(len(mixed_ds), 9)
 
         index = mixed_ds.index

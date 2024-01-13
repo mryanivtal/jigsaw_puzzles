@@ -1,14 +1,16 @@
+from pathlib import Path
+
 import lightning as L
 from torch.nn import BCELoss
 from torch.optim import Adam
 from torch.utils.data import DataLoader, random_split
 
-from src.datasets import DogsVsCatsDataset
+from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.transform_factory import get_predict_transform
+from src.env_constants import PROJECT_PATH, TEST_DATA_PATH
 from src.jigsaw_trainer.trainer.lightning_modules.lightning_wrapper import LightningWrapper
 from src.jigsaw_trainer.trainer.factories.model_factory import get_resnet18
-from src.util_functions import create_output_dir
-
+from src.util_functions.util_functions import create_output_dir
 
 if __name__ == '__main__':
 
@@ -26,7 +28,7 @@ if __name__ == '__main__':
 
     # --- Datasets
     test_transform = get_predict_transform({'resize_0': 224, 'resize_1': 224})
-    test_dataset = DogsVsCatsDataset(TEST_DATA_PATH, transform=test_transform, cache_data=False, shuffle=False)
+    test_dataset = DogsVsCatsDataset(TEST_DATA_PATH, transform=test_transform, shuffle=False)
 
     # --- Debug option for very short run (5 batches in each dataloader)
     if VERY_SHORT_DEBUG_RUN:

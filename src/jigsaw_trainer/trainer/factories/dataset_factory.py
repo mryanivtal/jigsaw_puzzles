@@ -29,13 +29,13 @@ def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
 
     # --- Datasets
     if dataset_params['dataset_type'] == 'plain_images':
-        train_val_dataset = DogsVsCatsDataset(train_data_path, transform=train_transform, transform_for_display=train_transform_for_display, cache_data=False, shuffle=True)
-        test_dataset = DogsVsCatsDataset(test_data_path, transform=predict_transform, transform_for_display=predict_transform_for_display, cache_data=False, shuffle=False)
+        train_val_dataset = DogsVsCatsDataset(train_data_path, transform=train_transform, transform_for_display=train_transform_for_display, shuffle=True)
+        test_dataset = DogsVsCatsDataset(test_data_path, transform=predict_transform, transform_for_display=predict_transform_for_display, shuffle=False)
 
     elif dataset_params['dataset_type'] == 'jigsaw':
         scrambler_params = dataset_params['scrambler']
-        train_val_dataset = DogsVsCatsJigsawDataset(train_data_path, scrambler_params, target=dataset_target, transform=train_transform, transform_for_display=train_transform_for_display, cache_data=False, shuffle=True)
-        test_dataset = DogsVsCatsJigsawDataset(test_data_path, scrambler_params, target=dataset_target, transform=predict_transform, transform_for_display=predict_transform_for_display, cache_data=False, shuffle=False)
+        train_val_dataset = DogsVsCatsJigsawDataset(train_data_path, scrambler_params, target=dataset_target, transform=train_transform, transform_for_display=train_transform_for_display, shuffle=True)
+        test_dataset = DogsVsCatsJigsawDataset(test_data_path, scrambler_params, target=dataset_target, transform=predict_transform, transform_for_display=predict_transform_for_display, shuffle=False)
 
     else:
         raise NotImplementedError(f'dataset of type {dataset_params["dataset_type"]} is not available!')

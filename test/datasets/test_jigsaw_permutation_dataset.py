@@ -25,7 +25,7 @@ class MyTestCase(unittest.TestCase):
         }
         transform = get_train_transform(transform_params)
 
-        train_ds = DogsVsCatsJigsawDataset(TRAIN_DATA_PATH, scrambler_params, target='reverse_permutation', transform=transform, cache_data=True)
+        train_ds = DogsVsCatsJigsawDataset(TRAIN_DATA_PATH, scrambler_params, target='reverse_permutation', transform=transform)
         self.assertEqual(len(train_ds), 25000)
 
         num_dogs = len(train_ds.index[train_ds.index['label'] == DogsVsCatsLabels.DOG])

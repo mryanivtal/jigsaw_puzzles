@@ -27,7 +27,7 @@ class MyTestCase(unittest.TestCase):
         transform = get_train_transform(transform_params)
         disp_transform = get_predict_transform(transform_params, normalize=False)
 
-        train_ds = DogsVsCatsJigsawDataset(TRAIN_DATA_PATH, scrambler_params, target='original_image', transform=transform, transform_for_display=disp_transform, cache_data=True)
+        train_ds = DogsVsCatsJigsawDataset(TRAIN_DATA_PATH, scrambler_params, target='original_image', transform=transform, transform_for_display=disp_transform)
         self.assertEqual(len(train_ds), 25000)
 
         num_dogs = len(train_ds.index[train_ds.index['label'] == DogsVsCatsLabels.DOG])
