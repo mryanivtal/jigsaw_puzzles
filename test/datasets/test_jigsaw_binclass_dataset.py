@@ -19,8 +19,8 @@ class MyTestCase(unittest.TestCase):
         }
 
         transform_params = {
-            'resize_0': 224 // scrambler_params['parts_x'] * scrambler_params['parts_x'],
-            'resize_1': 224 // scrambler_params['parts_y'] * scrambler_params['parts_y'],
+            'resize_x': 224 // scrambler_params['parts_x'] * scrambler_params['parts_x'],
+            'resize_y': 224 // scrambler_params['parts_y'] * scrambler_params['parts_y'],
             'random_erasing': False
         }
         transform = get_train_transform(transform_params)
@@ -36,7 +36,7 @@ class MyTestCase(unittest.TestCase):
         train_dl = DataLoader(train_ds, batch_size=50)
         b = train_dl.__iter__().__next__()
 
-        self.assertEqual(list(b[0].shape), [50, 3, transform_params['resize_0'], transform_params['resize_1']])
+        self.assertEqual(list(b[0].shape), [50, 3, transform_params['resize_y'], transform_params['resize_x']])
         self.assertEqual(len(b[1]['label']), 50)
         self.assertEqual(len(b[1]['image_metadata']), 50)
 

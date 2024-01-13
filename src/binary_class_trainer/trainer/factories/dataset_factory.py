@@ -12,11 +12,11 @@ def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
 
     # --- fix transform resize params so images can be divided to requested blocks
     if dataset_params['dataset_type'] == 'jigsaw':
-        parts_0 = dataset_params['scrambler']['parts_x']
-        parts_1 = dataset_params['scrambler']['parts_y']
+        parts_x = dataset_params['scrambler']['parts_x']
+        parts_y = dataset_params['scrambler']['parts_y']
 
-        dataset_params['transforms']['resize_0'] = round(dataset_params['transforms']['resize_0'] / parts_0) * parts_0
-        dataset_params['transforms']['resize_1'] = round(dataset_params['transforms']['resize_1'] / parts_1) * parts_1
+        dataset_params['transforms']['resize_x'] = round(dataset_params['transforms']['resize_x'] / parts_x) * parts_x
+        dataset_params['transforms']['resize_y'] = round(dataset_params['transforms']['resize_y'] / parts_y) * parts_y
 
     train_transform = get_train_transform(transform_params)
     train_transform_for_display = get_train_transform(transform_params, normalize=False)

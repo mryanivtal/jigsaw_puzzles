@@ -15,8 +15,8 @@
     "dataset_type": "jigsaw",
     "train_val_split_ratio": 0.8,
     "transforms": {
-      "resize_0": 224,
-      "resize_1": 224,
+      "resize_y": 224,
+      "resize_x": 224,
       "random_erasing": true
     },
 

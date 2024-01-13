@@ -2,11 +2,11 @@ from torchvision.transforms import transforms
 
 
 def get_train_transform(params: dict, normalize=True):
-    resize_0 = params['resize_0']
-    resize_1 = params['resize_1']
+    resize_x = params['resize_x']
+    resize_y = params['resize_y']
 
     transform = [
-        transforms.Resize((resize_0, resize_1)),
+        transforms.Resize((resize_y, resize_x)),
         transforms.ToTensor(),
     ]
 
@@ -21,11 +21,11 @@ def get_train_transform(params: dict, normalize=True):
 
 
 def get_predict_transform(params: dict, normalize=True):
-    resize_0 = params['resize_0']
-    resize_1 = params['resize_1']
+    resize_x = params['resize_x']
+    resize_y = params['resize_y']
 
     transform = [
-        transforms.Resize((resize_0, resize_1)),
+        transforms.Resize((resize_y, resize_x)),
         transforms.ToTensor(),
     ]
 

@@ -11,7 +11,7 @@ from src.datasets.transform_factory import get_train_transform
 class MyTestCase(unittest.TestCase):
     def test_train_dataset(self):
 
-        transform = get_train_transform({'resize_0': 224, 'resize_1': 224, 'random_erasing': False})
+        transform = get_train_transform({'resize_y': 224, 'resize_x': 224, 'random_erasing': False})
         train_ds = DogsVsCatsDataset(TRAIN_DATA_PATH, transform=transform, cache_data=True)
         self.assertEqual(len(train_ds), 25000)
 

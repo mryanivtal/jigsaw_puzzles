@@ -7,12 +7,17 @@ import torch
 
 class JigsawScrambler:
     def __init__(self, scrambler_params: dict):
+        """
+        Permutations are in the form of {(y, x): (new_y, new_x), .....}
+
+        :param scrambler_params:
+        """
         self.params = scrambler_params
 
         self.same_for_all = True if scrambler_params['mode'] == 'same_for_all_samples' else False
 
-        self.num_parts_x = scrambler_params['parts_x']
         self.num_parts_y = scrambler_params['parts_y']
+        self.num_parts_x = scrambler_params['parts_x']
 
         if self.same_for_all:
             self.fixed_permutation = self._generate_order_by_params(scrambler_params)
@@ -23,22 +28,22 @@ class JigsawScrambler:
         else:
             permutation = self._generate_order_by_params(self.params)
 
-        perm_image = self._create_jigsaw_tensor_deterministic(image, self.num_parts_x, self.num_parts_y, permutation)
+        perm_image = self._create_jigsaw_tensor_deterministic(image, self.num_parts_y, self.num_parts_x, permutation)
 
         return perm_image, permutation
 
     @classmethod
     def _generate_order_by_params(cls, params: dict) -> dict:
-        num_parts_x = params['parts_x']
         num_parts_y = params['parts_y']
+        num_parts_x = params['parts_x']
 
         permutation_type = params['permutation_type']
 
         if permutation_type == 'random':
-            permutation = cls._generate_random_permutation(num_parts_x, num_parts_y)
+            permutation = cls._generate_random_permutation(num_parts_y, num_parts_x)
 
         elif permutation_type == 'switch':
-            permutation = cls._generate_switch_permutation(num_parts_x, num_parts_y)
+            permutation = cls._generate_switch_permutation(num_parts_y, num_parts_x)
 
         elif permutation_type == 'predefined':
             permutation = params['predefined_permutation']
@@ -59,7 +64,7 @@ class JigsawScrambler:
     @classmethod
     def _generate_random_permutation(cls, num_tiles_x: int, num_tiles_y: int) -> dict:
         """
-        Generate total random permutation
+        Generate total random permutation: dict{(y, x): (new_y, new_x)}
         :param num_tiles_x:
         :param num_tiles_y:
         :return:
@@ -97,23 +102,23 @@ class JigsawScrambler:
         return permutation
 
     @classmethod
-    def _create_jigsaw_tensor_deterministic(cls, image: torch.Tensor, parts_x: int, parts_y: int,
+    def _create_jigsaw_tensor_deterministic(cls, image: torch.Tensor, parts_y: int, parts_x: int,
                                             new_order: dict) -> torch.Tensor:
         """
         Gets a 3d tensor image, num of parts on x and y, and new order, returns a shuffled tensor image
         :param image:
-        :param parts_x:
         :param parts_y:
-        :param new_order: dict of part shuffle.  e.g. {(1, 0): (3,5)} will move the block with index (x=1, y=0) to location of block with index (x=3, y=5)
+        :param parts_x:
+        :param new_order: dict of part shuffle.  e.g. {(1, 0): (3,5)} will move the block with index (y=1, x=0) to location of block with index (y=3, x=5)
         :return:torch.Tensor: new shuffled (Jigsaw) image
         """
         image_ch, image_x, image_y = image.shape
 
-        assert image_x % parts_x == 0, f'Only equal and whole part cropping is supported, got size_x={image_x}, parts_x={parts_x}'
-        assert image_y % parts_y == 0, f'Only equal and whole part cropping is supported, got size_y={image_y}, parts_y={parts_y}'
+        assert image_x % parts_y == 0, f'Only equal and whole part cropping is supported, got size_x={image_x}, parts_y={parts_y}'
+        assert image_y % parts_x == 0, f'Only equal and whole part cropping is supported, got size_y={image_y}, parts_x={parts_x}'
 
-        split_lines_x = cls._get_split_lines(image_x, parts_x)
-        split_lines_y = cls._get_split_lines(image_y, parts_y)
+        split_lines_x = cls._get_split_lines(image_x, parts_y)
+        split_lines_y = cls._get_split_lines(image_y, parts_x)
 
         new_image = torch.zeros_like(image)
 

@@ -33,31 +33,6 @@ class TestJigsawScrambler(unittest.TestCase):
 
         self.assertTrue(all(original_tensor.flatten() == back_tensor.flatten()))  # add assertion here
 
-    def test_predefined_permutation(self):
-        original = torch.arange(600).view(30, 20)[None, :, :]
-
-        permutation = {
-            (0, 0): (0, 1),
-            (0, 1): (0, 0),
-            (1, 0): (1, 1),
-            (1, 1): (1, 0),
-            (2, 0): (2, 1),
-            (2, 1): (2, 0),
-        }
-
-        scrambler_params = {
-            'mode': 'same_for_all_samples',
-            '_mode': 'random_per_sample',
-
-            'parts_x': 3,
-            'parts_y': 2,
-
-            'permutation_type': 'predefined',
-            'predefined_permutation': permutation
-        }
-
-        scrambler = JigsawScrambler(scrambler_params)
-        permuted, permutation = scrambler(original)
 
     def test_predefined_permutation_image(self):
         image_path = Path(__file__).parent / Path('resources/22.jpg')
@@ -65,10 +40,10 @@ class TestJigsawScrambler(unittest.TestCase):
         permutation = {
             (0, 0): (0, 1),
             (0, 1): (0, 0),
+            (0, 2): (0, 2),
             (1, 0): (1, 1),
             (1, 1): (1, 0),
-            (2, 0): (2, 1),
-            (2, 1): (2, 0),
+            (1, 2): (1, 2),
         }
 
         scrambler_params = {
@@ -116,10 +91,10 @@ class TestJigsawScrambler(unittest.TestCase):
 
     def _permute_and_show_by_params(self, image_path, scrambler_params):
         image = Image.open(image_path)
-        resize_x = 230 // scrambler_params['parts_x'] * scrambler_params['parts_x']
-        resize_y = 230 // scrambler_params['parts_y'] * scrambler_params['parts_y']
+        resize_x = 240 // scrambler_params['parts_x'] * scrambler_params['parts_x']
+        resize_y = 120 // scrambler_params['parts_y'] * scrambler_params['parts_y']
 
-        transform = transforms.Compose([transforms.Resize((resize_x, resize_y)), transforms.ToTensor()])
+        transform = transforms.Compose([transforms.Resize((resize_y, resize_x)), transforms.ToTensor()])
         image_tensor = transform(image)
         scrambler = JigsawScrambler(scrambler_params)
         permuted, permutation = scrambler(image_tensor)
