@@ -49,7 +49,7 @@ class JigsawScrambler:
             permutation = params['predefined_permutation']
 
         elif permutation_type == 'shift':
-            # TODO:Yaniv: implement
+            permutation = cls._generate_random_shift_permutation(num_parts_y, num_parts_x)
             raise NotImplementedError(f'Permutation type {permutation_type} is not supported!')
 
         elif permutation_type == 'border':
@@ -99,6 +99,35 @@ class JigsawScrambler:
         if len(places) == 1:
             permutation[places[0]] = places[0]
 
+        return permutation
+
+    @classmethod
+    def _generate_random_shift_permutation(cls, num_tiles_x: int, num_tiles_y: int) -> dict:
+        """
+        Generates random shift permutation on x and y
+        :param num_tiles_x:
+        :param num_tiles_y:
+        :return:
+        """
+        shift_x = random.randint(1, num_tiles_x)
+        shift_y = random.randint(1, num_tiles_y)
+
+        permutation = cls._generate_deterministic_shift_permutation(num_tiles_x, num_tiles_y, shift_x, shift_y)
+
+        return permutation
+
+    @classmethod
+    def _generate_deterministic_shift_permutation(cls, num_tiles_x: int, num_tiles_y: int, shift_x: int, shift_y: int) -> dict:
+        places = [(y, x) for x in range(num_tiles_x) for y in range(num_tiles_y)]
+        shifted_places = []
+        for i, (y, x) in enumerate(places):
+            x += shift_x
+            x = x + num_tiles_x if x < 0 else x - num_tiles_x if x >= num_tiles_x else x
+
+            y += shift_y
+            y = y + num_tiles_y if y < 0 else y - num_tiles_y if y >= num_tiles_y else y
+            shifted_places.append((y, x))
+        permutation = {places[i]: shifted_places[i] for i in range(len(shifted_places))}
         return permutation
 
     @classmethod

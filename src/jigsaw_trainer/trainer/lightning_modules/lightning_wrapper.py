@@ -5,9 +5,9 @@ import torch
 from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 
 
-class BinaryClassifierLtWrapper(L.LightningModule):
+class LightningWrapper(L.LightningModule):
     def __init__(self, model, optimizer, criterion):
-        super(BinaryClassifierLtWrapper, self).__init__()
+        super(LightningWrapper, self).__init__()
         self.save_hyperparameters(ignore=['model', 'criterion'])
 
         self.model = model
@@ -39,7 +39,6 @@ class BinaryClassifierLtWrapper(L.LightningModule):
         loss = self.current_step_outputs['loss']
         self.log("test_loss", loss, batch_size = len(batch[0]), on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
-
 
     def _calc_step_outputs(self, batch):
         inputs, metadatas = batch

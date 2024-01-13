@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 from src.jigsaw_trainer.trainer.factories.criterion_factory import get_criterion
 from src.jigsaw_trainer.trainer.factories.dataset_factory import get_datasets
 from src.jigsaw_trainer.trainer.lightning_modules.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
-from src.jigsaw_trainer.trainer.lightning_modules.binary_classifier_lt_wrapper import BinaryClassifierLtWrapper
+from src.jigsaw_trainer.trainer.lightning_modules.lightning_wrapper import LightningWrapper
 from src.jigsaw_trainer.trainer.lightning_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
 from src.jigsaw_trainer.trainer.factories.model_factory import get_model
 from src.util_functions.printc import printc
@@ -51,7 +51,7 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     optimizer = Adam(model.parameters())
 
     # --- Lightning wrapper module and callbacks
-    l_module = BinaryClassifierLtWrapper(model, optimizer, criterion)
+    l_module = LightningWrapper(model, optimizer, criterion)
 
     # --- Trainer inputs
     trainer_args = dict()

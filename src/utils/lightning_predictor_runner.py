@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader, random_split
 
 from src.datasets import DogsVsCatsDataset
 from src.datasets.transform_factory import get_predict_transform
-from src.jigsaw_trainer.trainer.lightning_modules.binary_classifier_lt_wrapper import BinaryClassifierLtWrapper
+from src.jigsaw_trainer.trainer.lightning_modules.lightning_wrapper import LightningWrapper
 from src.jigsaw_trainer.trainer.factories.model_factory import get_resnet18
 from src.util_functions import create_output_dir
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     criterion = BCELoss()
 
     # --- Lightning wrapper module and callbacks
-    l_module = BinaryClassifierLtWrapper.load_from_checkpoint(CHECKPOINT_PATH, model=model, optimizer=optimizer, criterion=criterion)
+    l_module = LightningWrapper.load_from_checkpoint(CHECKPOINT_PATH, model=model, optimizer=optimizer, criterion=criterion)
 
     pred_output_file = str(outputs_path / Path('sample_predictions_log.csv'))
 
