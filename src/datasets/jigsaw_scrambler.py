@@ -146,16 +146,6 @@ class JigsawScrambler:
         permutation = {places[i]: shifted_places[i] for i in range(len(shifted_places))}
         return permutation
 
-
-    @classmethod
-    def crop_image(cls, image: torch.Tensor, x: int, y: int, size_x: int, size_y: int) -> torch.Tensor:
-        assert x + size_x < image.shape[2], f'illegal crop, git x={x}, size_x={size_x}, image shape is {image.shape}'
-        assert y + size_y < image.shape[1], f'illegal crop, git y={y}, size_y={size_y}, image shape is {image.shape}'
-
-        patch = image[:, x: x+size_x, y: y+size_y]
-        return patch
-
-
     @classmethod
     def _create_jigsaw_tensor_deterministic(cls, image: torch.Tensor, parts_y: int, parts_x: int,
                                             new_order: dict) -> torch.Tensor:
