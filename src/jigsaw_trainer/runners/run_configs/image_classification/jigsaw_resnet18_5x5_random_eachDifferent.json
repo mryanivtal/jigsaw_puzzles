@@ -1,6 +1,6 @@
 {
   "trainer": {
-    "run_name": "jigsaw_resnet18_3x3_random",
+    "run_name": "jigsaw_resnet18_5x5_random_differentEach",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
     "batch_size": 64,
@@ -8,29 +8,33 @@
     "early_stop_patience": 10,
     "num_workers": 2,
     "num_samples_to_save": 6
+
   },
 
   "dataset": {
     "short_debug_run": false,
     "dataset_type": "jigsaw",
+    "target_type": "probability",
     "train_val_split_ratio": 0.8,
     "transforms": {
       "resize_y": 224,
       "resize_x": 224,
-      "random_erasing": true
+      "random_erasing": false
     },
 
     "scrambler": {
-      "mode": "same_for_all_samples",
-      "parts_x": 3,
-      "parts_y": 3,
+      "mode": "different_for_all_samples",
+      "parts_x": 5,
+      "parts_y": 5,
       "permutation_type": "random"
     }
   },
 
   "model": {
     "name": "resnet18",
-    "pretrained": true
+    "pretrained": true,
+    "out_features": 1,
+    "output_type": "sigmoid"
   },
 
   "loss": {

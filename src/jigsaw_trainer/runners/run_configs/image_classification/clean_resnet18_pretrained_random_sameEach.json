@@ -8,17 +8,16 @@
     "early_stop_patience": 10,
     "num_workers": 2,
     "num_samples_to_save": 6
-
   },
 
   "dataset": {
     "short_debug_run": false,
-    "dataset_type": "jigsaw",
+    "dataset_type": "clean",
     "train_val_split_ratio": 0.8,
     "transforms": {
       "resize_y": 224,
       "resize_x": 224,
-      "random_erasing": true
+      "random_erasing": false
     },
 
     "scrambler": {
@@ -31,7 +30,9 @@
 
   "model": {
     "name": "resnet18",
-    "pretrained": true
+    "pretrained": true,
+    "out_features": 1,
+    "output_type": "sigmoid"
   },
 
   "loss": {

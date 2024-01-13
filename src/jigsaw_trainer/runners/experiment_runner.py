@@ -14,7 +14,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     run_config_path = args.run_config if args.run_config is not None else (Path(__file__).parent / Path(
-        'run_configs/test_run.json'))
+        'run_configs/image_classification/test_run.json'))
     project_path = args.project_path if args.project_path is not None else env_constants.PROJECT_PATH
     train_data_path = args.train_data if args.train_data is not None else env_constants.TRAIN_DATA_PATH
     test_data_path = args.test_data if args.test_data is not None else env_constants.TEST_DATA_PATH

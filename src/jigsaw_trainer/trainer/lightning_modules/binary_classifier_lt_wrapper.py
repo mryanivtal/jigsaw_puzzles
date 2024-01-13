@@ -16,8 +16,8 @@ class BinaryClassifierLtWrapper(L.LightningModule):
         self.current_step_outputs = {}
 
     def forward(self, inputs):
-        logits = self.model(inputs)
-        return torch.nn.functional.sigmoid(logits)
+        model_output = self.model(inputs)
+        return model_output
 
     def training_step(self, batch, batch_idx):
         self._calc_step_outputs(batch)
