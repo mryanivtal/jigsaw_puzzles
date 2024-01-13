@@ -5,8 +5,8 @@ from torch.utils.data import DataLoader, random_split
 
 from src.datasets import DogsVsCatsDataset
 from src.datasets.transform_factory import get_predict_transform
-from src.binary_class_trainer.trainer.lightning_modules.binary_classifier_lt_wrapper import BinaryClassifierLtWrapper
-from src.binary_class_trainer.trainer.factories.model_factory import get_resnet18
+from src.image_binary_classifier.trainer.lightning_modules.binary_classifier_lt_wrapper import BinaryClassifierLtWrapper
+from src.image_binary_classifier.trainer.factories.model_factory import get_resnet18
 from src.util_functions import create_output_dir
 
 
