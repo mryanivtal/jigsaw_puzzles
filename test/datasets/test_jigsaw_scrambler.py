@@ -6,7 +6,7 @@ import torch
 from PIL import Image
 from torchvision import transforms
 
-from src.datasets.jigsaw_scrambler import JigsawScrambler
+from src.jigsaw.jigsaw_scrambler import JigsawScrambler
 
 
 class TestJigsawScrambler(unittest.TestCase):

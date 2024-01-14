@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from src import env_constants
-from src.trainer.execute_experiment import execute_experiment
+from src.trainer.trainer_modules.train_flow import execute_train_flow
 from src.util_functions.util_functions import load_dict_from_json
 
 if __name__ == '__main__':
@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
     run_params = load_dict_from_json(run_config_path)
 
-    execute_experiment(run_params, project_path, train_data_path, test_data_path)
+    execute_train_flow(run_params, project_path, train_data_path, test_data_path)
 
 
 

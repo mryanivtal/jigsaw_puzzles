@@ -187,6 +187,42 @@ class JigsawScrambler:
         return new_image
 
     @classmethod
+    def get_jigsaw_places_and_patches(cls, image: torch.Tensor, parts_y: int, parts_x: int) -> list[dict]:
+        """
+        Returns a dict of locations and patches from the image, split to (parts_y * parts_x) patches
+        :param image:
+        :param parts_y:
+        :param parts_x:
+        :return:torch.Tensor: new shuffled (Jigsaw) image
+        """
+        image_ch, image_x, image_y = image.shape
+
+        assert image_x % parts_y == 0, f'Only equal and whole part cropping is supported, got size_x={image_x}, parts_y={parts_y}'
+        assert image_y % parts_x == 0, f'Only equal and whole part cropping is supported, got size_y={image_y}, parts_x={parts_x}'
+
+        split_lines_x = cls._get_split_lines(image_x, parts_y)
+        split_lines_y = cls._get_split_lines(image_y, parts_x)
+
+        natural_permutation = [(y, x) for y in range(parts_y) for x in range(parts_x)]
+
+        patch_list = []
+
+        for x_idx, y_idx in natural_permutation:
+
+            x_from = split_lines_x[x_idx]
+            x_to = split_lines_x[x_idx + 1]
+
+            y_from = split_lines_y[y_idx]
+            y_to = split_lines_y[y_idx + 1]
+
+            patch = image[:, x_from: x_to, y_from: y_to]
+            location = (y_idx, x_idx)
+
+            patch_list.append({'location': location, 'patch': patch})
+
+        return patch_list
+
+    @classmethod
     def _find_small_big_whole_parts(cls, length: int, parts_num: int) -> tuple[int, int, int, int]:
         """
         get length, and num of parts, returns sizes of big and small part and number of each kind to cover the length fully

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset, DogsVsCatsLabels
-from src.datasets.dogs_vs_cats_patch_dataset import DogsVsCatsPatchDataset
+from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchDataset
 from src.env_constants import TRAIN_DATA_PATH
 from src.datasets.transform_factory import get_train_transform, get_predict_transform
 

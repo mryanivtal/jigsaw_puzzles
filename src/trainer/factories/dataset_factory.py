@@ -3,7 +3,7 @@ from torch.utils.data import random_split
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
-from src.datasets.dogs_vs_cats_patch_dataset import DogsVsCatsPatchDataset
+from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchDataset
 from src.datasets.transform_factory import get_train_transform, get_predict_transform
 from src.util_functions.printc import printc
 

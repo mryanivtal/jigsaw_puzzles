@@ -1,7 +1,7 @@
 import json
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
-from src.datasets.jigsaw_scrambler import JigsawScrambler
+from src.jigsaw.jigsaw_scrambler import JigsawScrambler
 
 
 class DogsVsCatsJigsawDataset(DogsVsCatsDataset):

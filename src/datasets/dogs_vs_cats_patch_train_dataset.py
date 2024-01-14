@@ -1,11 +1,9 @@
 import json
 import random
 
-import numpy as np
 import torch
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
-from src.datasets.jigsaw_scrambler import JigsawScrambler
 
 
 class DogsVsCatsPatchDataset(DogsVsCatsDataset):
@@ -13,7 +11,7 @@ class DogsVsCatsPatchDataset(DogsVsCatsDataset):
         super(DogsVsCatsPatchDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
         self.patch_size_x = int(patch_size_x)
         self.patch_size_y = int(patch_size_y)
-        _, self.image_size_y, self.image_size_x  = super(DogsVsCatsPatchDataset, self).get_item(0)[0].shape
+        _, self.image_size_y, self.image_size_x = super(DogsVsCatsPatchDataset, self).get_item(0)[0].shape
 
     @classmethod
     def _crop_image(cls, image: torch.Tensor, x: int, y: int, size_x: int, size_y: int) -> torch.Tensor:
@@ -36,7 +34,7 @@ class DogsVsCatsPatchDataset(DogsVsCatsDataset):
 
         label = int(random.randint(0, 4))
 
-        x_corner_a, y_corner_a, x_corner_b, y_corner_b = self._get_patch_corners(label)
+        x_corner_a, y_corner_a, x_corner_b, y_corner_b = self._get_valid_rand_patch_corners(label)
 
         patch_a = self._crop_image(image, x_corner_a, y_corner_a, self.patch_size_x, self.patch_size_y)
         patch_b = self._crop_image(image, x_corner_b, y_corner_b, self.patch_size_x, self.patch_size_y)
@@ -56,20 +54,27 @@ class DogsVsCatsPatchDataset(DogsVsCatsDataset):
         if not for_display:
             sample_data = torch.concat(patches, dim=0)
         else:
-            if label == 0:
-                sample_data = torch.concat(patches, dim=1)
-            elif label == 2:
-                sample_data = torch.concat(list(patches.__reversed__()), dim=1)
-            elif label == 1:
-                sample_data = torch.concat(patches, dim=2)
-            elif label == 3:
-                sample_data = torch.concat(list(patches.__reversed__()), dim=2)
-            elif label == 4:
-                sample_data = torch.concat(patches, dim=1)
+            sample_data = self._concatenate_for_display(label, patches)
 
         return sample_data, sample_metadata
 
-    def _get_patch_corners(self, label) -> (int, int, int, int):
+    @classmethod
+    def _concatenate_for_display(cls, label, patches) -> torch.Tensor:
+        if label == 0:
+            sample_data = torch.concat(patches, dim=1)
+        elif label == 2:
+            sample_data = torch.concat(list(patches.__reversed__()), dim=1)
+        elif label == 1:
+            sample_data = torch.concat(patches, dim=2)
+        elif label == 3:
+            sample_data = torch.concat(list(patches.__reversed__()), dim=2)
+        elif label == 4:
+            sample_data = torch.concat(patches, dim=1)
+        else:
+            raise RuntimeError('Got illegal label')
+        return sample_data
+
+    def _get_valid_rand_patch_corners(self, label) -> (int, int, int, int):
         # --- select locations of patches based on label
         if label == 0:
             corner_y_min = 0
