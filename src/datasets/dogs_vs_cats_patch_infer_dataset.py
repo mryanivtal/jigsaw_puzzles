@@ -3,30 +3,34 @@ import json
 import torch
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
+from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
 from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchDataset
 from src.jigsaw.jigsaw_scrambler import JigsawScrambler
 
 
-class DogsVsCatsPatchInferDataset(DogsVsCatsDataset):
-    def __init__(self, images_path: str, parts_y: int, parts_x: int, transform=None, transform_for_display=None, shuffle=False):
-        super(DogsVsCatsPatchDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
-
-        self.parts_y = int(parts_y)
-        self.parts_x = int(parts_x)
-        _, self.image_size_y, self.image_size_x = super(DogsVsCatsPatchDataset, self).get_item(0)[0].shape
+class DogsVsCatsPatchInferDataset(DogsVsCatsJigsawDataset):
+    def __init__(self, images_path: str, scrambler_params: dict,  transform=None, transform_for_display=None, shuffle=False, batch=True):
+        super(DogsVsCatsPatchInferDataset, self).__init__(images_path, scrambler_params, target='reverse_permutation', transform=transform, transform_for_display=transform_for_display, shuffle=shuffle)
+        self.batch = batch
 
     def get_item(self, item, for_display: bool=False) -> tuple[torch.Tensor, dict]:
-        image, sample_metadata = super(DogsVsCatsPatchDataset, self).get_item(item, for_display=for_display)
+        image, sample_metadata = super(DogsVsCatsPatchInferDataset, self).get_item(item, for_display=for_display)
 
-        item_patches = JigsawScrambler.get_jigsaw_places_and_patches(image, self.parts_y, self.parts_x)
+        item_patches = self.scrambler.get_jigsaw_places_and_patches(image)
 
+        patch_images = [patch['patch'] for patch in item_patches]
+        patch_pairs = [[a, b] for idx, a in enumerate(patch_images) for b in patch_images[idx + 1:]]
+        patch_pairs = [torch.concat(pair, dim=0) for pair in patch_pairs]
 
+        if self.batch:
+            patch_pairs = torch.stack(patch_pairs)
 
-        return sample_data, sample_metadata
+        patch_locations = [patch['location'] for patch in item_patches]
+        location_pairs = [[a, b] for idx, a in enumerate(patch_locations) for b in patch_locations[idx + 1:]]
 
+        return (patch_pairs, location_pairs), sample_metadata
 
     def __getitem__(self, item):
-        image, sample_metadata = self.get_item(item)
+        patch_pairs, sample_metadata = self.get_item(item)
         sample_metadata['image_metadata'] = json.dumps(sample_metadata['image_metadata'])
-
-        return image, sample_metadata
+        return patch_pairs, sample_metadata

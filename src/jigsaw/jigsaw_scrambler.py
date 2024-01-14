@@ -186,8 +186,11 @@ class JigsawScrambler:
 
         return new_image
 
+    def get_jigsaw_places_and_patches(self, image: torch.Tensor) -> list[dict]:
+        return self._get_jigsaw_places_and_patches(image, self.num_parts_y, self.num_parts_x)
+
     @classmethod
-    def get_jigsaw_places_and_patches(cls, image: torch.Tensor, parts_y: int, parts_x: int) -> list[dict]:
+    def _get_jigsaw_places_and_patches(cls, image: torch.Tensor, parts_y: int, parts_x: int) -> list[dict]:
         """
         Returns a dict of locations and patches from the image, split to (parts_y * parts_x) patches
         :param image:
