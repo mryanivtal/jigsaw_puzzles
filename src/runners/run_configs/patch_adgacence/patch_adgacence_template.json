@@ -1,0 +1,41 @@
+{
+  "trainer": {
+    "run_name": "patchAdg_resnet18_5x5",
+    "add_timestamp_to_out_dir": false,
+    "max_epochs": 3,
+    "batch_size": 128,
+    "check_val_every_n_epoch": 1,
+    "early_stop_patience": 10,
+    "num_workers": 2
+  },
+
+  "dataset": {
+    "short_debug_run": true,
+    "dataset_type": "patch_adjacence",
+    "parts_x": 5,
+    "parts_y": 5,
+    "train_val_split_ratio": 0.8,
+    "transforms": {
+      "resize_y": 210,
+      "resize_x": 210,
+      "random_erasing": false
+    }
+  },
+
+  "model": {
+    "name": "resnet18",
+    "pretrained": true,
+    "input_channels": 6,
+    "out_features": 5,
+    "output_type": "softmax"
+  },
+
+  "loss": {
+    "name": "cross_entropy"
+  },
+
+  "sample_saver": {
+    "name": "patch",
+    "num_samples_to_save": 6
+  }
+}

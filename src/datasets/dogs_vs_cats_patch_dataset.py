@@ -11,8 +11,8 @@ from src.datasets.jigsaw_scrambler import JigsawScrambler
 class DogsVsCatsPatchDataset(DogsVsCatsDataset):
     def __init__(self, images_path: str, patch_size_x: int, patch_size_y: int, transform=None, transform_for_display=None, shuffle=False):
         super(DogsVsCatsPatchDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
-        self.patch_size_x = patch_size_x
-        self.patch_size_y = patch_size_y
+        self.patch_size_x = int(patch_size_x)
+        self.patch_size_y = int(patch_size_y)
         _, self.image_size_y, self.image_size_x  = super(DogsVsCatsPatchDataset, self).get_item(0)[0].shape
 
     @classmethod
@@ -110,7 +110,7 @@ class DogsVsCatsPatchDataset(DogsVsCatsDataset):
             x_corner_b = random.randint(corner_x_min, corner_x_max - 1)
             y_corner_b = random.randint(corner_y_min, corner_y_max - 1)
 
-        return x_corner_a, y_corner_a, x_corner_b, y_corner_b
+        return int(x_corner_a), int(y_corner_a), int(x_corner_b), int(y_corner_b)
 
     def __getitem__(self, item):
         image, sample_metadata = self.get_item(item)

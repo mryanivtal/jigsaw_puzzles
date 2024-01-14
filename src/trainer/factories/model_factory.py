@@ -16,11 +16,15 @@ def get_resnet18(params):
     pretrained = params.get('pretrained', False)
     output_type = params.get('output_type', 'plain')
     checkpoint_path = params.get('checkpoint_path', None)
+    input_channels = params.get('input_channels', None)
 
     model = torchvision.models.resnet18(pretrained=pretrained)
 
     if out_features is not None:
         model.fc = torch.nn.Linear(in_features=512, out_features=out_features)
+
+        if input_channels is not None and  input_channels != 3:
+            model.conv1 = torch.nn.Conv2d(input_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
         if output_type == 'sigmoid':
             model.fc = torch.nn.Sequential(model.fc, torch.nn.Sigmoid())

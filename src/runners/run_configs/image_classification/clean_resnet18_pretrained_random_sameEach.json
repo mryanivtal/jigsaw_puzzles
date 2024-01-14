@@ -6,8 +6,7 @@
     "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 10,
-    "num_workers": 2,
-    "num_samples_to_save": 6
+    "num_workers": 2
   },
 
   "dataset": {
@@ -31,11 +30,17 @@
   "model": {
     "name": "resnet18",
     "pretrained": true,
+    "input_channels": 3,
     "out_features": 1,
     "output_type": "sigmoid"
   },
 
   "loss": {
     "name": "bce_loss"
+  },
+
+  "sample_saver": {
+    "name": "jigsaw",
+    "num_samples_to_save": 6
   }
 }

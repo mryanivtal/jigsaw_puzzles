@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from src import env_constants
-from src.jigsaw_trainer.trainer.execute_experiment import execute_experiment
+from src.trainer.execute_experiment import execute_experiment
 from src.util_functions.util_functions import load_dict_from_json
 
 if __name__ == '__main__':
@@ -13,8 +13,11 @@ if __name__ == '__main__':
     parser.add_argument('--test_data', type=str, help='Test data folder path')
     args = parser.parse_args()
 
-    run_config_path = args.run_config if args.run_config is not None else (Path(__file__).parent / Path(
-        'run_configs/image_classification/test_run.json'))
+    default_test_config = Path(__file__).parent / Path(
+        'run_configs/image_classification/jigsaw_classification_template.json')
+    # default_test_config = Path(__file__).parent / Path('run_configs/patch_adgacence/patch_adgacence_template.json')
+
+    run_config_path = args.run_config if args.run_config is not None else default_test_config
     project_path = args.project_path if args.project_path is not None else env_constants.PROJECT_PATH
     train_data_path = args.train_data if args.train_data is not None else env_constants.TRAIN_DATA_PATH
     test_data_path = args.test_data if args.test_data is not None else env_constants.TEST_DATA_PATH

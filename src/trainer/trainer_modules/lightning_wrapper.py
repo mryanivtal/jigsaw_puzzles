@@ -8,7 +8,7 @@ from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 class LightningWrapper(L.LightningModule):
     def __init__(self, model, optimizer, criterion):
         super(LightningWrapper, self).__init__()
-        self.save_hyperparameters(ignore=['model', 'criterion'])
+        # self.save_hyperparameters(ignore=['model', 'criterion'])      #TODO:uncomment!
 
         self.model = model
         self.optimizer = optimizer
@@ -42,7 +42,7 @@ class LightningWrapper(L.LightningModule):
 
     def _calc_step_outputs(self, batch):
         inputs, metadatas = batch
-        labels = metadatas['label']
+        labels = metadatas['target']
 
         probabilities = self(inputs)
         loss = self.criterion(probabilities, labels)

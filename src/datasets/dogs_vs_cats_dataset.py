@@ -84,5 +84,7 @@ class DogsVsCatsDataset(Dataset):
 
         if not pd.isna(label):
             sample_metadata['label'] = torch.Tensor([label])
+            sample_metadata['target'] = sample_metadata['label']
+
 
         return image, sample_metadata

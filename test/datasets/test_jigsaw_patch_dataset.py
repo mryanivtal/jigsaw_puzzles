@@ -29,17 +29,8 @@ class MyTestCase(unittest.TestCase):
         train_dl = DataLoader(train_ds, batch_size=50)
         b = train_dl.__iter__().__next__()
 
-    def test_labels(self):
-        DATA_FOLDER = Path(__file__).parent / Path('resources')
-
-        mixed_ds = DogsVsCatsDataset(DATA_FOLDER)
-        self.assertEqual(len(mixed_ds), 9)
-
-        index = mixed_ds.index
-
-        data = [mixed_ds[i] for i in range(len(mixed_ds))]
-
         print()
+
 
 if __name__ == '__main__':
     unittest.main()

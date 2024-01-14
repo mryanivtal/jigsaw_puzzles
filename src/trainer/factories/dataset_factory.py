@@ -3,6 +3,7 @@ from torch.utils.data import random_split
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
+from src.datasets.dogs_vs_cats_patch_dataset import DogsVsCatsPatchDataset
 from src.datasets.transform_factory import get_train_transform, get_predict_transform
 from src.util_functions.printc import printc
 
@@ -21,6 +22,16 @@ def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
         dataset_params['transforms']['resize_x'] = round(dataset_params['transforms']['resize_x'] / parts_x) * parts_x
         dataset_params['transforms']['resize_y'] = round(dataset_params['transforms']['resize_y'] / parts_y) * parts_y
 
+    elif dataset_params['dataset_type'] == 'patch_adjacence':
+        parts_x = dataset_params['parts_x']
+        parts_y = dataset_params['parts_y']
+
+        dataset_params['transforms']['resize_x'] = round(dataset_params['transforms']['resize_x'] / parts_x) * parts_x
+        dataset_params['transforms']['resize_y'] = round(dataset_params['transforms']['resize_y'] / parts_y) * parts_y
+
+        patch_size_x = dataset_params['transforms']['resize_x'] / parts_x
+        patch_size_y = dataset_params['transforms']['resize_y'] / parts_y
+
     train_transform = get_train_transform(transform_params)
     train_transform_for_display = get_train_transform(transform_params, normalize=False)
 
@@ -36,6 +47,10 @@ def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
         scrambler_params = dataset_params['scrambler']
         train_val_dataset = DogsVsCatsJigsawDataset(train_data_path, scrambler_params, target=dataset_target, transform=train_transform, transform_for_display=train_transform_for_display, shuffle=True)
         test_dataset = DogsVsCatsJigsawDataset(test_data_path, scrambler_params, target=dataset_target, transform=predict_transform, transform_for_display=predict_transform_for_display, shuffle=False)
+
+    elif dataset_params['dataset_type'] == 'patch_adjacence':
+        train_val_dataset = DogsVsCatsPatchDataset(train_data_path, patch_size_x=patch_size_x, patch_size_y=patch_size_y, transform=train_transform, transform_for_display=train_transform_for_display, shuffle=True)
+        test_dataset = DogsVsCatsPatchDataset(test_data_path, patch_size_x=patch_size_x, patch_size_y=patch_size_y, transform=predict_transform, transform_for_display=predict_transform_for_display, shuffle=False)
 
     else:
         raise NotImplementedError(f'dataset of type {dataset_params["dataset_type"]} is not available!')

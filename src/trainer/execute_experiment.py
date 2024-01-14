@@ -8,14 +8,14 @@ from lightning.pytorch.loggers import TensorBoardLogger
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 
-from src.jigsaw_trainer.trainer.factories.criterion_factory import get_criterion
-from src.jigsaw_trainer.trainer.factories.dataset_factory import get_datasets
-from src.jigsaw_trainer.trainer.lightning_modules.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
-from src.jigsaw_trainer.trainer.lightning_modules.lightning_wrapper import LightningWrapper
-from src.jigsaw_trainer.trainer.lightning_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
-from src.jigsaw_trainer.trainer.factories.model_factory import get_model
+from src.trainer.factories.criterion_factory import get_criterion
+from src.trainer.factories.dataset_factory import get_datasets
+from src.trainer.factories.sample_saver_factory import get_sample_saver
+from src.trainer.trainer_modules.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
+from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
+from src.trainer.trainer_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
+from src.trainer.factories.model_factory import get_model
 from src.util_functions.printc import printc
-from src.util_functions.sample_saver import save_samples_to_output_dir
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
 
 
@@ -26,6 +26,7 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     dataset_params = run_params['dataset']
     model_params = run_params['model']
     loss_params = run_params['loss']
+    sample_saver_params = run_params['sample_saver']
 
     # --- output dir creation
     outputs_path = create_output_dir(project_path, trainer_params['run_name'], trainer_params['add_timestamp_to_out_dir'])
@@ -36,9 +37,8 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     train_dataset, valid_dataset, test_dataset = get_datasets(dataset_params, train_data_path, test_data_path)
 
     # --- Save samples to folder
-    num_samples_to_save = trainer_params['num_samples_to_save']
-    if num_samples_to_save > 0:
-        save_samples_to_output_dir(outputs_path, num_samples_to_save, train_dataset, valid_dataset, test_dataset)
+    sample_saver = get_sample_saver(sample_saver_params)
+    sample_saver.save_samples(outputs_path, train_dataset, valid_dataset, test_dataset)
 
     # --- Dataloaders
     train_dataloader = DataLoader(train_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'])

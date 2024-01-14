@@ -8,8 +8,8 @@ from torch.utils.data import DataLoader, random_split
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.transform_factory import get_predict_transform
 from src.env_constants import PROJECT_PATH, TEST_DATA_PATH
-from src.jigsaw_trainer.trainer.lightning_modules.lightning_wrapper import LightningWrapper
-from src.jigsaw_trainer.trainer.factories.model_factory import get_resnet18
+from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
+from src.trainer.factories.model_factory import get_resnet18
 from src.util_functions.util_functions import create_output_dir
 
 if __name__ == '__main__':
