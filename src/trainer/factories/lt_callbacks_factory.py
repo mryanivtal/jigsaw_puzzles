@@ -31,7 +31,7 @@ def get_callbacks(params: dict, outputs_path: str):
             PatchLossAccuracyCsvCallback(test_csv_log_path, train=False, validation=False, test=True),
             PatchPerSampleCsvCallback(per_sample_test_csv_log_path, train=False, validation=False, test=True),
             ModelCheckpoint(save_top_k=8, dirpath=checkpoint_path, monitor='validation_loss',
-                            filename='checkpoint_{epoch:02d}_{step:04d}{validation_loss:.5f}'),
+                            filename='checkpoint_{epoch:02d}_{step:04d}{validation_loss:.5f}_{validation_accuracy:.5f}'),
             EarlyStopping(monitor="validation_loss", mode="min", patience=params['early_stop_patience'])
         ]
 

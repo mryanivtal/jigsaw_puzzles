@@ -8,3 +8,6 @@ def get_sample_saver(params: dict):
 
     elif params['name'] == 'patch_adjacence':
         return PatchSampleSaver(params)
+
+    else:
+        raise NotImplementedError(f'No savers found for task: {params["name"]}')

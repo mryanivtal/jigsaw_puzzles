@@ -65,7 +65,7 @@ def get_datasets(dataset_params, train_data_path, test_data_path) -> tuple:
         printc.yellow('------------------------------------')
         printc.yellow('Warning - This is a short debug run!')
         printc.yellow('------------------------------------')
-        train_dataset, valid_dataset, _ = random_split(train_val_dataset, [5, 5, len(train_val_dataset) - 10])
-        test_dataset, _ = random_split(test_dataset, [10, len(test_dataset) - 10])
+        train_dataset, valid_dataset, _ = random_split(train_val_dataset, [15, 15, len(train_val_dataset) - 30])
+        test_dataset, _ = random_split(test_dataset, [15, len(test_dataset) - 15])
 
     return train_dataset, valid_dataset, test_dataset

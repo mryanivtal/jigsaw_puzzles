@@ -2,16 +2,16 @@
   "trainer": {
     "run_name": "patchAdg_resnet18_5x5",
     "task": "patch_adjacence",
-    "add_timestamp_to_out_dir": false,
-    "max_epochs": 3,
-    "batch_size": 128,
+    "add_timestamp_to_out_dir": true,
+    "max_epochs": 200,
+    "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 10,
-    "num_workers": 0
+    "num_workers": 2
   },
 
   "dataset": {
-    "short_debug_run": true,
+    "short_debug_run": false,
     "dataset_type": "patch_adjacence",
     "parts_x": 5,
     "parts_y": 5,

@@ -74,32 +74,27 @@ class PatchLossAccuracyCsvCallback(L.Callback):
         self.epoch_cumulative_metrics[trainer_stage] = {'confusion_matrix': 0, 'loss': 0}
 
     def _update_epoch_metrics(self, pl_module: LightningModule,  batch, trainer_stage: str):
+        loss = pl_module.current_step_outputs['loss']
+
         labels = batch[1]['label']
         probabilities = pl_module.current_step_outputs['probabilities']
-        loss = pl_module.current_step_outputs['loss']
-        predictions = probabilities.round()
+        predictions = torch.argmax(probabilities, axis=1)
 
-        self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(predictions, labels, task='binary')
+        self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'] += confusion_matrix(predictions, labels, task="multiclass", num_classes=5)
         self.epoch_cumulative_metrics[trainer_stage]['loss'] += loss
 
     def _report_metrics(self, trainer_stage: str, epoch: int, pl_module: LightningModule):
         conf_matrix = self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix']
         loss = self.epoch_cumulative_metrics[trainer_stage]['loss'].item()
 
-        tn = conf_matrix[0][0].item()
-        tp = conf_matrix[1][1].item()
-        fp = conf_matrix[0][1].item()
-        fn = conf_matrix[1][0].item()
+        correct_preds = self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'].diagonal().sum()
+        total_preds = self.epoch_cumulative_metrics[trainer_stage]['confusion_matrix'].sum()
 
-        accuracy = (tn + tp) / torch.sum(conf_matrix).item()
+        accuracy = (correct_preds / total_preds).item()
         pl_module.log(f'{trainer_stage}_accuracy', accuracy, logger=True)
-
-        conf_matrix_dict = {
-            'tp': tp, 'tn': tn, 'fp': fp, 'fn': fn}
 
         self.train_data.at[epoch, f'{trainer_stage}_accuracy'] = accuracy
         self.train_data.at[epoch, f'{trainer_stage}_loss'] = loss
-        self.train_data.at[epoch, f'{trainer_stage}_conf_matrix'] = str(conf_matrix_dict)
 
         self._save_log_to_csv()
 

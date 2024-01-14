@@ -42,9 +42,10 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     sample_saver.save_samples(outputs_path, train_dataset, valid_dataset, test_dataset)
 
     # --- Dataloaders
-    train_dataloader = DataLoader(train_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'])
-    valid_dataloader = DataLoader(valid_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'])
-    test_dataloader = DataLoader(test_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'])
+    persistent_workers = True if trainer_params['num_workers'] > 0 else False
+    train_dataloader = DataLoader(train_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'], persistent_workers=persistent_workers)
+    valid_dataloader = DataLoader(valid_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'], persistent_workers=persistent_workers)
+    test_dataloader = DataLoader(test_dataset, batch_size=trainer_params['batch_size'], num_workers=trainer_params['num_workers'], persistent_workers=persistent_workers)
 
     # --- model, optimizer, loss
     model = get_model(model_params)
