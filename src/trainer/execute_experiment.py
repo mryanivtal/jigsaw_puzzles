@@ -10,10 +10,11 @@ from torch.utils.data import DataLoader
 
 from src.trainer.factories.criterion_factory import get_criterion
 from src.trainer.factories.dataset_factory import get_datasets
+from src.trainer.factories.lt_callbacks_factory import get_callbacks
 from src.trainer.factories.sample_saver_factory import get_sample_saver
-from src.trainer.trainer_modules.loss_accuracy_csv_log_callback import LossAccuracyCsvLogCallback
+from src.trainer.trainer_modules.jigsaw_task.jigsaw_loss_accuracy_csv_log_callback import JigsawLossAccuracyCsvCallback
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
-from src.trainer.trainer_modules.per_sample_csv_log_callback import PerSampleCsvLogCallback
+from src.trainer.trainer_modules.jigsaw_task.jigsaw_per_sample_csv_log_callback import JigsawPerSampleCsvCallback
 from src.trainer.factories.model_factory import get_model
 from src.util_functions.printc import printc
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
@@ -60,19 +61,7 @@ def execute_experiment(run_params: dict, project_path: Union[str, Path], train_d
     trainer_args['logger'] = TensorBoardLogger(outputs_path, name='tb_logs')
 
     # --- Callbacks
-    train_csv_log_path = str(outputs_path / Path('train_log'))
-    test_csv_log_path = str(outputs_path / Path('test_log'))
-    per_sample_test_csv_log_path = str(outputs_path / Path('test_predictions_log'))
-
-    checkpoint_path = str(outputs_path / Path('checkpoints'))
-
-    trainer_args['callbacks'] = [
-        LossAccuracyCsvLogCallback(train_csv_log_path, train=True, validation=True, test=False),
-        LossAccuracyCsvLogCallback(test_csv_log_path, train=False, validation=False, test=True),
-        PerSampleCsvLogCallback(per_sample_test_csv_log_path, train=False, validation=False, test=True),
-        ModelCheckpoint(save_top_k=8, dirpath=checkpoint_path, monitor='validation_loss', filename='checkpoint_{epoch:02d}_{step:04d}{validation_loss:.5f}_{validation_accuracy:.5f}'),
-        EarlyStopping(monitor="validation_loss", mode="min", patience=trainer_params['early_stop_patience'])
-    ]
+    trainer_args['callbacks'] = get_callbacks(trainer_params, outputs_path)
 
     # --- Others
     trainer_args['max_epochs'] = trainer_params['max_epochs']

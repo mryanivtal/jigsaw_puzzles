@@ -1,5 +1,5 @@
-from src.trainer.trainer_modules.jigsaw_sample_saver import JigsawSampleSaver
-from src.trainer.trainer_modules.patch_sample_saver import PatchSampleSaver
+from src.trainer.trainer_modules.jigsaw_task.jigsaw_sample_saver import JigsawSampleSaver
+from src.trainer.trainer_modules.patch_adg_task.patch_sample_saver import PatchSampleSaver
 
 
 def get_sample_saver(params: dict):

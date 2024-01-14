@@ -1,6 +1,7 @@
 {
   "trainer": {
     "run_name": "patchAdg_resnet18_5x5",
+    "task": "patch_adjacence",
     "add_timestamp_to_out_dir": false,
     "max_epochs": 3,
     "batch_size": 128,

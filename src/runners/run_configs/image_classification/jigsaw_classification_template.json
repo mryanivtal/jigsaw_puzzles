@@ -1,6 +1,7 @@
 {
   "trainer": {
     "run_name": "small_test_run",
+    "task": "jigsaw_bin_class",
     "add_timestamp_to_out_dir": false,
     "max_epochs": 6,
     "batch_size": 3,

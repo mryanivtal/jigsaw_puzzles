@@ -1,6 +1,7 @@
 {
   "trainer": {
     "run_name": "jigsaw_resnet18_4x4_random",
+    "task": "jigsaw_bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
     "batch_size": 64,
