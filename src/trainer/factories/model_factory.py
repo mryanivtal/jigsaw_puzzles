@@ -29,7 +29,7 @@ def get_resnet18(params):
         if output_type == 'sigmoid':
             model.fc = torch.nn.Sequential(model.fc, torch.nn.Sigmoid())
         elif output_type == 'softmax':
-            model.fc = torch.nn.Sequential(model.fc, torch.nn.Softmax())
+            model.fc = torch.nn.Sequential(model.fc, torch.nn.Softmax(dim=1))
         elif output_type == 'plain':
             pass
         else:

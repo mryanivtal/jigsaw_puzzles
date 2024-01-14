@@ -8,7 +8,7 @@ from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 class LightningWrapper(L.LightningModule):
     def __init__(self, model, optimizer, criterion):
         super(LightningWrapper, self).__init__()
-        # self.save_hyperparameters(ignore=['model', 'criterion'])      #TODO:uncomment!
+        # self.save_hyperparameters(ignore=['model', 'criterion'])
 
         self.model = model
         self.optimizer = optimizer
