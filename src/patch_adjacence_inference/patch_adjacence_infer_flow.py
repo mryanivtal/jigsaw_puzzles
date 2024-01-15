@@ -11,6 +11,7 @@ from tqdm import tqdm
 from src import env_constants
 from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDataset
 from src.datasets.transform_factory import get_predict_transform
+from src.puzzle_solvers.greedy_solver import GreedySolver
 from src.trainer.factories.model_factory import get_model
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
@@ -58,53 +59,24 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         sample = dataset[image_idx]
         image_target_permutation = sample[1]['target']
         pair_patches = sample[0][0]
-        pair_relations_scrambled = sample[0][1]
+        pair_relations = sample[0][1]
 
         # --- Run inference on all pairs in image
         pair_probabilities = l_module(pair_patches).detach().numpy()
 
+        # --- prep data for solver - convert spatial part representation to index
+        spatial_to_index, index_to_spatial = create_spatial_index_dicts(parts_y, parts_x)
+        pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
+
         # --- Run solver, get proposed solved permutation
-        solved_permutation = greedy_solver(parts_y, parts_x, pair_relations_scrambled, pair_probabilities)
+        solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities).solve()
 
 
-def greedy_solver(size_y: int, size_x: int, pair_relations, pair_probabilities) -> dict:
-        # --- Greedy solver
-        parts_to_place = list({relation[0] for relation in pair_relations}.union({relation[1] for relation in pair_relations}))
+def create_spatial_index_dicts(parts_y:int, parts_x:int) -> (dict, dict):
+    index = list(range(parts_y * parts_x))
+    spatial = [(y, x) for y in range(parts_y) for x in range(parts_x)]
 
-        placed_parts = []
-        part = parts_to_place.pop(np.random.randint(len(parts_to_place)))
-        placed_parts.append(part)
+    spatial_to_index = {spatial[i]: index[i] for i in range(parts_y * parts_x)}
+    index_to_spatial = {spatial_to_index[key]: key for key in spatial_to_index.keys()}
 
-        #TODO: store free sides for each placed part
-        # iterate on free sides of place parts:
-        #   Choose the empty slot with the top suiting probability
-        #   Place there the most suiting part
-        #   Update free slots (both sides of the axis!)
-        #   If no pore slots (and parts) - move to next stage of solving
-
-
-
-
-
-
-def find_pair_probabilities_for_part(part, pair_relations_list: list, pair_probabilities_list: np.ndarray) -> list:
-    """
-    returns indexes of all relations including the part, flipped if necessary so requested part is first
-    :param part: seed part
-    :return: list of related parts with relation code, flipped if needed to suit (part, related_part)
-    """
-    related_part_straight = [p for p in pair_relations_list[0]]
-    related_part_flipped = [p for p in pair_relations_list[0]]
-
-
-
-
-    print()
-
-        # TODO:Yaniv: continue from here:
-        #  Rebuild image from blocks using probabilities
-        #  show on screen original vs. reconstructed, maybe save some samples
-        #  next step - run classification model on image and get label
-        #  Create stats / plots on success
-
-
+    return spatial_to_index, index_to_spatial
