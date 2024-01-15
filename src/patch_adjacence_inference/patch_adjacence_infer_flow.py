@@ -6,11 +6,14 @@ import lightning as L
 from lightning import LightningModule
 from lightning.pytorch.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from tqdm import tqdm
 
 from src import env_constants
+from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
 from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDataset
 from src.datasets.transform_factory import get_predict_transform
+from src.jigsaw.jigsaw_scrambler import JigsawScrambler
 from src.puzzle_solvers.greedy_solver import GreedySolver
 from src.trainer.factories.model_factory import get_model
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
@@ -70,6 +73,23 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
         # --- Run solver, get proposed solved permutation
         solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities).solve()
+
+        solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
+
+        # --- Display outcomes
+
+        plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
+        scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
+        unscrambled_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
+
+        plain_image = transforms.ToPILImage()(plain_image)
+        plain_image.show()
+        # scrambled_image = transforms.ToPILImage()(scrambled_image)
+        # scrambled_image.show()
+        unscrambled_image = transforms.ToPILImage()(unscrambled_image)
+        unscrambled_image.show()
+        print()
+
 
 
 def create_spatial_index_dicts(parts_y:int, parts_x:int) -> (dict, dict):

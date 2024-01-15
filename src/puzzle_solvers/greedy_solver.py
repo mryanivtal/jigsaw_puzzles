@@ -21,7 +21,17 @@ class GreedySolver:
         self.board = np.ones([size_y, size_x]) * -1
         self.next_slot_candidates = []
 
+        self.slack_x = size_x
+        self.slack_y = size_y
+
         self.parts_to_place = list({relation[1][0] for relation in self.pair_relations}.union({relation[1][1] for relation in self.pair_relations}))
+
+    def update_slack(self):
+        self.slack_y = self.board.sum(axis=1)
+        self.slack_y = len(np.argwhere(self.slack_y == (-1 * self.size_y)))
+
+        self.slack_x = self.board.sum(axis=0)
+        self.slack_x = len(np.argwhere(self.slack_x == (-1 * self.size_x)))
 
     def can_shift_up(self):
         return True if self.board[0, :].sum() == (-1) * self.size_x else False
@@ -39,6 +49,7 @@ class GreedySolver:
         if self.can_shift_up():
             self.board[0:self.size_y - 1, :] = self.board[1:self.size_y, :]
             self.board[self.size_y - 1, :] = -1
+
         else:
             raise RuntimeError('Cannot shift up')
 
@@ -46,6 +57,7 @@ class GreedySolver:
         if self.can_shift_down():
             self.board[1:self.size_y, :] = self.board[0:self.size_y - 1, :]
             self.board[0, :] = -1
+
         else:
             raise RuntimeError('Cannot shift down')
 
@@ -57,20 +69,22 @@ class GreedySolver:
             raise RuntimeError('Cannot shift left')
 
     def shift_right(self):
-        if self.can_shift_left():
+        if self.can_shift_right():
             self.board[:, 1:self.size_x] = self.board[:, 0:self.size_x - 1]
             self.board[:, 0] = -1
+
         else:
-            raise RuntimeError('Cannot shift left')
+            raise RuntimeError('Cannot shift right')
 
 
     def solve(self) -> dict:
         # --- Place First part
         part = self.parts_to_place.pop(np.random.randint(len(self.parts_to_place)))
         slot_y, slot_x = (self.size_y // 2, self.size_x // 2)
+        self.next_slot_candidates = self.next_slot_candidates + [(slot_y, slot_x)]
         self.board[(slot_y, slot_x)] = part
         self.placed_parts.append(part)
-        self.update_slot_candidates((slot_y, slot_x))
+        self.update_next_slot_candidates((slot_y, slot_x))
 
         # --- for each slot candidate, find the best part candidate its probability
         while len(self.parts_to_place) > 0:
@@ -84,14 +98,29 @@ class GreedySolver:
             winner_slot = self.next_slot_candidates[winner[0]]
             winner_part = winner[1]
 
+            if winner_slot[0] < 0:
+                self.shift_down()
+                winner_slot = (winner_slot[0] + 1, winner_slot[1])
+            elif winner_slot[0] >= self.size_y:
+                self.shift_up()
+                winner_slot = (winner_slot[0] - 1, winner_slot[1])
+            elif winner_slot[1] < 0:
+                self.shift_right()
+                winner_slot = (winner_slot[0], winner_slot[1] + 1)
+            elif winner_slot[1] >= self.size_x:
+                self.shift_left()
+                winner_slot = (winner_slot[0], winner_slot[1] - 1)
+
             self.board[winner_slot] = winner_part
             self.placed_parts.append(winner_part)
-            self.update_slot_candidates(winner_slot)
+            self.parts_to_place.remove(winner_part)
+            self.update_slack()
+            self.update_next_slot_candidates(winner_slot)
 
-            # TODO: Handle out of boards and shifts
-        print()
-        # TODO: continue
+        part_locations = {(y, x): int(self.board[y, x]) for y in range(self.size_y) for x in range(self.size_x)}
+        reverse_location = {part_locations[key]: key for key in part_locations.keys()}
 
+        return reverse_location
 
 
     def find_best_candidate_for_slot(self, slot):
@@ -102,6 +131,8 @@ class GreedySolver:
         # Sum probabilities on the slot over all neighbours to find best part candidate
         for (neighbour, relation) in part_relations:
             relevant_relations = [r for r in self.pair_relations if r[1][0] == neighbour]
+            relevant_relations = [r for r in relevant_relations if r[1][1] not in self.placed_parts]
+
             relevant_relations = sorted(relevant_relations, key=lambda x: x[1][1])
 
             relevant_ids = [r[0] for r in relevant_relations]
@@ -114,28 +145,43 @@ class GreedySolver:
 
         return best_candidate, best_prob
 
-
-
-
-
-
     def free_and_valid(self, slot):
         slot_y, slot_x = slot
-        valid = True if 0 <= slot_x < self.size_x and  0 <= slot_y < self.size_y else False
-        free = True if valid and (self.board[slot_y, slot_x] == -1) else False
-
+        valid = True if 0 - self.slack_x <= slot_x < self.size_x + self.slack_x and 0 - self.slack_y <= slot_y < self.size_y + self.slack_y else False
+        inside_current_board = True if 0 <= slot_x < self.size_x and 0 <= slot_y < self.size_y else False
+        free = True if valid and ((not inside_current_board) or (self.board[slot_y, slot_x] == -1)) else False
         return free and valid
 
-    def update_slot_candidates(self, slot):
+    def occupied_and_valid(self, slot):
         slot_y, slot_x = slot
-        adj_slots = [(slot_y + 1, slot_x), (slot_y, slot_x + 1), (slot_y - 1, slot_x), (slot_y, slot_x - 1)]
-        candidates = [slot for slot in adj_slots if self.free_and_valid(slot)]
-        self.next_slot_candidates += candidates
+        valid = True if 0 - self.slack_x <= slot_x < self.size_x + self.slack_x and 0 - self.slack_y <= slot_y < self.size_y + self.slack_y else False
+        inside_current_board = True if 0 <= slot_x < self.size_x and 0 <= slot_y < self.size_y else False
+        occupied = False if (not inside_current_board) or (valid and (self.board[slot_y, slot_x] == -1)) else True
+        return occupied and valid
+
+    def update_next_slot_candidates(self, slot):
+        # slot_y, slot_x = slot
+        # adj_slots = [(slot_y + 1, slot_x), (slot_y, slot_x + 1), (slot_y - 1, slot_x), (slot_y, slot_x - 1)]
+        # candidates = [slot for slot in adj_slots if self.free_and_valid(slot)]
+        # self.next_slot_candidates += candidates
+        # self.next_slot_candidates.remove(slot)
+
+        candidates = []
+        for y in range(self.size_y):
+            for x in range(self.size_y):
+                if self.board[y, x] >= 0:
+                    adj_slots = [(y + 1, x), (y, x + 1), (y - 1, x), (y, x - 1)]
+                    cands = [i for i in adj_slots if self.free_and_valid(i)]
+                    candidates = candidates + cands
+
+        self.next_slot_candidates = list(set(candidates))
+
+
 
     def get_occupied_adj_slots(self, slot):
         slot_y, slot_x = slot
         adj_slots = [(slot_y + 1, slot_x), (slot_y, slot_x + 1), (slot_y - 1, slot_x), (slot_y, slot_x - 1)]
-        occupied = [s for s in adj_slots if self.board[s] >= 0]
+        occupied = [s for s in adj_slots if self.occupied_and_valid(s) and self.board[s] >= 0]
         return occupied
 
     def get_neighbours_and_relations(self, slot):
