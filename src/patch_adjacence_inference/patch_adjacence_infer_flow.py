@@ -56,23 +56,50 @@ def execute_infer_flow(run_params, project_path, test_data_path):
     # --- Loop on scrambled images (received as blocks in tensor)
     for image_idx in tqdm(range(len(dataset))):
         sample = dataset[image_idx]
-        patch_pairs = sample[0][0]
-        pair_locations = sample[0][1]
         image_target_permutation = sample[1]['target']
+        pair_patches = sample[0][0]
+        pair_relations_scrambled = sample[0][1]
 
-        pair_probabilities = l_module(patch_pairs).detach()
-        pair_predictions = torch.argmax(pair_probabilities, axis=1).numpy()
-        pair_probabilities = pair_probabilities.numpy()
-        pair_confidence_order = np.argsort(pair_probabilities.max(axis=1))
+        # --- Run inference on all pairs in image
+        pair_probabilities = l_module(pair_patches).detach().numpy()
 
-        # --- Greedy walk
-        for i in pair_confidence_order:
-            if not pair_predictions[i] == 4:    # if adjacent
-                pred = pair_predictions[i]
-                locations = pair_locations[i]
-                # TODO:Yaniv: ........
+        # --- Run solver, get proposed solved permutation
+        solved_permutation = greedy_solver(parts_y, parts_x, pair_relations_scrambled, pair_probabilities)
 
-        print()
+
+def greedy_solver(size_y: int, size_x: int, pair_relations, pair_probabilities) -> dict:
+        # --- Greedy solver
+        parts_to_place = list({relation[0] for relation in pair_relations}.union({relation[1] for relation in pair_relations}))
+
+        placed_parts = []
+        part = parts_to_place.pop(np.random.randint(len(parts_to_place)))
+        placed_parts.append(part)
+
+        #TODO: store free sides for each placed part
+        # iterate on free sides of place parts:
+        #   Choose the empty slot with the top suiting probability
+        #   Place there the most suiting part
+        #   Update free slots (both sides of the axis!)
+        #   If no pore slots (and parts) - move to next stage of solving
+
+
+
+
+
+
+def find_pair_probabilities_for_part(part, pair_relations_list: list, pair_probabilities_list: np.ndarray) -> list:
+    """
+    returns indexes of all relations including the part, flipped if necessary so requested part is first
+    :param part: seed part
+    :return: list of related parts with relation code, flipped if needed to suit (part, related_part)
+    """
+    related_part_straight = [p for p in pair_relations_list[0]]
+    related_part_flipped = [p for p in pair_relations_list[0]]
+
+
+
+
+    print()
 
         # TODO:Yaniv: continue from here:
         #  Rebuild image from blocks using probabilities
