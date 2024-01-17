@@ -15,13 +15,13 @@ from src.trainer.factories.sample_saver_factory import get_sample_saver
 from src.trainer.trainer_modules.jigsaw_task.jigsaw_loss_accuracy_csv_log_callback import JigsawLossAccuracyCsvCallback
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
 from src.trainer.trainer_modules.jigsaw_task.jigsaw_per_sample_csv_log_callback import JigsawPerSampleCsvCallback
-from src.trainer.factories.model_factory import get_model
+from src.trainer.factories.model_factory import get_model, get_inference_normalizer
 from src.util_functions.printc import printc
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
 
 
 def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_data_path: Union[str, Path], test_data_path: Union[str, Path], stop_before_fit = False) -> None:
-
+    DEBUG_MODE = True
     # --- Handle run param dicts
     trainer_params = run_params['trainer']
     dataset_params = run_params['dataset']
@@ -51,9 +51,10 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     model = get_model(model_params)
     criterion = get_criterion(loss_params)
     optimizer = Adam(model.parameters())
+    inference_normalizer = get_inference_normalizer(model_params)
 
     # --- Lightning wrapper module and callbacks
-    l_module = LightningWrapper(model, optimizer, criterion)
+    l_module = LightningWrapper(model, optimizer, criterion, inference_normalizer)
 
     # --- Trainer inputs
     trainer_args = dict()

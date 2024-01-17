@@ -11,6 +11,13 @@ def get_model(params: dict):
     return model
 
 
+def get_inference_normalizer(params: dict):
+    if params['inference_normalizer'] == 'softmax':
+        return torch.nn.Softmax(dim=1)
+    elif params['inference_normalizer'] == 'sigmoid':
+        return torch.nn.Sigmoid()
+
+
 def get_resnet18(params):
     out_features = params.get('out_features', None)
     pretrained = params.get('pretrained', False)
@@ -23,7 +30,7 @@ def get_resnet18(params):
     if out_features is not None:
         model.fc = torch.nn.Linear(in_features=512, out_features=out_features)
 
-        if input_channels is not None and  input_channels != 3:
+        if input_channels is not None and input_channels != 3:
             model.conv1 = torch.nn.Conv2d(input_channels, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 
         if output_type == 'sigmoid':

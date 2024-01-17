@@ -4,7 +4,7 @@ import torch
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
-from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchDataset
+from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchTrainDataset
 from src.jigsaw.jigsaw_scrambler import JigsawScrambler
 
 

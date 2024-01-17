@@ -28,7 +28,8 @@
     "pretrained": true,
     "input_channels": 6,
     "out_features": 5,
-    "output_type": "softmax"
+    "output_type": "plain",
+    "inference_normalizer": "softmax"
   },
 
   "loss": {

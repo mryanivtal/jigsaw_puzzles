@@ -1,23 +1,18 @@
 from pathlib import Path
 
-import numpy as np
-import torch
-import lightning as L
-from lightning import LightningModule
-from lightning.pytorch.loggers import TensorBoardLogger
 from torch.utils.data import DataLoader
-from torchvision import transforms
 from tqdm import tqdm
 
-from src import env_constants
 from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
 from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDataset
 from src.datasets.transform_factory import get_predict_transform
 from src.jigsaw.jigsaw_scrambler import JigsawScrambler, create_spatial_index_dicts
 from src.puzzle_solvers.greedy_solver import GreedySolver
+from src.puzzle_solvers.greedy_solver_bgu import GreedySolverBgu
 from src.trainer.factories.model_factory import get_model
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
+from src.utils.image_utils import display_image
 
 
 def execute_infer_flow(run_params, project_path, test_data_path):
@@ -74,8 +69,8 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
         # --- Run solver, get proposed solved permutation
         solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities).solve()
-        solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
+        solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
         solved_permutation_rev = {solved_permutation[key]: key for key in solved_permutation.keys()}      # todo: here for testing, delete later
 
 
@@ -90,20 +85,11 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
         solved_rev_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation_rev)
 
-        # plain_image = transforms.ToPILImage()(plain_image)
-        # plain_image.show()
-
-        # truth_unscrambled_image = transforms.ToPILImage()(truth_unscrambled_image)
-        # truth_unscrambled_image.show()
-
-        # scrambled_image = transforms.ToPILImage()(scrambled_image)
-        # scrambled_image.show()
-
-        solved_rev_image = transforms.ToPILImage()(solved_rev_image)
-        solved_rev_image.show()
-
-        solved_image = transforms.ToPILImage()(solved_image)
-        solved_image.show()
+        # display_image(plain_image)
+        # display_image(truth_unscrambled_image)
+        # display_image(scrambled_image)
+        display_image(solved_rev_image)
+        display_image(solved_image)
         print()
 
 

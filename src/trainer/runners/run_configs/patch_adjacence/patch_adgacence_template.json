@@ -2,12 +2,12 @@
   "trainer": {
     "run_name": "patchAdg_resnet18_5x5",
     "task": "patch_adjacence",
-    "add_timestamp_to_out_dir": false,
-    "max_epochs": 3,
-    "batch_size": 128,
+    "add_timestamp_to_out_dir": true,
+    "max_epochs": 200,
+    "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 10,
-    "num_workers": 0
+    "num_workers": 3
   },
 
   "dataset": {
@@ -28,7 +28,8 @@
     "pretrained": true,
     "input_channels": 6,
     "out_features": 5,
-    "output_type": "softmax"
+    "output_type": "plain",
+    "inference_normalizer": "softmax"
   },
 
   "loss": {

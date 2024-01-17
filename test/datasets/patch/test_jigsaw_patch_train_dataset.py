@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset, DogsVsCatsLabels
-from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchDataset
+from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchTrainDataset
 from src.env_constants import TRAIN_DATA_PATH
 from src.datasets.transform_factory import get_train_transform, get_predict_transform
 
@@ -17,14 +17,14 @@ class MyTestCase(unittest.TestCase):
         transform = get_train_transform({'resize_y': 224, 'resize_x': 224, 'random_erasing': False})
         transform_for_display = get_predict_transform({'resize_y': 224, 'resize_x': 224, 'random_erasing': False}, normalize=False)
 
-        train_ds = DogsVsCatsPatchDataset(TRAIN_DATA_PATH, patch_size_x=100, patch_size_y=100, transform=transform, transform_for_display=transform_for_display)
+        train_ds = DogsVsCatsPatchTrainDataset(TRAIN_DATA_PATH, patch_size_x=100, patch_size_y=100, transform=transform, transform_for_display=transform_for_display)
         self.assertEqual(len(train_ds), 25000)
 
-        for i in range(10):
+        for i in range(5):
             a_disp = train_ds.get_item(random.randint(0, len(train_ds)-1), for_display=True)
-            # a_disp_img = transforms.ToPILImage()(a_disp[0])
-            # a_disp_img.show()
-            # print(a_disp[1]['label'])
+            a_disp_img = transforms.ToPILImage()(a_disp[0])
+            a_disp_img.show()
+            print(a_disp[1]['label'])
 
         train_dl = DataLoader(train_ds, batch_size=50)
         b = train_dl.__iter__().__next__()

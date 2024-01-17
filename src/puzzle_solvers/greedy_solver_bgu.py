@@ -15,7 +15,7 @@ Problem: Produces bad results
 Likely reason: The algo is not greedy enough.   takes into account all the adjacent slots for each next part, making an avarage taht produce bad choice
 """
 
-class GreedySolver:
+class GreedySolverBgu:
     def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities):
         self.size_y = size_y
         self.size_x = size_x

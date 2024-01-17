@@ -6,24 +6,29 @@ from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 
 
 class LightningWrapper(L.LightningModule):
-    def __init__(self, model, optimizer, criterion):
+    def __init__(self, model, optimizer, criterion, inference_normalizer):
         super(LightningWrapper, self).__init__()
-        self.save_hyperparameters(ignore=['model', 'criterion'])
+        self.save_hyperparameters(ignore=['model', 'criterion'])          #todo: fix
 
         self.model = model
         self.optimizer = optimizer
         self.criterion = criterion
         self.current_step_outputs = {}
+        self.inference_normalizer = inference_normalizer
 
     def forward(self, inputs):
-        model_output = self.model(inputs)
-        return model_output
+        output = self.model(inputs)
+
+        if self.output_normalizer:
+            output = self.output_normalizer(output)
+
+        return output
 
     def training_step(self, batch, batch_idx):
         self._calc_step_outputs(batch)
 
         loss = self.current_step_outputs['loss']
-        self.log("train_loss", loss, batch_size = len(batch[0]), on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log("train_loss", loss, batch_size=len(batch[0]), on_step=True, on_epoch=True, prog_bar=True, logger=True)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -42,13 +47,13 @@ class LightningWrapper(L.LightningModule):
 
     def _calc_step_outputs(self, batch):
         inputs, metadatas = batch
-        labels = metadatas['target']
+        target = metadatas['target']
 
-        probabilities = self(inputs)
-        loss = self.criterion(probabilities, labels)
+        probabilities = self.model(inputs)
+        loss = self.criterion(probabilities, target)
 
         # --- store temp batch data for callbacks to use
-        self.current_step_outputs['probabilities'] = probabilities
+        self.current_step_outputs['probabilities'] = self.inference_normalizer(probabilities)
         self.current_step_outputs['loss'] = loss
 
     def configure_optimizers(self) -> OptimizerLRScheduler:

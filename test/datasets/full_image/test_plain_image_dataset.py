@@ -30,7 +30,7 @@ class MyTestCase(unittest.TestCase):
 
 
     def test_labels(self):
-        DATA_FOLDER = Path(__file__).parent / Path('resources')
+        DATA_FOLDER = Path(__file__).parent / Path('../resources')
 
         mixed_ds = DogsVsCatsDataset(DATA_FOLDER)
         self.assertEqual(len(mixed_ds), 9)

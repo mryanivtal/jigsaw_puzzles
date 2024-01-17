@@ -6,12 +6,12 @@ import torch
 from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 
 
-class DogsVsCatsPatchDataset(DogsVsCatsDataset):
+class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
     def __init__(self, images_path: str, patch_size_x: int, patch_size_y: int, transform=None, transform_for_display=None, shuffle=False):
-        super(DogsVsCatsPatchDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
+        super(DogsVsCatsPatchTrainDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
         self.patch_size_x = int(patch_size_x)
         self.patch_size_y = int(patch_size_y)
-        _, self.image_size_y, self.image_size_x = super(DogsVsCatsPatchDataset, self).get_item(0)[0].shape
+        _, self.image_size_y, self.image_size_x = super(DogsVsCatsPatchTrainDataset, self).get_item(0)[0].shape
 
     @classmethod
     def _crop_image(cls, image: torch.Tensor, x: int, y: int, size_x: int, size_y: int) -> torch.Tensor:
@@ -22,7 +22,7 @@ class DogsVsCatsPatchDataset(DogsVsCatsDataset):
         return patch
 
     def get_item(self, item, for_display: bool=False) -> tuple[torch.Tensor, dict]:
-        image, sample_metadata = super(DogsVsCatsPatchDataset, self).get_item(item, for_display=for_display)
+        image, sample_metadata = super(DogsVsCatsPatchTrainDataset, self).get_item(item, for_display=for_display)
 
         # --- select adjacency status for sample and prepare target (vector[5] - 4 sides + 1 not adjacent)
         # labels:

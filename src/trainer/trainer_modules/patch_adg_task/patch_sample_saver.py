@@ -46,3 +46,4 @@ class PatchSampleSaver:
 
         samples_metadata = pd.DataFrame.from_records(samples_metadata)
         samples_metadata.to_csv(samples_path / Path(f'{dataset_name}.samples.csv'), index=False)
+
