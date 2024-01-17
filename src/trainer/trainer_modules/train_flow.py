@@ -21,7 +21,6 @@ from src.util_functions.util_functions import create_output_dir, save_dict_to_js
 
 
 def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_data_path: Union[str, Path], test_data_path: Union[str, Path], stop_before_fit = False) -> None:
-    DEBUG_MODE = True
     # --- Handle run param dicts
     trainer_params = run_params['trainer']
     dataset_params = run_params['dataset']
