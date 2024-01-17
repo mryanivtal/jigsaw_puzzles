@@ -1,8 +1,12 @@
 import numpy as np
 
 """
-Greedy solver by my design, doesnt work well.
-steps:
+Greedy solver by my design, loosly based on the following paper:
+A fully automated greedy square jigsaw puzzle solver, by Dolev Pomeranz, Michal Shemesh, Ohad Ben-Shahar from BGU.
+
+Currently only placer module is implemented.
+
+Placer steps:
 1. place a random piece in the middle
 
 2. For every empty slot adjacent to one or more of the placed pieces on the board:
@@ -10,9 +14,6 @@ steps:
     b. Temp. store the best piece found and its probability
 3.  Choose the slot and candidate part that has the highest probability, place it on the board
 4. go back to #2
-
-Problem: Produces bad results
-Likely reason: The algo is not greedy enough.   takes into account all the adjacent slots for each next part, making an avarage taht produce bad choice
 """
 
 class GreedySolver:
