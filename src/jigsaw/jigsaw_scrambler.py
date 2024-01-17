@@ -13,6 +13,7 @@ class JigsawScrambler:
         :param scrambler_params:
         """
         self.params = scrambler_params
+        self.random_seed = None
 
         self.same_for_all = True if scrambler_params['mode'] == 'same_for_all_samples' else False
 
@@ -22,7 +23,15 @@ class JigsawScrambler:
         if self.same_for_all:
             self.fixed_permutation = self._generate_order_by_params(scrambler_params)
 
-    def permutate_tensor(self, image: torch.Tensor) -> (torch.Tensor, dict):
+    def random_with_seed(self):
+        if self.random_seed:
+            return random.Random(self.random_seed)
+        else:
+            return random
+
+    def permutate_tensor(self, image: torch.Tensor, random_seed: int=None) -> (torch.Tensor, dict):
+        self.random_seed = random_seed
+
         if self.same_for_all:
             permutation = self.fixed_permutation
         else:
@@ -48,24 +57,23 @@ class JigsawScrambler:
         spatial_perm = {natural_perm_list[i]: target_perm_list[i] for i in range(len(natural_perm_list))}
         return spatial_perm
 
-    @classmethod
-    def _generate_order_by_params(cls, params: dict) -> dict:
+    def _generate_order_by_params(self, params: dict) -> dict:
         num_parts_y = params['parts_y']
         num_parts_x = params['parts_x']
 
         permutation_type = params['permutation_type']
 
         if permutation_type == 'random':
-            permutation = cls._generate_random_permutation(num_parts_y, num_parts_x)
+            permutation = self._generate_random_permutation(num_parts_y, num_parts_x)
 
         elif permutation_type == 'switch':
-            permutation = cls._generate_switch_permutation(num_parts_y, num_parts_x)
+            permutation = self._generate_switch_permutation(num_parts_y, num_parts_x)
 
         elif permutation_type == 'predefined':
             permutation = params['predefined_permutation']
 
         elif permutation_type == 'shift':
-            permutation = cls._generate_random_shift_permutation(num_parts_y, num_parts_x)
+            permutation = self._generate_random_shift_permutation(num_parts_y, num_parts_x)
             raise NotImplementedError(f'Permutation type {permutation_type} is not supported!')
 
         elif permutation_type == 'border':
@@ -77,8 +85,7 @@ class JigsawScrambler:
 
         return permutation
 
-    @classmethod
-    def _generate_random_permutation(cls, num_tiles_x: int, num_tiles_y: int) -> dict:
+    def _generate_random_permutation(self, num_tiles_x: int, num_tiles_y: int) -> dict:
         """
         Generate total random permutation: dict{(y, x): (new_y, new_x)}
         :param num_tiles_x:
@@ -87,13 +94,12 @@ class JigsawScrambler:
         """
         original_places = [(x, y) for x in range(num_tiles_x) for y in range(num_tiles_y)]
         target_places = original_places.copy()
-        random.shuffle(target_places)
+        self.random_with_seed().shuffle(target_places)
         permutation = {original_places[i]: target_places[i] for i in range(len(original_places))}
 
         return permutation
 
-    @classmethod
-    def _generate_switch_permutation(cls, num_tiles_x: int, num_tiles_y: int) -> dict:
+    def _generate_switch_permutation(self, num_tiles_x: int, num_tiles_y: int) -> dict:
         """
         Generate random permutation by switching places between pairs of tiles
         :param num_tiles_x:
@@ -104,9 +110,9 @@ class JigsawScrambler:
 
         permutation = {}
         while len(places) > 1:
-            item_a = random.choice(places)
+            item_a = self.random_with_seed().choice(places)
             places.remove(item_a)
-            item_b = random.choice(places)
+            item_b = self.random_with_seed().choice(places)
             places.remove(item_b)
 
             permutation[item_a] = item_b
@@ -117,18 +123,17 @@ class JigsawScrambler:
 
         return permutation
 
-    @classmethod
-    def _generate_random_shift_permutation(cls, num_tiles_x: int, num_tiles_y: int) -> dict:
+    def _generate_random_shift_permutation(self, num_tiles_x: int, num_tiles_y: int) -> dict:
         """
         Generates random shift permutation on x and y
         :param num_tiles_x:
         :param num_tiles_y:
         :return:
         """
-        shift_x = random.randint(1, num_tiles_x)
-        shift_y = random.randint(1, num_tiles_y)
+        shift_x = self.random_with_seed().randint(1, num_tiles_x)
+        shift_y = self.random_with_seed().randint(1, num_tiles_y)
 
-        permutation = cls._generate_deterministic_shift_permutation(num_tiles_x, num_tiles_y, shift_x, shift_y)
+        permutation = self._generate_deterministic_shift_permutation(num_tiles_x, num_tiles_y, shift_x, shift_y)
 
         return permutation
 
@@ -268,5 +273,15 @@ class JigsawScrambler:
 
         return split_lines
 
-    def __call__(self, image: torch.Tensor) -> (torch.Tensor, dict):
-        return self.permutate_tensor(image)
+    def __call__(self, image: torch.Tensor, random_seed=None) -> (torch.Tensor, dict):
+        return self.permutate_tensor(image, random_seed)
+
+
+def create_spatial_index_dicts(parts_y:int, parts_x:int) -> (dict, dict):
+    index = list(range(parts_y * parts_x))
+    spatial = [(y, x) for y in range(parts_y) for x in range(parts_x)]
+
+    spatial_to_index = {spatial[i]: index[i] for i in range(parts_y * parts_x)}
+    index_to_spatial = {spatial_to_index[key]: key for key in spatial_to_index.keys()}
+
+    return spatial_to_index, index_to_spatial

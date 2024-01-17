@@ -30,22 +30,23 @@ class MyTestCase(unittest.TestCase):
 
         train_ds = DogsVsCatsPatchInferDataset(TRAIN_DATA_PATH, scrambler_params, transform=transform)
 
-        images_patches, metadata = train_ds[15]
-        scrambled_image, _ = super(DogsVsCatsPatchInferDataset, train_ds).get_item(15)
-        plain_image, _ = super(DogsVsCatsJigsawDataset, train_ds).get_item(15)
-        permutation = metadata['target']
+        for i in range(4):
+            images_patches, metadata = train_ds[15]
+            scrambled_image, _ = super(DogsVsCatsPatchInferDataset, train_ds).get_item(15)
+            plain_image, _ = super(DogsVsCatsJigsawDataset, train_ds).get_item(15)
+            permutation = metadata['target']
 
-        parts_x = train_ds.scrambler.num_parts_x
-        parts_y = train_ds.scrambler.num_parts_y
-        unscrambled_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, permutation)
+            parts_x = train_ds.scrambler.num_parts_x
+            parts_y = train_ds.scrambler.num_parts_y
+            unscrambled_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, permutation)
 
-        # --- Present images on screen
-        # plain_image = transforms.ToPILImage()(plain_image)
-        # plain_image.show()
-        # scrambled_image = transforms.ToPILImage()(scrambled_image)
-        # scrambled_image.show()
-        # unscrambled_image = transforms.ToPILImage()(unscrambled_image)
-        # unscrambled_image.show()
+            # --- Present images on screen
+            # plain_image = transforms.ToPILImage()(plain_image)
+            # plain_image.show()
+            scrambled_image = transforms.ToPILImage()(scrambled_image)
+            scrambled_image.show()
+            # unscrambled_image = transforms.ToPILImage()(unscrambled_image)
+            # unscrambled_image.show()
 
         assert plain_image == unscrambled_image
 

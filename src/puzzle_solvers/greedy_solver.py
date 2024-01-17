@@ -1,5 +1,20 @@
 import numpy as np
 
+"""
+Greedy solver by my design, doesnt work well.
+steps:
+1. place a random piece in the middle
+
+2. For every empty slot adjacent to one or more of the placed pieces on the board:
+    a. look at all the free pieces, find the one that is most suitable to that place based on sum normalized probabilities to be near the adjacent pieces
+    b. Temp. store the best piece found and its probability
+3.  Choose the slot and candidate part that has the highest probability, place it on the board
+4. go back to #2
+
+Problem: Produces bad results
+Likely reason: The algo is not greedy enough.   takes into account all the adjacent slots for each next part, making an avarage taht produce bad choice
+"""
+
 class GreedySolver:
     def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities):
         self.size_y = size_y
@@ -10,11 +25,11 @@ class GreedySolver:
         self.pair_relations = [(i, self.pair_relations[i]) for i in range(len(self.pair_relations))]
 
         flipped_probabilities = np.zeros_like(pair_probabilities)
-        flipped_probabilities[0, :] = pair_probabilities[2, :]
-        flipped_probabilities[2, :] = pair_probabilities[0, :]
-        flipped_probabilities[1, :] = pair_probabilities[3, :]
-        flipped_probabilities[3, :] = pair_probabilities[1, :]
-        flipped_probabilities[4, :] = pair_probabilities[4, :]
+        flipped_probabilities[:, 0] = pair_probabilities[:, 2]
+        flipped_probabilities[:, 2] = pair_probabilities[:, 0]
+        flipped_probabilities[:, 1] = pair_probabilities[:, 3]
+        flipped_probabilities[:, 3] = pair_probabilities[:, 1]
+        flipped_probabilities[:, 4] = pair_probabilities[:, 4]
         self.pair_probabilities = np.concatenate([pair_probabilities, flipped_probabilities])
 
         self.placed_parts = []
@@ -137,7 +152,7 @@ class GreedySolver:
 
             relevant_ids = [r[0] for r in relevant_relations]
             relevant_probs = self.pair_probabilities[relevant_ids, relation]
-            sum_probabilities = sum_probabilities + (relevant_probs / sum(relevant_probs))
+            sum_probabilities = sum_probabilities + (relevant_probs / sum(np.sqrt(relevant_probs)))
 
         best_idx = sum_probabilities.argmax()
         best_prob = sum_probabilities.max() / len(part_relations)

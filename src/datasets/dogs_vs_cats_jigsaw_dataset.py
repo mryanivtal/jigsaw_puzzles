@@ -16,7 +16,7 @@ class DogsVsCatsJigsawDataset(DogsVsCatsDataset):
     def get_item(self, item, for_display: bool=False):
         image, sample_metadata = super(DogsVsCatsJigsawDataset, self).get_item(item, for_display=for_display)
 
-        scrambled_image, permutation = self.scrambler(image)
+        scrambled_image, permutation = self.scrambler(image, random_seed=item)
         sample_metadata = sample_metadata.copy()
         sample_metadata['image_metadata']['permutation'] = str(permutation)
 
