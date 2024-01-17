@@ -10,7 +10,7 @@ from src.jigsaw.jigsaw_scrambler import JigsawScrambler
 
 class DogsVsCatsPatchInferDataset(DogsVsCatsJigsawDataset):
     def __init__(self, images_path: str, scrambler_params: dict,  transform=None, transform_for_display=None, shuffle=False, batch=True):
-        super(DogsVsCatsPatchInferDataset, self).__init__(images_path, scrambler_params, target='reverse_permutation', transform=transform, transform_for_display=transform_for_display, shuffle=shuffle)
+        super(DogsVsCatsPatchInferDataset, self).__init__(images_path, scrambler_params, target='reverse_permutation', transform=transform, transform_for_display=transform_for_display, shuffle=shuffle, seed_scrambler=True)
         self.batch = batch
 
     def get_item(self, item, for_display: bool=False) -> tuple[torch.Tensor, dict]:

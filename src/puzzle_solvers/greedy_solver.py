@@ -20,17 +20,8 @@ class GreedySolver:
         self.size_y = size_y
         self.size_x = size_x
 
-        flipped_pair_relations = [(i[1], i[0]) for i in pair_relations]
-        self.pair_relations = pair_relations + flipped_pair_relations
-        self.pair_relations = [(i, self.pair_relations[i]) for i in range(len(self.pair_relations))]
-
-        flipped_probabilities = np.zeros_like(pair_probabilities)
-        flipped_probabilities[:, 0] = pair_probabilities[:, 2]
-        flipped_probabilities[:, 2] = pair_probabilities[:, 0]
-        flipped_probabilities[:, 1] = pair_probabilities[:, 3]
-        flipped_probabilities[:, 3] = pair_probabilities[:, 1]
-        flipped_probabilities[:, 4] = pair_probabilities[:, 4]
-        self.pair_probabilities = np.concatenate([pair_probabilities, flipped_probabilities])
+        self.pair_relations = self.create_symmetric_pair_relations(pair_relations)
+        self.pair_probabilities = self.create_symmetric_pair_probabilities(pair_probabilities)
 
         self.placed_parts = []
         self.board = np.ones([size_y, size_x]) * -1
@@ -40,6 +31,22 @@ class GreedySolver:
         self.slack_y = size_y
 
         self.parts_to_place = list({relation[1][0] for relation in self.pair_relations}.union({relation[1][1] for relation in self.pair_relations}))
+
+    def create_symmetric_pair_relations(self, pair_relations):
+        flipped_pair_relations = [(i[1], i[0]) for i in pair_relations]
+        symmetric = pair_relations + flipped_pair_relations
+        symmetric = [(i, symmetric[i]) for i in range(len(symmetric))]
+        return symmetric
+
+    def create_symmetric_pair_probabilities(self, pair_probabilities):
+        flipped_probabilities = np.zeros_like(pair_probabilities)
+        flipped_probabilities[:, 0] = pair_probabilities[:, 2]
+        flipped_probabilities[:, 2] = pair_probabilities[:, 0]
+        flipped_probabilities[:, 1] = pair_probabilities[:, 3]
+        flipped_probabilities[:, 3] = pair_probabilities[:, 1]
+        flipped_probabilities[:, 4] = pair_probabilities[:, 4]
+        symmetric = np.concatenate([pair_probabilities, flipped_probabilities])
+        return symmetric
 
     def update_slack(self):
         self.slack_y = self.board.sum(axis=1)
@@ -64,7 +71,6 @@ class GreedySolver:
         if self.can_shift_up():
             self.board[0:self.size_y - 1, :] = self.board[1:self.size_y, :]
             self.board[self.size_y - 1, :] = -1
-
         else:
             raise RuntimeError('Cannot shift up')
 
@@ -72,7 +78,6 @@ class GreedySolver:
         if self.can_shift_down():
             self.board[1:self.size_y, :] = self.board[0:self.size_y - 1, :]
             self.board[0, :] = -1
-
         else:
             raise RuntimeError('Cannot shift down')
 
@@ -87,7 +92,6 @@ class GreedySolver:
         if self.can_shift_right():
             self.board[:, 1:self.size_x] = self.board[:, 0:self.size_x - 1]
             self.board[:, 0] = -1
-
         else:
             raise RuntimeError('Cannot shift right')
 
@@ -95,11 +99,12 @@ class GreedySolver:
     def solve(self) -> dict:
         # --- Place First part
         part = self.parts_to_place.pop(np.random.randint(len(self.parts_to_place)))
+
         slot_y, slot_x = (self.size_y // 2, self.size_x // 2)
         self.next_slot_candidates = self.next_slot_candidates + [(slot_y, slot_x)]
         self.board[(slot_y, slot_x)] = part
         self.placed_parts.append(part)
-        self.update_next_slot_candidates((slot_y, slot_x))
+        self.update_next_slot_candidates()
 
         # --- for each slot candidate, find the best part candidate its probability
         while len(self.parts_to_place) > 0:
@@ -130,7 +135,7 @@ class GreedySolver:
             self.placed_parts.append(winner_part)
             self.parts_to_place.remove(winner_part)
             self.update_slack()
-            self.update_next_slot_candidates(winner_slot)
+            self.update_next_slot_candidates()
 
         part_locations = {(y, x): int(self.board[y, x]) for y in range(self.size_y) for x in range(self.size_x)}
         reverse_location = {part_locations[key]: key for key in part_locations.keys()}
@@ -152,7 +157,9 @@ class GreedySolver:
 
             relevant_ids = [r[0] for r in relevant_relations]
             relevant_probs = self.pair_probabilities[relevant_ids, relation]
-            sum_probabilities = sum_probabilities + (relevant_probs / sum(relevant_probs))
+            sum_probabilities = sum_probabilities + (relevant_probs / np.sqrt(sum(relevant_probs)))
+            # sum_probabilities = sum_probabilities + relevant_probs
+
 
         best_idx = sum_probabilities.argmax()
         best_prob = sum_probabilities.max() / len(part_relations)
@@ -174,13 +181,7 @@ class GreedySolver:
         occupied = False if (not inside_current_board) or (valid and (self.board[slot_y, slot_x] == -1)) else True
         return occupied and valid
 
-    def update_next_slot_candidates(self, slot):
-        # slot_y, slot_x = slot
-        # adj_slots = [(slot_y + 1, slot_x), (slot_y, slot_x + 1), (slot_y - 1, slot_x), (slot_y, slot_x - 1)]
-        # candidates = [slot for slot in adj_slots if self.free_and_valid(slot)]
-        # self.next_slot_candidates += candidates
-        # self.next_slot_candidates.remove(slot)
-
+    def update_next_slot_candidates(self):
         candidates = []
         for y in range(self.size_y):
             for x in range(self.size_y):

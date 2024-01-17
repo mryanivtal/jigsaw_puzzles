@@ -30,7 +30,7 @@ class JigsawScrambler:
             return random
 
     def permutate_tensor(self, image: torch.Tensor, random_seed: int=None) -> (torch.Tensor, dict):
-        self.random_seed = random_seed
+        self.random_seed = random.randint(0, 5000) if not random_seed else random_seed
 
         if self.same_for_all:
             permutation = self.fixed_permutation

@@ -9,7 +9,6 @@ from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDa
 from src.datasets.transform_factory import get_predict_transform
 from src.jigsaw.jigsaw_scrambler import JigsawScrambler, create_spatial_index_dicts
 from src.puzzle_solvers.greedy_solver import GreedySolver
-from src.puzzle_solvers.greedy_solver_bgu import GreedySolverBgu
 from src.trainer.factories.model_factory import get_model
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
@@ -40,10 +39,6 @@ def execute_infer_flow(run_params, project_path, test_data_path):
     scrambler_params = dataset_params['scrambler']
     dataset = DogsVsCatsPatchInferDataset(test_data_path, scrambler_params, transform, transform_for_display)
 
-    # --- Dataloader
-    persistent_workers = True if trainer_params['num_workers'] > 0 else False
-    dataloader = DataLoader(dataset, batch_size=1, num_workers=trainer_params['num_workers'], persistent_workers=persistent_workers)
-
     # --- Model
     part_adj_model_params = run_params['models']['part_adj_params']
     model = get_model(part_adj_model_params)
@@ -54,6 +49,9 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
 
     # --- Loop on scrambled images (received as blocks in tensor)
+    correct_parts = 0
+    total_parts = 0
+
     for image_idx in tqdm(range(len(dataset))):
         sample = dataset[image_idx]
         target_permutation = sample[1]['target']
@@ -64,10 +62,6 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         # --- Run inference on all pairs in image
         pair_probabilities = l_module(pair_patches).detach().numpy()
 
-        # --- Display some samples of predicted pairs to see how the model is doing
-        if False:
-            display_patch_pred_samples(pair_patches, pair_probabilities, 5)
-
         # --- prep data for solver - convert spatial part representation to index
         spatial_to_index, index_to_spatial = create_spatial_index_dicts(parts_y, parts_x)
         pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
@@ -76,19 +70,29 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities).solve()
         solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
+        # --- Calc accuracy
+        image_correct = 0
+        image_total = 0
+        for key in target_permutation.keys():
+            image_correct += target_permutation[key] == solved_permutation[key]
+            image_total += 1
+
+        print(image_correct / image_total)
+
+        total_parts += image_total
+        correct_parts += image_correct
+
+
         # --- Display outcomes
-        plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
-        scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
-
-        truth_unscrambled_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, target_permutation)
-
-        solved_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
-
+        # plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
         # display_image(plain_image)
-        # display_image(truth_unscrambled_image)
+
+        # scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
+        # solved_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
         # display_image(scrambled_image)
-        display_image(solved_image)
-        print()
+        # display_image(solved_image)
+
+
 
 
 def display_patch_pred_samples(pair_patches, pair_probabilities, num_patches):
@@ -96,7 +100,6 @@ def display_patch_pred_samples(pair_patches, pair_probabilities, num_patches):
     from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchTrainDataset
     preds = np.argmax(pair_probabilities, axis=1)
     interesting = np.where(preds != 4)[0]
-    pairs_to_show = pair_patches[interesting]
 
     items_to_show = np.random.randint(0, len(interesting), size=num_patches)
     for i in items_to_show:
