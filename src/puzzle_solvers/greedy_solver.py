@@ -213,11 +213,11 @@ class GreedySolver:
 
     @staticmethod
     def is_above(slot, other):
-        return True if slot[0] == other[0] + 1 and slot[1] == other[1] else False
+        return True if slot[0] + 1 == other[0] and slot[1] == other[1] else False
 
     @staticmethod
     def is_below(slot, other):
-        return True if slot[0] == other[0] -1 and slot[1] == other[1] else False
+        return True if slot[0] - 1 == other[0] and slot[1] == other[1] else False
 
     @staticmethod
     def is_left(slot, other):
