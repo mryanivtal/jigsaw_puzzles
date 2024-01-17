@@ -74,11 +74,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
         # --- Run solver, get proposed solved permutation
         solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities).solve()
-
         solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
-        solved_permutation_rev = {solved_permutation[key]: key for key in solved_permutation.keys()}      # todo: here for testing, delete later
-
-
 
         # --- Display outcomes
         plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
@@ -88,12 +84,9 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
         solved_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
 
-        solved_rev_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation_rev)
-
-        # display_image(plain_image)
+        display_image(plain_image)
         # display_image(truth_unscrambled_image)
-        # display_image(scrambled_image)
-        display_image(solved_rev_image)
+        display_image(scrambled_image)
         display_image(solved_image)
         print()
 

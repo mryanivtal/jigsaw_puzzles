@@ -109,7 +109,7 @@ class GreedySolver:
                 slots_and_candidates.append([i, candidate, prob])
 
             # --- Choose the top probability slot and part
-            winner = sorted(slots_and_candidates, key=lambda x: x[1])[-1]
+            winner = sorted(slots_and_candidates, key=lambda x: x[-1])[-1]
             winner_slot = self.next_slot_candidates[winner[0]]
             winner_part = winner[1]
 
@@ -152,7 +152,7 @@ class GreedySolver:
 
             relevant_ids = [r[0] for r in relevant_relations]
             relevant_probs = self.pair_probabilities[relevant_ids, relation]
-            sum_probabilities = sum_probabilities + (relevant_probs / sum(np.sqrt(relevant_probs)))
+            sum_probabilities = sum_probabilities + (relevant_probs / sum(relevant_probs))
 
         best_idx = sum_probabilities.argmax()
         best_prob = sum_probabilities.max() / len(part_relations)
