@@ -1,13 +1,10 @@
-import random
 from pathlib import Path
 
-from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
 from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDataset
 from src.datasets.transform_factory import get_predict_transform
-from src.jigsaw.jigsaw_scrambler import JigsawScrambler, create_spatial_index_dicts
+from src.jigsaw.jigsaw_scrambler import create_spatial_index_dicts, JigsawScrambler
 from src.puzzle_solvers.greedy_solver import GreedySolver
 from src.trainer.factories.model_factory import get_model
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
@@ -82,15 +79,14 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         total_parts += image_total
         correct_parts += image_correct
 
-
         # --- Display outcomes
         # plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
         # display_image(plain_image)
 
-        # scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
-        # solved_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
-        # display_image(scrambled_image)
-        # display_image(solved_image)
+        scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
+        solved_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
+        display_image(scrambled_image)
+        display_image(solved_image)
 
 
 

@@ -37,7 +37,7 @@ class JigsawScrambler:
         else:
             permutation = self._generate_order_by_params(self.params)
 
-        perm_image = self._create_jigsaw_tensor_deterministic(image, self.num_parts_y, self.num_parts_x, permutation)
+        perm_image = self.create_jigsaw_tensor_deterministic(image, self.num_parts_y, self.num_parts_x, permutation)
 
         return perm_image, permutation
 
@@ -152,8 +152,8 @@ class JigsawScrambler:
         return permutation
 
     @classmethod
-    def _create_jigsaw_tensor_deterministic(cls, image: torch.Tensor, parts_y: int, parts_x: int,
-                                            new_order: dict) -> torch.Tensor:
+    def create_jigsaw_tensor_deterministic(cls, image: torch.Tensor, parts_y: int, parts_x: int,
+                                           new_order: dict) -> torch.Tensor:
         """
         Gets a 3d tensor image, num of parts on x and y, and new order, returns a shuffled tensor image
         :param image:

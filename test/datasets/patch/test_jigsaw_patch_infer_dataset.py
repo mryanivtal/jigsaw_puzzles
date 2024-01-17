@@ -38,7 +38,7 @@ class MyTestCase(unittest.TestCase):
 
             parts_x = train_ds.scrambler.num_parts_x
             parts_y = train_ds.scrambler.num_parts_y
-            unscrambled_image = JigsawScrambler._create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, permutation)
+            unscrambled_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, permutation)
 
             # --- Present images on screen
             # plain_image = transforms.ToPILImage()(plain_image)

@@ -13,7 +13,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification/jigsaw_classification_template.json')
-    default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_template.json')
+    # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_template.json')
+    # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_10x10.json')
+    default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_5x5.json')
+
 
     run_config_path = args.run_config if args.run_config is not None else default_test_config
     project_path = args.project_path if args.project_path is not None else env_constants.PROJECT_PATH
