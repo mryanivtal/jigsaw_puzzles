@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 
 from torch.utils.data import DataLoader
@@ -63,6 +64,10 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         # --- Run inference on all pairs in image
         pair_probabilities = l_module(pair_patches).detach().numpy()
 
+        # --- Display some samples of predicted pairs to see how the model is doing
+        if False:
+            display_patch_pred_samples(pair_patches, pair_probabilities, 5)
+
         # --- prep data for solver - convert spatial part representation to index
         spatial_to_index, index_to_spatial = create_spatial_index_dicts(parts_y, parts_x)
         pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
@@ -91,6 +96,22 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         display_image(solved_rev_image)
         display_image(solved_image)
         print()
+
+
+def display_patch_pred_samples(pair_patches, pair_probabilities, num_patches):
+    import numpy as np
+    from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchTrainDataset
+    preds = np.argmax(pair_probabilities, axis=1)
+    interesting = np.where(preds != 4)[0]
+    pairs_to_show = pair_patches[interesting]
+
+    items_to_show = np.random.randint(0, len(interesting), size=num_patches)
+    for i in items_to_show:
+        idx = interesting[i]
+        pair = [pair_patches[idx, :3, ...], pair_patches[idx, 3:, ...]]
+        label = preds[idx]
+        image = DogsVsCatsPatchTrainDataset._concatenate_for_display(label, pair)
+        display_image(image)
 
 
 

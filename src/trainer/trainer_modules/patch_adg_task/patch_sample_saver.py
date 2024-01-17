@@ -47,3 +47,19 @@ class PatchSampleSaver:
         samples_metadata = pd.DataFrame.from_records(samples_metadata)
         samples_metadata.to_csv(samples_path / Path(f'{dataset_name}.samples.csv'), index=False)
 
+
+    @staticmethod
+    def concatenate_for_display(label, patches) -> torch.Tensor:
+        if label == 0:
+            sample_data = torch.concat(patches, dim=1)
+        elif label == 2:
+            sample_data = torch.concat(list(patches.__reversed__()), dim=1)
+        elif label == 1:
+            sample_data = torch.concat(patches, dim=2)
+        elif label == 3:
+            sample_data = torch.concat(list(patches.__reversed__()), dim=2)
+        elif label == 4:
+            sample_data = torch.concat(patches, dim=1)
+        else:
+            raise RuntimeError('Got illegal label')
+        return sample_data

@@ -14,7 +14,7 @@ class LightningWrapper(L.LightningModule):
         self.optimizer = optimizer
         self.criterion = criterion
         self.current_step_outputs = {}
-        self.inference_normalizer = inference_normalizer
+        self.output_normalizer = inference_normalizer
 
     def forward(self, inputs):
         output = self.model(inputs)
@@ -53,7 +53,7 @@ class LightningWrapper(L.LightningModule):
         loss = self.criterion(probabilities, target)
 
         # --- store temp batch data for callbacks to use
-        self.current_step_outputs['probabilities'] = self.inference_normalizer(probabilities)
+        self.current_step_outputs['probabilities'] = self.output_normalizer(probabilities)
         self.current_step_outputs['loss'] = loss
 
     def configure_optimizers(self) -> OptimizerLRScheduler:

@@ -29,7 +29,9 @@
       "pretrained": true,
       "input_channels": 6,
       "out_features": 5,
-      "output_type": "softmax"
+      "output_type": "plain",
+      "inference_normalizer": "softmax"
+
     },
     "part_adj_ckpt_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\outputs\\patch_adj_5x5_trained.ckpt",
     "clean_inference_ckpt_path": ""

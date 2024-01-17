@@ -1,4 +1,4 @@
-
+from src.datasets.dogs_vs_cats_patch_train_dataset import DogsVsCatsPatchTrainDataset
 # -------------------- inference flow - display two patches and image in flow-------------------
 from src.utils.image_utils import display_image
 
@@ -8,4 +8,6 @@ display_image(plain_image)
 display_image(pair_patches[pair_idx][:3])
 display_image(pair_patches[pair_idx][3:])
 # ---------------------------------------
+
+
 
