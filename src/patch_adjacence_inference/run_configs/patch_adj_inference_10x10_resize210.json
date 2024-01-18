@@ -33,7 +33,7 @@
       "inference_normalizer": "softmax"
 
     },
-    "part_adj_ckpt_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\outputs\\patch_adj_10x10_trained.ckpt",
+    "part_adj_ckpt_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\outputs\\patch_adj_10x10_trained_resize210.ckpt",
     "clean_inference_ckpt_path": ""
   }
 }

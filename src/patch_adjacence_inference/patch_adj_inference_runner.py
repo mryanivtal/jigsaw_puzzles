@@ -14,8 +14,8 @@ if __name__ == '__main__':
 
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification/jigsaw_classification_template.json')
     # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_template.json')
-    # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_10x10.json')
-    default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_5x5.json')
+    default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_10x10_resize300.json')
+    # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_5x5.json')
 
 
     run_config_path = args.run_config if args.run_config is not None else default_test_config
