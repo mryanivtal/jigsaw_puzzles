@@ -1,6 +1,6 @@
 {
   "trainer": {
-    "run_name": "patchAdg_resnet18_10x10",
+    "run_name": "patchAdg_resnet18_resize300_10x10",
     "task": "patch_adjacence",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
