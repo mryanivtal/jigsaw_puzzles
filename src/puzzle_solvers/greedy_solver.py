@@ -18,7 +18,12 @@ Placer steps:
 4. go back to #2
 """
 
+UNASSIGNED = -1000
+ASSIGNED = -2000
+
+
 class GreedySolver:
+
     def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities):
         self.size_y = size_y
         self.size_x = size_x
@@ -27,7 +32,7 @@ class GreedySolver:
         self.pair_probabilities = self._create_symmetric_pair_probabilities(pair_probabilities)
 
         self.placed_parts = []
-        self.board = np.ones([size_y, size_x]) * -1
+        self.board = np.ones([size_y, size_x]) * UNASSIGNED
         self.next_slot_candidates = []
 
         self.slack_x = size_x
@@ -38,7 +43,7 @@ class GreedySolver:
     def solve(self) -> dict:
         self._place_all_parts()
         self._cluster_board_parts()
-        self._shift_parts()
+        self._shift_clusters()
 
         reverse_location = self._get_part_locations_from_board()
         return reverse_location
@@ -61,50 +66,72 @@ class GreedySolver:
         symmetric = np.concatenate([pair_probabilities, flipped_probabilities])
         return symmetric
 
-    def _update_slack(self):
-        self.slack_y = self.board.sum(axis=1)
-        self.slack_y = len(np.argwhere(self.slack_y == (-1 * self.size_y)))
+    def _board_slacks(self, board):
+        slack_y = board.sum(axis=1)
+        slack_y = len(np.argwhere(slack_y == (UNASSIGNED * self.size_y)))
 
-        self.slack_x = self.board.sum(axis=0)
-        self.slack_x = len(np.argwhere(self.slack_x == (-1 * self.size_x)))
+        slack_x = board.sum(axis=0)
+        slack_x = len(np.argwhere(slack_x == (UNASSIGNED * self.size_x)))
 
-    def _can_shift_up(self):
-        return True if self.board[0, :].sum() == (-1) * self.size_x else False
+        return slack_y, slack_x
 
-    def _can_shift_down(self):
-        return True if self.board[-1, :].sum() == (-1) * self.size_x else False
+    def _shift_origin_and_update_slacks(self, board):
+        empty_cols_y = board.sum(axis=1) == (UNASSIGNED * self.size_y)
+        while empty_cols_y[0]:
+            self._shift_up(board)
 
-    def _can_shift_left(self):
-        return True if self.board[:, 0].sum() == (-1) * self.size_y else False
+        empty_rows_x = board.sum(axis=0) == (UNASSIGNED * self.size_x)
+        while empty_rows_x[0]:
+            self._shift_left(board)
 
-    def _can_shift_right(self):
-        return True if self.board[:, -1].sum() == (-1) * self.size_y else False
+        slack_y, slack_x = self._board_slacks(board)
+        return slack_y, slack_x
 
-    def _shift_up(self):
-        if self._can_shift_up():
-            self.board[0:self.size_y - 1, :] = self.board[1:self.size_y, :]
-            self.board[self.size_y - 1, :] = -1
+    def _can_shift_up(self, board, by: int=1):
+        size_y, size_x = board.shape
+        return True if board.sum(axis=1)[by-1]== (UNASSIGNED) * size_x else False
+
+    def _can_shift_down(self, board, by=1):
+        size_y, size_x = board.shape
+        return True if board.sum(axis=1)[-by] == (UNASSIGNED) * size_x else False
+
+    def _can_shift_left(self, board, by=1):
+        size_y, size_x = board.shape
+        return True if board.sum(axis=0)[by-1] == (UNASSIGNED) * size_y else False
+
+    def _can_shift_right(self, board, by=1):
+        size_y, size_x = board.shape
+        return True if board.sum(axis=0)[-by] == (UNASSIGNED) * size_y else False
+
+    def _shift_up(self, board: np.ndarray, by=1):
+        if self._can_shift_up(board, by):
+            size_y, size_x = board.shape
+            board[0:size_y - by, :] = board[by:size_y, :]
+            board[size_y - by, :] = UNASSIGNED
         else:
             raise RuntimeError('Cannot shift up')
 
-    def _shift_down(self):
-        if self._can_shift_down():
-            self.board[1:self.size_y, :] = self.board[0:self.size_y - 1, :]
-            self.board[0, :] = -1
+    def _shift_down(self, board: np.ndarray, by=1):
+        if self._can_shift_down(board, by):
+            size_y, size_x = board.shape
+            board[by:size_y, :] = board[0:size_y - by, :]
+            board[:by, :] = UNASSIGNED
         else:
             raise RuntimeError('Cannot shift down')
 
-    def _shift_left(self):
-        if self._can_shift_left():
-            self.board[:, 0:self.size_x - 1] = self.board[:, 1:self.size_x]
-            self.board[:, self.size_x - 1] = -1
+    def _shift_left(self, board: np.ndarray, by=1):
+        size_y, size_x = board.shape
+        if self._can_shift_left(board, by):
+            board[:, 0:size_x - by] = board[:, by:size_x]
+            board[:, size_x - by] = UNASSIGNED
         else:
             raise RuntimeError('Cannot shift left')
 
-    def _shift_right(self):
-        if self._can_shift_right():
-            self.board[:, 1:self.size_x] = self.board[:, 0:self.size_x - 1]
-            self.board[:, 0] = -1
+    def _shift_right(self, board: np.ndarray, by=1):
+        size_y, size_x = board.shape
+        if self._can_shift_right(board, by):
+            board[:, by:size_x] = board[:, 0:size_x - by]
+            board[:, :by] = UNASSIGNED
         else:
             raise RuntimeError('Cannot shift right')
 
@@ -126,7 +153,7 @@ class GreedySolver:
         self.parts_to_place = list({relation[1][0] for relation in self.pair_relations}.union(
             {relation[1][1] for relation in self.pair_relations}))
         part = self.parts_to_place.pop(np.random.randint(len(self.parts_to_place)))
-        slot_y, slot_x = (self.size_y // 2, self.size_x // 2)
+        slot_y, slot_x = (0, 0)
         self.next_slot_candidates = self.next_slot_candidates + [(slot_y, slot_x)]
         self.board[(slot_y, slot_x)] = part
         self.placed_parts.append(part)
@@ -145,22 +172,24 @@ class GreedySolver:
             winner_part = winner[1]
 
             if winner_slot[0] < 0:
-                self._shift_down()
+                self._shift_down(self.board)
                 winner_slot = (winner_slot[0] + 1, winner_slot[1])
             elif winner_slot[0] >= self.size_y:
-                self._shift_up()
+                self._shift_up(self.board)
                 winner_slot = (winner_slot[0] - 1, winner_slot[1])
             elif winner_slot[1] < 0:
-                self._shift_right()
+                self._shift_right(self.board)
                 winner_slot = (winner_slot[0], winner_slot[1] + 1)
             elif winner_slot[1] >= self.size_x:
-                self._shift_left()
+                self._shift_left(self.board)
                 winner_slot = (winner_slot[0], winner_slot[1] - 1)
 
             self.board[winner_slot] = winner_part
             self.placed_parts.append(winner_part)
             self.parts_to_place.remove(winner_part)
-            self._update_slack()
+            # self.slack_y, self.slack_x = self._board_slacks(self.board)
+            self.slack_y, self.slack_x = self._shift_origin_and_update_slacks(self.board)
+
             self._update_next_slot_candidates()
 
     def _find_best_candidate_for_slot(self, slot, specific_neighbours=None, ignored_parts_list=None):
@@ -200,12 +229,13 @@ class GreedySolver:
         """
         valid = self._is_inside_board_with_slack(slot)
         inside_current_board = self._is_inside_board(slot)
-        free = True if valid and ((not inside_current_board) or (self.board[slot] == -1)) else False
+        free = True if valid and ((not inside_current_board) or (self.board[slot] == UNASSIGNED)) else False
         return free and valid
 
     def _is_inside_board_with_slack(self, slot):
         slot_y, slot_x = slot
-        return True if 0 - self.slack_x <= slot_x < self.size_x + self.slack_x and 0 - self.slack_y <= slot_y < self.size_y + self.slack_y else False
+        # return True if 0 - self.slack_x <= slot_x < self.size_x + self.slack_x and 0 - self.slack_y <= slot_y < self.size_y + self.slack_y else False
+        return True if 0 - self.slack_x <= slot_x < self.size_x and 0 - self.slack_y <= slot_y < self.size_y else False
 
     def _is_inside_board(self, slot):
         slot_y, slot_x = slot
@@ -219,7 +249,7 @@ class GreedySolver:
         """
         valid = self._is_inside_board_with_slack(slot)
         inside_current_board = self._is_inside_board(slot)
-        occupied = False if (not inside_current_board) or (valid and (self.board[slot] == -1)) else True
+        occupied = False if (not inside_current_board) or (valid and (self.board[slot] == UNASSIGNED)) else True
         return occupied and valid
 
     def _update_next_slot_candidates(self):
@@ -342,7 +372,6 @@ class GreedySolver:
             slot = random.choice(slots_to_cluster)
             candidate_slots = [slot]
 
-
             # --- Current cluster loop
             while slot is not None:
                 if len(cluster_slots) == 0:
@@ -380,29 +409,226 @@ class GreedySolver:
             self.cluster_board[slots_y, slots_x] = i
 
 
-    def _shift_parts(self):
-        new_board = np.ones_like(self.board) * -1
-        parts_to_place = list(range(len(self.clusters)))
+    def _shift_clusters(self):
+        # represent clusters as np arrays starting at (0,0) with (UNASSIGNED)s for empty spaces
+        spatial_clusters = []
 
-        # start with biggest part
-        part_sizes = [len(self.clusters[i]) for i in range(len(self.clusters))]
-        part_idx = np.array(part_sizes).argmax()
+        for cluster in self.clusters:
+            cluster_slots = np.array(cluster)
 
-        # represent parts as np arrays starting at (0,0)
-        parts = []
-        for part in self.clusters:
-            part = np.array(part)
-            part[:, 0] -= part[:, 0].min()
-            part[:, 1] -= part[:, 1].min()
-            parts.append(part)
+            cluster_start_y = cluster_slots[:, 0].min()
+            cluster_start_x = cluster_slots[:, 1].min()
+            cluster_slots[:, 0] -= cluster_start_y
+            cluster_slots[:, 1] -= cluster_start_x
+            cluster_size_y = cluster_slots[:, 0].max() + 1
+            cluster_size_x = cluster_slots[:, 1].max() + 1
 
-        part = parts[part_idx]
-        placed_parts = [part_idx]
-        parts_to_place.remove(part)
+            spatial_cluster = np.ones([cluster_size_y, cluster_size_x]) * (UNASSIGNED)
+            spatial_cluster[cluster_slots[:, 0], cluster_slots[:, 1]] = ASSIGNED
+            spatial_cluster[spatial_cluster != UNASSIGNED] = self.board[cluster_start_y : cluster_start_y + cluster_size_y, cluster_start_x : cluster_start_x + cluster_size_x][spatial_cluster != UNASSIGNED]
 
+            spatial_clusters.append(spatial_cluster)
 
+        # --- initialize
+        previous_board = self.board.copy()
+        self.board = np.ones_like(previous_board) * UNASSIGNED
+
+        clusters_to_place = list(range(len(self.clusters)))
+        placed_clusters = []
+
+        while len(clusters_to_place) > 0:
+            next_cluster_options = []
+
+            if len(placed_clusters) == 0:
+                # --- start with biggest cluster
+                cluster_sizes = [len(self.clusters[i]) for i in range(len(self.clusters))]
+                cluster_idx = np.array(cluster_sizes).argmax()
+
+                # Place first cluster at (0,0)
+                cluster = spatial_clusters[cluster_idx]
+                corner = (0, 0)
+                board_shift = (0, 0)
+
+            else:
+                next_cluster_options = []
+
+                for cluster_idx in clusters_to_place:
+                    self.slack_y, self.slack_x = self._shift_origin_and_update_slacks(self.board)
+                    cluster = spatial_clusters[cluster_idx]
+                    cluster_position_options = []
+
+                    # --- Slide cluster on board, find feasibale points for corner and best fit value
+                    for y in range(-self.slack_y, self.size_y + 1):
+                        for x in range(-self.slack_x, self.size_x + 1):
+                            corner = (y, x)
+                            temp_board = self.board.copy().astype(int)
+                            valid, shift, corner, probability = self._check_cluster_placement_validity(temp_board, cluster, corner)
+
+                            if valid:
+                                cluster_position_options.append((corner, shift, probability))
+
+                    best_corner_index = np.array([i[2] for i in cluster_position_options]).argmax()
+                    best_corner_prob = cluster_position_options[best_corner_index][2]
+                    best_cluster_corner = cluster_position_options[best_corner_index][0]
+                    best_cluster_shift = cluster_position_options[best_corner_index][1]
+                    feasible_places = len(cluster_position_options)
+
+                    next_cluster_options.append((cluster_idx, best_cluster_corner, best_cluster_shift, best_corner_prob, feasible_places))
+
+                cluster_record_idx = np.array([i[3] for i in next_cluster_options]).argmax()
+                cluster_record = next_cluster_options[cluster_record_idx]
+                cluster_idx = cluster_record[0]
+                corner = cluster_record[1]
+                board_shift = cluster_record[2]
+                cluster = clusters_to_place[cluster_idx]
+
+            # --- Place selected cluster on board in selected place
+            shift_y, shift_x = board_shift
+
+            if shift_x != 0:
+                self._shift_right(self.board, shift_x)
+            if shift_y != 0:
+                self._shift_down(self.board, shift_y)
+
+            self.board = self._place_cluster_on_board(cluster, corner, self.board)
+            placed_clusters = [cluster_idx]
+            clusters_to_place.remove(cluster_idx)
         print()
 
+    def _update_with_corner_and_slacks(self, board, corner, shift_y, shift_x):
+        board = board.copy()
+        corner_y, corner_x = corner
+        corner_y -= shift_y
+        corner_x -= shift_x
+        self._shift_down(board, shift_y)
+        self._shift_right(board, shift_x)
+
+        return board, (corner_y, corner_x)
+
+
+    def _check_cluster_placement_validity(self, board, cluster, corner):
+        corner_y, corner_x = corner
+        cluster_y, cluster_x = cluster.shape
+        rb_corner = (corner_y + cluster_y, corner_x + cluster_x)
+        rb_corner_y, rb_corner_x = rb_corner
+        shift_x = shift_y = 0
+
+        if (self._is_inside_board(corner) and self._is_inside_board(rb_corner)):
+            valid = True
+
+        else:
+            if self._is_inside_board_with_slack(corner) and not self._is_inside_board(corner):
+                shift_x = max(-corner_x, 0)
+                shift_y = max(-corner_y, 0)
+                valid = True
+
+            elif self._is_inside_board_with_slack(rb_corner) and not self._is_inside_board(rb_corner):
+                shift_x = min(self.size_x - rb_corner_x, 0)
+                shift_y = min(self.size_y - rb_corner_y, 0)
+                valid = True
+            else:
+                valid = False
+
+        corner = (corner_y + shift_y, corner_x + shift_x)
+        shift = (shift_y, shift_x)
+
+        if valid:
+            cluster_board = np.ones_like(board) * UNASSIGNED
+            cluster_board = self._place_cluster_on_board(cluster, corner, cluster_board)
+            cluster_mask = cluster_board != UNASSIGNED
+
+            if shift_y:
+                self._shift_down(board, shift_y)
+            if shift_x:
+                self._shift_right(board, shift_x)
+
+            board_mask = board != UNASSIGNED
+
+            if (cluster_mask & board_mask).sum() > 0:
+                valid = False  # overlaps between new cluster and placed ones
+            elif not self._validate_single_cluster(cluster_mask | board_mask):
+                valid = False  # islands on non-touching clusters
+            else:
+                valid = True
+
+        if valid:
+            board = self._place_cluster_on_board(cluster, corner, board.copy())
+            board_probability = self._calc_board_probability(board)
+        else:
+            board_probability = None
+
+        return valid, shift, corner, board_probability
+
+
+
+
+
+    def _calc_board_probability(self, board):
+        board_occupied = board != UNASSIGNED
+        slots_to_items = {(y, x): board[y, x] for y in range(self.size_y) for x in range(self.size_x) if board_occupied[y, x]}
+
+        slot_pairs_on_board_v = [((y, x), (y+1, x)) for y in range(self.size_y-1) for x in range(self.size_x) if board_occupied[y, x] & board_occupied[y+1, x]]
+        slot_pairs_on_board_h = [((y, x), (y, x+1)) for y in range(self.size_y) for x in range(self.size_x-1) if board_occupied[y, x] & board_occupied[y, x+1]]
+
+        pairs_on_board_v = [(slots_to_items[pair[0]], slots_to_items[pair[1]]) for pair in slot_pairs_on_board_v]
+        pairs_on_board_h = [(slots_to_items[pair[0]], slots_to_items[pair[1]]) for pair in slot_pairs_on_board_h]
+
+        relations_v = [r for r in self.pair_relations if r[1] in pairs_on_board_v]
+        relations_h = [r for r in self.pair_relations if r[1] in pairs_on_board_h]
+
+        relation_ids_v = [r[0] for r in relations_v]
+        relation_ids_h = [r[0] for r in relations_h]
+
+        probs_v = self.pair_probabilities[relation_ids_v, 0]
+        probs_h = self.pair_probabilities[relation_ids_h, 1]
+
+        prob_sum = np.concatenate([probs_v, probs_h]).mean()
+
+        return prob_sum
+
+
+    def _place_cluster_on_board(self, cluster, corner, board):
+        cluster_y, cluster_x = cluster.shape
+        board = board.copy()
+        board[corner[0]: corner[0] + cluster_y, corner[1]: corner[1] + cluster_x][cluster != UNASSIGNED] = cluster[cluster != UNASSIGNED]
+        return board
+
+    def _validate_single_cluster(self, board_mask: np.ndarray):
+        clusters = []
+
+        slots_to_cluster = [(y, x) for y in range(self.size_y) for x in range(self.size_x) if board_mask[y,x]]
+
+        cluster_slots = []
+        rejected_slots = [(y, x) for y in range(self.size_y) for x in range(self.size_x) if not board_mask[y, x]]
+
+        slot = tuple(np.argwhere(board_mask)[0])
+        candidate_slots = [slot]
+
+        # --- Current cluster loop
+        while slot is not None:
+            if len(cluster_slots) == 0:
+                add_to_cluster = True
+            else:
+                # --- Check if slot should be part of the current cluster.
+                add_to_cluster = board_mask[slot]
+
+            if add_to_cluster:
+                cluster_slots.append(slot)
+                slots_to_cluster.remove(slot)
+
+                # --- add unchecked slot neighbours to cluster candidate list
+                new_candidates = [slot for slot in self._valid_adjacent_slots(slot) if
+                                  (slot in slots_to_cluster and slot not in rejected_slots)]
+                candidate_slots = list(set(candidate_slots + new_candidates))
+
+            else:
+                rejected_slots.append(slot)
+
+            # --- Next candidate for cluster if there are candidates, else stop
+            candidate_slots.remove(slot)
+            slot = random.choice(candidate_slots) if len(candidate_slots) > 0 else None
+
+        return True if len(cluster_slots) == board_mask.sum() else False
 
 
 
