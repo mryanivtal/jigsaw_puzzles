@@ -87,6 +87,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         solved_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
         display_image(scrambled_image)
         display_image(solved_image)
+        print()
 
 
 

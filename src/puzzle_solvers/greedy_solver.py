@@ -435,9 +435,10 @@ class GreedySolver:
 
         clusters_to_place = list(range(len(self.clusters)))
         placed_clusters = []
+        rejected_clusters = []
 
         while len(clusters_to_place) > 0:
-            next_cluster_options = []
+            unable_to_place = []
 
             if len(placed_clusters) == 0:
                 # --- start with biggest cluster
@@ -448,9 +449,12 @@ class GreedySolver:
                 cluster = spatial_clusters[cluster_idx]
                 corner = (0, 0)
                 board_shift = (0, 0)
+                has_cluster_to_place = True
 
             else:
                 next_cluster_options = []
+                unable_to_place = []
+                has_cluster_to_place = False
 
                 for cluster_idx in clusters_to_place:
                     self.slack_y, self.slack_x = self._shift_origin_and_update_slacks(self.board)
@@ -467,33 +471,45 @@ class GreedySolver:
                             if valid:
                                 cluster_position_options.append((corner, shift, probability))
 
-                    best_corner_index = np.array([i[2] for i in cluster_position_options]).argmax()
-                    best_corner_prob = cluster_position_options[best_corner_index][2]
-                    best_cluster_corner = cluster_position_options[best_corner_index][0]
-                    best_cluster_shift = cluster_position_options[best_corner_index][1]
-                    feasible_places = len(cluster_position_options)
+                    if len(cluster_position_options) == 0:
+                        print(f'could not place cluster of size {cluster.shape}')
+                        unable_to_place.append(cluster_idx)
+                        # TODO: need to handle this issue somehow
+                    else:
+                        best_corner_index = np.array([i[2] for i in cluster_position_options]).argmax()
+                        best_corner_prob = cluster_position_options[best_corner_index][2]
+                        best_cluster_corner = cluster_position_options[best_corner_index][0]
+                        best_cluster_shift = cluster_position_options[best_corner_index][1]
+                        feasible_places = len(cluster_position_options)
+                        next_cluster_options.append((cluster_idx, best_cluster_corner, best_cluster_shift, best_corner_prob, feasible_places))
 
-                    next_cluster_options.append((cluster_idx, best_cluster_corner, best_cluster_shift, best_corner_prob, feasible_places))
+                if len(next_cluster_options) > 0:
+                    has_cluster_to_place = True
+                    cluster_record_idx = np.array([i[3] for i in next_cluster_options]).argmax()
+                    cluster_record = next_cluster_options[cluster_record_idx]
+                    cluster_idx = cluster_record[0]
+                    corner = cluster_record[1]
+                    board_shift = cluster_record[2]
+                    cluster = spatial_clusters[cluster_idx]
 
-                cluster_record_idx = np.array([i[3] for i in next_cluster_options]).argmax()
-                cluster_record = next_cluster_options[cluster_record_idx]
-                cluster_idx = cluster_record[0]
-                corner = cluster_record[1]
-                board_shift = cluster_record[2]
-                cluster = clusters_to_place[cluster_idx]
+            if has_cluster_to_place:
+                # --- Place selected cluster on board in selected place
+                shift_y, shift_x = board_shift
 
-            # --- Place selected cluster on board in selected place
-            shift_y, shift_x = board_shift
+                if shift_x != 0:
+                    self._shift_right(self.board, shift_x)
+                if shift_y != 0:
+                    self._shift_down(self.board, shift_y)
 
-            if shift_x != 0:
-                self._shift_right(self.board, shift_x)
-            if shift_y != 0:
-                self._shift_down(self.board, shift_y)
+                self.board = self._place_cluster_on_board(cluster, corner, self.board)
+                placed_clusters = placed_clusters + [cluster_idx]
+                clusters_to_place.remove(cluster_idx)
 
-            self.board = self._place_cluster_on_board(cluster, corner, self.board)
-            placed_clusters = [cluster_idx]
-            clusters_to_place.remove(cluster_idx)
-        print()
+            if len(unable_to_place) > 0:
+                for cluster_idx in unable_to_place:
+                    clusters_to_place.remove(cluster_idx)
+                    rejected_clusters.append(cluster_idx)
+
 
     def _update_with_corner_and_slacks(self, board, corner, shift_y, shift_x):
         board = board.copy()
@@ -513,23 +529,45 @@ class GreedySolver:
         rb_corner_y, rb_corner_x = rb_corner
         shift_x = shift_y = 0
 
-        if (self._is_inside_board(corner) and self._is_inside_board(rb_corner)):
-            valid = True
+        valid = True
+        corner_shift = False
+        rbcorner_shift = False
 
-        else:
-            if self._is_inside_board_with_slack(corner) and not self._is_inside_board(corner):
-                shift_x = max(-corner_x, 0)
-                shift_y = max(-corner_y, 0)
-                valid = True
-
-            elif self._is_inside_board_with_slack(rb_corner) and not self._is_inside_board(rb_corner):
-                shift_x = min(self.size_x - rb_corner_x, 0)
-                shift_y = min(self.size_y - rb_corner_y, 0)
-                valid = True
-            else:
+        if not (self._is_inside_board(corner) and self._is_inside_board(rb_corner)):
+            if not (self._is_inside_board_with_slack(corner) and self._is_inside_board_with_slack(rb_corner)):
                 valid = False
+            else:
+                if self._is_inside_board_with_slack(corner) and not self._is_inside_board(corner):
+                    temp_shift_x = max(-corner_x, 0)
+                    temp_shift_y = max(-corner_y, 0)
+                    corner_y = corner_y + temp_shift_y
+                    corner_x = corner_x + temp_shift_x
+                    rb_corner_y = rb_corner_y + temp_shift_y
+                    rb_corner_x = rb_corner_x + temp_shift_x
+                    corner = (corner_y, corner_x)
+                    rb_corner = (rb_corner_y, rb_corner_x)
+                    shift_y = shift_y + temp_shift_y
+                    shift_x = shift_x + temp_shift_x
 
-        corner = (corner_y + shift_y, corner_x + shift_x)
+                    corner_shift = True
+
+                if self._is_inside_board_with_slack(rb_corner) and not self._is_inside_board(rb_corner):
+                    temp_shift_x = min(self.size_x - rb_corner_x, 0)
+                    temp_shift_y = min(self.size_y - rb_corner_y, 0)
+                    corner_y = corner_y + temp_shift_y
+                    corner_x = corner_x + temp_shift_x
+                    rb_corner_y = rb_corner_y + temp_shift_y
+                    rb_corner_x = rb_corner_x + temp_shift_x
+                    corner = (corner_y, corner_x)
+                    rb_corner = (rb_corner_y, rb_corner_x)
+                    shift_y = shift_y + temp_shift_y
+                    shift_x = shift_x + temp_shift_x
+
+                    rbcorner_shift = True
+
+                if not (corner_shift or rbcorner_shift):
+                    valid = False
+
         shift = (shift_y, shift_x)
 
         if valid:
@@ -590,7 +628,10 @@ class GreedySolver:
     def _place_cluster_on_board(self, cluster, corner, board):
         cluster_y, cluster_x = cluster.shape
         board = board.copy()
-        board[corner[0]: corner[0] + cluster_y, corner[1]: corner[1] + cluster_x][cluster != UNASSIGNED] = cluster[cluster != UNASSIGNED]
+        try:
+            board[corner[0]: corner[0] + cluster_y, corner[1]: corner[1] + cluster_x][cluster != UNASSIGNED] = cluster[cluster != UNASSIGNED]
+        except Exception:
+            print()
         return board
 
     def _validate_single_cluster(self, board_mask: np.ndarray):
