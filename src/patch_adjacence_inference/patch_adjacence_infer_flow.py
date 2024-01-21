@@ -64,7 +64,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
 
         # --- Run solver, get proposed solved permutation
-        solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, iterations=15).solve()
+        solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, max_iterations=30, stop_at_cluster_size = 70).solve()
         solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
         # --- Calc accuracy
@@ -85,7 +85,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
         scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
         solved_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
-        display_image(scrambled_image)
+        # display_image(scrambled_image)
         display_image(solved_image)
 
         print()

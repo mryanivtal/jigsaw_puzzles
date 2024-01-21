@@ -25,7 +25,7 @@ ASSIGNED = -2000
 
 class GreedySolver:
 
-    def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities, iterations: int=10):
+    def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities, max_iterations: int=10, stop_at_cluster_size=None):
         self.size_y = size_y
         self.size_x = size_x
 
@@ -39,36 +39,45 @@ class GreedySolver:
         self.slack_x = size_x
         self.slack_y = size_y
 
-        self.iterations = iterations
+        self.max_iterations = max_iterations
+        self.stop_at_cluster_size = stop_at_cluster_size
 
         self.parts_to_place: list = None
 
     def solve(self) -> dict:
-        print('Placing...')
-        self._place_all_parts()
-
-        print('Clustering...')
-        self._cluster_board_parts()
-
+        i = 0
         biggest_cluster = 0
+        stop = False
 
-        for i in range(self.iterations):
+        while not stop:
+            # --- Place parts
+            if i == 0:
+                self._place_all_parts()
+            else:
+                    prev_board = self.board.copy()
+                    self.board = np.ones_like(self.board) * UNASSIGNED
+                    self.board[self.cluster_board == big_cluster_idx] = prev_board[self.cluster_board == big_cluster_idx]
+                    self._place_all_parts(start_from_scratch=False)
+
+            # --- Cluster board
             self._cluster_board_parts()
             cluster_sizes = [len(self.clusters[i]) for i in range(len(self.clusters))]
             big_cluster_idx = np.array(cluster_sizes).argmax()
 
             if max(cluster_sizes) > biggest_cluster:
-                best_iteration = i
                 best_board = self.board.copy()
                 biggest_cluster = max(cluster_sizes)
 
-            print(f'{i}: Biggest cluster: {cluster_sizes[big_cluster_idx]}')
+            print(f'{i}: Cluster size: {cluster_sizes[big_cluster_idx]}')
 
-            prev_board = self.board.copy()
-            self.board = np.ones_like(self.board) * UNASSIGNED
-            self.board[self.cluster_board == big_cluster_idx] = prev_board[self.cluster_board == big_cluster_idx]
+            # --- Stop criteria
+            if self.stop_at_cluster_size and biggest_cluster >= self.stop_at_cluster_size:
+                break
+            if i >= self.max_iterations:
+                break
 
-            self._place_all_parts(start_from_scratch=False)
+            i += 1
+
 
         reverse_location = self._get_part_locations_from_board(best_board)
         return reverse_location
