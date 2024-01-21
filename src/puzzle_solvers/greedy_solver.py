@@ -628,11 +628,9 @@ class GreedySolver:
     def _place_cluster_on_board(self, cluster, corner, board):
         cluster_y, cluster_x = cluster.shape
         board = board.copy()
-        try:
-            board[corner[0]: corner[0] + cluster_y, corner[1]: corner[1] + cluster_x][cluster != UNASSIGNED] = cluster[cluster != UNASSIGNED]
-        except Exception:
-            print()
+        board[corner[0]: corner[0] + cluster_y, corner[1]: corner[1] + cluster_x][cluster != UNASSIGNED] = cluster[cluster != UNASSIGNED]
         return board
+
 
     def _validate_single_cluster(self, board_mask: np.ndarray):
         clusters = []
