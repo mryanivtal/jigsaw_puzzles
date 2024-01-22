@@ -64,31 +64,26 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
 
         # --- Run solver, get proposed solved permutation
-        solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, max_iterations=30, stop_at_cluster_size = 70).solve()
+        solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=False, max_iterations=20, stop_at_cluster_size=70).solve()
         solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
-        # --- Calc accuracy
-        image_correct = 0
-        image_total = 0
-        for key in target_permutation.keys():
-            image_correct += target_permutation[key] == solved_permutation[key]
-            image_total += 1
-
-        print(image_correct / image_total)
-
-        total_parts += image_total
-        correct_parts += image_correct
+        # solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=True, max_iterations=2, stop_at_cluster_size=70).solve()
+        # solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
         # --- Display outcomes
         # plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
         # display_image(plain_image)
 
         scrambled_image, _ = super(DogsVsCatsPatchInferDataset, dataset).get_item(image_idx, for_display=True)
+        display_image(scrambled_image)
+
         solved_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
-        # display_image(scrambled_image)
         display_image(solved_image)
 
+
         print()
+
+
 
 def display_patch_pred_samples(pair_patches, pair_probabilities, num_patches):
     import numpy as np
