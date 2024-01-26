@@ -1,4 +1,9 @@
 {
+  "flow": {
+    "run_train": true,
+    "run_test": true
+  },
+
   "trainer": {
     "run_name": "patchAdg_resnet18_resize400_10x10",
     "task": "patch_adjacence",

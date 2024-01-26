@@ -32,7 +32,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
     transform = get_predict_transform(transform_params)
     transform_for_display = get_predict_transform(transform_params, normalize=False)
 
-    # --- Dataset
+    # --- Test Dataset
     scrambler_params = dataset_params['scrambler']
     dataset = DogsVsCatsPatchInferDataset(test_data_path, scrambler_params, transform, transform_for_display)
 

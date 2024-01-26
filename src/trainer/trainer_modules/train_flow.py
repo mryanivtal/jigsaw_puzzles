@@ -27,6 +27,11 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     model_params = run_params['model']
     loss_params = run_params['loss']
     sample_saver_params = run_params['sample_saver']
+    flow_params = run_params['flow']
+
+    # --- Flow params
+    run_train = flow_params['run_train']
+    run_test = flow_params['run_test']
 
     # --- output dir creation
     outputs_path = create_output_dir(project_path, trainer_params['run_name'], trainer_params['add_timestamp_to_out_dir'])
@@ -69,16 +74,19 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     trainer_args['check_val_every_n_epoch'] = trainer_params['check_val_every_n_epoch']
     trainer_args['num_sanity_val_steps'] = 1
 
+    trainer = L.Trainer(**trainer_args)
+
     # --- Vamos
     if stop_before_fit:
         printc.cyan('**** Stopped before actual run ****')
         return
 
-    trainer = L.Trainer(**trainer_args)
-    trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
+    if run_train:
+        trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
-    test_results = trainer.test(model=l_module, dataloaders=test_dataloader)
-    save_dict_to_json(test_results, Path(outputs_path) / Path('test_results.json'))
+    if run_test:
+        test_results = trainer.test(model=l_module, dataloaders=test_dataloader)
+        save_dict_to_json(test_results, Path(outputs_path) / Path('test_results.json'))
 
 
 
