@@ -1,4 +1,9 @@
 {
+  "flow": {
+    "run_train": true,
+    "run_test": true
+  },
+
   "trainer": {
     "run_name": "jigsaw_resnet18_5x5_random",
     "task": "jigsaw_bin_class",
