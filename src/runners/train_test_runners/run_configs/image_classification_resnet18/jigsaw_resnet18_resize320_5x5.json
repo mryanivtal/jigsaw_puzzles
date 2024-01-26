@@ -5,7 +5,7 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_resnet18_resize224_5x5",
+    "run_name": "jigsaw_resnet18_resize320_5x5",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
