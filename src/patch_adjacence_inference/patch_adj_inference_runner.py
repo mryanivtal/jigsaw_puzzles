@@ -12,7 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('--test_data', type=str, help='Test data folder path')
     args = parser.parse_args()
 
-    # default_test_config = Path(__file__).parent / Path('run_configs/image_classification/jigsaw_classification_template.json')
+    # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_resnet18/jigsaw_classification_template.json')
     # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_template.json')
     default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_10x10_resize400.json')
     # default_test_config = Path(__file__).parent / Path('run_configs/patch_adj_inference_5x5.json')
