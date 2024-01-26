@@ -8,7 +8,7 @@ from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
 from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDataset
 from src.env_constants import TRAIN_DATA_PATH
 from src.datasets.transform_factory import get_train_transform, get_predict_transform
-from src.jigsaw.jigsaw_scrambler import JigsawScrambler
+from src.jigsaw_scrambler.jigsaw_scrambler import JigsawScrambler
 
 
 class MyTestCase(unittest.TestCase):

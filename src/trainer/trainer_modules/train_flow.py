@@ -82,6 +82,7 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
         return
 
     if run_train:
+        printc.blue('Starting train ')
         trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
     if run_test:

@@ -1,4 +1,5 @@
 import json
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Union
@@ -38,3 +39,8 @@ def load_dict_from_json(input_path: Union[str, Path]) -> dict:
 
     return dictionary
 
+def is_debug_mode() -> bool:
+    gettrace = getattr(sys, 'gettrace', None)
+    debug_mode = True if gettrace is not None and gettrace() is not None else False
+
+    return debug_mode

@@ -10,7 +10,7 @@ from lightning.pytorch.utilities.types import STEP_OUTPUT
 
 
 class PatchPerSampleCsvCallback(L.Callback):
-    def __init__(self, save_file_path: str, train: bool=False, validation: bool=False, test: bool=True, predict: bool=True, file_per_epoch: bool=True):
+    def __init__(self, save_file_path: str, train: bool=False, validation: bool=False, test: bool=True, file_per_epoch: bool=False):
         super(PatchPerSampleCsvCallback, self).__init__()
 
         self.log_train = train
@@ -117,7 +117,7 @@ class PatchPerSampleCsvCallback(L.Callback):
         predictions = probabilities.round().int()
 
         epoch_log['probability'] = probabilities.tolist()
-        epoch_log['prediction'] = predictions.tolist()
+        epoch_log['prediction'] = predictions.argmax(axis=1).tolist()
 
         self.log_dataframes[trainer_stage] = pd.concat([self.log_dataframes[trainer_stage], epoch_log], axis=0)
         self._save_log_to_csv(trainer_stage, epoch)

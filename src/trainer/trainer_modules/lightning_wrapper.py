@@ -4,11 +4,18 @@ import lightning as L
 import torch
 from lightning.pytorch.utilities.types import OptimizerLRScheduler, STEP_OUTPUT
 
+from src.util_functions.printc import printc
+from src.util_functions.util_functions import is_debug_mode
+
 
 class LightningWrapper(L.LightningModule):
     def __init__(self, model, optimizer, criterion, inference_normalizer):
         super(LightningWrapper, self).__init__()
-        self.save_hyperparameters(ignore=['model', 'criterion'])          #todo: fix
+
+        if not is_debug_mode():
+            self.save_hyperparameters(ignore=['model', 'criterion'])
+        else:
+            printc.yellow('===== Running in debug mode! model saving may be partial! =======')
 
         self.model = model
         self.optimizer = optimizer

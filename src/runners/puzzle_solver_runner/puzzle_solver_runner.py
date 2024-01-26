@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from src import env_constants
-from src.inference.patch_adjacence_inference.patch_adjacence_infer_flow import execute_infer_flow
+from src.runners.puzzle_solver_runner.puzzle_solver_flow import execute_infer_flow
 from src.util_functions.util_functions import load_dict_from_json
 
 if __name__ == '__main__':
