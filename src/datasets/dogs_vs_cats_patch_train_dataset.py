@@ -15,8 +15,8 @@ class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
 
     @classmethod
     def _crop_image(cls, image: torch.Tensor, x: int, y: int, size_x: int, size_y: int) -> torch.Tensor:
-        assert x + size_x < image.shape[2], f'illegal crop, git x={x}, size_x={size_x}, image shape is {image.shape}'
-        assert y + size_y < image.shape[1], f'illegal crop, git y={y}, size_y={size_y}, image shape is {image.shape}'
+        assert x + size_x < image.shape[2], f'illegal crop, got x={x}, size_x={size_x}, image shape is {image.shape}'
+        assert y + size_y < image.shape[1], f'illegal crop, got y={y}, size_y={size_y}, image shape is {image.shape}'
 
         patch = image[:, y: y+size_y, x: x+size_x]
         return patch
@@ -85,6 +85,8 @@ class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
         elif label in [1, 3, 4]:
             corner_y_min = 0
             corner_y_max = self.image_size_y - self.patch_size_y
+        else:
+            raise ValueError('Invalid label')
 
         if label == 1:
             corner_x_min = 0
@@ -95,6 +97,8 @@ class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
         elif label in [0, 2, 4]:
             corner_x_min = 0
             corner_x_max = self.image_size_x - self.patch_size_x
+        else:
+            raise ValueError('Invalid label')
 
         x_corner_a = random.randint(corner_x_min, corner_x_max - 1)
         y_corner_a = random.randint(corner_y_min, corner_y_max - 1)
@@ -114,6 +118,8 @@ class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
         elif label == 4:
             x_corner_b = random.randint(corner_x_min, corner_x_max - 1)
             y_corner_b = random.randint(corner_y_min, corner_y_max - 1)
+        else:
+            raise ValueError('Invalid label')
 
         return int(x_corner_a), int(y_corner_a), int(x_corner_b), int(y_corner_b)
 
