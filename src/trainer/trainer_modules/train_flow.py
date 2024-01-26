@@ -27,10 +27,10 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     flow_params = run_params['flow']
     optimizer_params = run_params['optimizer']
 
-
     # --- Flow params
     run_train = flow_params['run_train']
     run_test = flow_params['run_test']
+    start_from_lt_checkpoint = flow_params.get('start_from_lt_checkpoint', None)
 
     # --- output dir creation
     outputs_path = create_output_dir(project_path, trainer_params['run_name'], trainer_params['add_timestamp_to_out_dir'])
@@ -57,7 +57,11 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     inference_normalizer = get_inference_normalizer(model_params)
 
     # --- Lightning wrapper module and callbacks
-    l_module = LightningWrapper(model, optimizer, criterion, inference_normalizer)
+    if not start_from_lt_checkpoint:
+        l_module = LightningWrapper(model, optimizer, criterion, inference_normalizer)
+    else:
+        # TODO:Yaniv: may need to load model weights separately because not in hyperparameters. need to understand
+        l_module = LightningWrapper.load_from_checkpoint(start_from_lt_checkpoint, model=model, optimizer=optimizer, criterion=criterion, inference_normalizer=inference_normalizer)
 
     # --- Trainer inputs
     trainer_args = dict()
