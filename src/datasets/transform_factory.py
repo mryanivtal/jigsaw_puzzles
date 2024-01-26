@@ -7,6 +7,7 @@ def get_train_transform(params: dict, normalize=True):
 
     transform = [
         transforms.Resize((resize_y, resize_x)),
+        transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
     ]
 

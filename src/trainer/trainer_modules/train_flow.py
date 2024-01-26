@@ -12,9 +12,9 @@ from src.trainer.factories.criterion_factory import get_criterion
 from src.trainer.factories.dataset_factory import get_datasets
 from src.trainer.factories.lt_callbacks_factory import get_callbacks
 from src.trainer.factories.sample_saver_factory import get_sample_saver
-from src.trainer.trainer_modules.jigsaw_task.jigsaw_loss_accuracy_csv_log_callback import JigsawLossAccuracyCsvCallback
+from src.trainer.trainer_modules.binclass_task.binclass_loss_accuracy_csv_log_callback import BinclassLossAccuracyCsvCallback
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
-from src.trainer.trainer_modules.jigsaw_task.jigsaw_per_sample_csv_log_callback import JigsawPerSampleCsvCallback
+from src.trainer.trainer_modules.binclass_task.binclass_per_sample_csv_log_callback import BinclassPerSampleCsvCallback
 from src.trainer.factories.model_factory import get_model, get_inference_normalizer
 from src.util_functions.printc import printc
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
@@ -86,6 +86,7 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
         trainer.fit(model=l_module, train_dataloaders=train_dataloader, val_dataloaders=valid_dataloader)
 
     if run_test:
+        printc.blue('Starting test ')
         test_results = trainer.test(model=l_module, dataloaders=test_dataloader)
         save_dict_to_json(test_results, Path(outputs_path) / Path('test_results.json'))
 

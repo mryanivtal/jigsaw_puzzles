@@ -9,9 +9,9 @@ from lightning import LightningModule, Trainer
 from lightning.pytorch.utilities.types import STEP_OUTPUT
 
 
-class JigsawPerSampleCsvCallback(L.Callback):
+class BinclassPerSampleCsvCallback(L.Callback):
     def __init__(self, save_file_path: str, train: bool=False, validation: bool=False, test: bool=True, predict: bool=True, file_per_epoch: bool=True):
-        super(JigsawPerSampleCsvCallback, self).__init__()
+        super(BinclassPerSampleCsvCallback, self).__init__()
 
         self.log_train = train
         self.log_test = test

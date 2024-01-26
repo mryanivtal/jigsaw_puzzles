@@ -56,11 +56,11 @@ class LightningWrapper(L.LightningModule):
         inputs, metadatas = batch
         target = metadatas['target']
 
-        probabilities = self.model(inputs)
+        probabilities = self(inputs)
         loss = self.criterion(probabilities, target)
 
         # --- store temp batch data for callbacks to use
-        self.current_step_outputs['probabilities'] = self.output_normalizer(probabilities)
+        self.current_step_outputs['probabilities'] = probabilities
         self.current_step_outputs['loss'] = loss
 
     def configure_optimizers(self) -> OptimizerLRScheduler:

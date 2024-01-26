@@ -10,9 +10,9 @@ from lightning.pytorch.utilities.types import STEP_OUTPUT
 from torchmetrics.functional import confusion_matrix
 
 
-class JigsawLossAccuracyCsvCallback(L.Callback):
+class BinclassLossAccuracyCsvCallback(L.Callback):
     def __init__(self, save_file_path: str, train: bool, validation: bool, test: bool):
-        super(JigsawLossAccuracyCsvCallback, self).__init__()
+        super(BinclassLossAccuracyCsvCallback, self).__init__()
 
         self.log_train = train
         self.log_test = test

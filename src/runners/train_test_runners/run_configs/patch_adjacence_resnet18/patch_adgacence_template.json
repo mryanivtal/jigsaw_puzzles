@@ -5,7 +5,7 @@
   },
 
   "trainer": {
-    "run_name": "patchAdg_resnet18_resize300_10x10",
+    "run_name": "patch_adgacence_template.json",
     "task": "patch_adjacence",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
@@ -16,14 +16,14 @@
   },
 
   "dataset": {
-    "short_debug_run": false,
+    "short_debug_run": true,
     "dataset_type": "patch_adjacence",
     "parts_x": 10,
     "parts_y": 10,
     "train_val_split_ratio": 0.8,
     "transforms": {
-      "resize_y": 300,
-      "resize_x": 300,
+      "resize_y": 320,
+      "resize_x": 320,
       "random_erasing": false
     }
   },
@@ -33,7 +33,6 @@
     "pretrained": true,
     "input_channels": 6,
     "out_features": 5,
-    "output_type": "plain",
     "inference_normalizer": "softmax"
   },
 

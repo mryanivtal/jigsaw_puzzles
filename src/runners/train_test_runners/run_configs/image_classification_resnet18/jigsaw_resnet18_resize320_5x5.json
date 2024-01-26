@@ -5,44 +5,49 @@
   },
 
   "trainer": {
-    "run_name": "patchAdg_resnet18_5x5",
-    "task": "patch_adjacence",
+    "run_name": "jigsaw_resnet18_resize224_5x5",
+    "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
     "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 10,
-    "num_workers": 3
+    "num_workers": 2
   },
 
   "dataset": {
     "short_debug_run": false,
-    "dataset_type": "patch_adjacence",
-    "parts_x": 5,
-    "parts_y": 5,
+    "dataset_type": "jigsaw",
+    "target_type": "probability",
     "train_val_split_ratio": 0.8,
     "transforms": {
-      "resize_y": 210,
-      "resize_x": 210,
+      "resize_y": 320,
+      "resize_x": 320,
       "random_erasing": false
+    },
+
+    "scrambler": {
+      "mode": "different_for_all_samples",
+      "parts_x": 5,
+      "parts_y": 5,
+      "permutation_type": "random"
     }
   },
 
   "model": {
     "name": "resnet18",
     "pretrained": true,
-    "input_channels": 6,
-    "out_features": 5,
-    "output_type": "plain",
-    "inference_normalizer": "softmax"
+    "input_channels": 3,
+    "out_features": 1,
+    "inference_normalizer": "sigmoid"
   },
 
   "loss": {
-    "name": "cross_entropy"
+    "name": "bce_loss"
   },
 
   "sample_saver": {
-    "name": "patch_adjacence",
+    "name": "jigsaw",
     "num_samples_to_save": 6
   }
 }

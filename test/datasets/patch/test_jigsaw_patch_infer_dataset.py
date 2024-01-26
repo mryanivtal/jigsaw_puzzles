@@ -44,14 +44,11 @@ class MyTestCase(unittest.TestCase):
             # plain_image = transforms.ToPILImage()(plain_image)
             # plain_image.show()
             scrambled_image = transforms.ToPILImage()(scrambled_image)
-            scrambled_image.show()
+            # scrambled_image.show()
             # unscrambled_image = transforms.ToPILImage()(unscrambled_image)
             # unscrambled_image.show()
 
-        assert plain_image == unscrambled_image
-
-        print()
-
+            self.assertTrue(all((plain_image == unscrambled_image).tolist()))
 
 
 if __name__ == '__main__':

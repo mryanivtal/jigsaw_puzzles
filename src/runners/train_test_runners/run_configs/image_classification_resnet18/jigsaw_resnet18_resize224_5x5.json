@@ -5,8 +5,8 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_resnet18_2x2_random",
-    "task": "jigsaw_bin_class",
+    "run_name": "jigsaw_resnet18_resize224_5x5",
+    "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
     "batch_size": 64,
@@ -27,9 +27,9 @@
     },
 
     "scrambler": {
-      "mode": "same_for_all_samples",
-      "parts_x": 2,
-      "parts_y": 2,
+      "mode": "different_for_all_samples",
+      "parts_x": 5,
+      "parts_y": 5,
       "permutation_type": "random"
     }
   },
@@ -39,7 +39,7 @@
     "pretrained": true,
     "input_channels": 3,
     "out_features": 1,
-    "output_type": "sigmoid"
+    "inference_normalizer": "sigmoid"
   },
 
   "loss": {

@@ -5,8 +5,8 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_resnet18_5x5_random",
-    "task": "jigsaw_bin_class",
+    "run_name": "plain_vitb16custom_patch16_resize320",
+    "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
     "batch_size": 64,
@@ -17,17 +17,17 @@
 
   "dataset": {
     "short_debug_run": false,
-    "dataset_type": "jigsaw",
+    "dataset_type": "plain",
     "target_type": "probability",
     "train_val_split_ratio": 0.8,
     "transforms": {
-      "resize_y": 224,
-      "resize_x": 224,
+      "resize_y": 320,
+      "resize_x": 320,
       "random_erasing": false
     },
 
     "scrambler": {
-      "mode": "same_for_all_samples",
+      "mode": "different_for_all_samples",
       "parts_x": 5,
       "parts_y": 5,
       "permutation_type": "random"
@@ -35,11 +35,16 @@
   },
 
   "model": {
-    "name": "resnet18",
-    "pretrained": true,
+    "name": "custom_vision_transformer",
+    "image_size": 320,
     "input_channels": 3,
+    "patch_size": 16,
+    "num_layers": 12,
+    "num_heads": 12,
+    "hidden_dim": 768,
+    "mlp_dim": 3072,
     "out_features": 1,
-    "output_type": "sigmoid"
+    "inference_normalizer": "sigmoid"
   },
 
   "loss": {
@@ -47,7 +52,7 @@
   },
 
   "sample_saver": {
-    "name": "jigsaw",
+    "name": "plain",
     "num_samples_to_save": 6
   }
 }
