@@ -3,18 +3,15 @@ from typing import Union
 
 import lightning as L
 
-from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
 from lightning.pytorch.loggers import TensorBoardLogger
-from torch.optim import Adam
 from torch.utils.data import DataLoader
 
 from src.trainer.factories.criterion_factory import get_criterion
 from src.trainer.factories.dataset_factory import get_datasets
 from src.trainer.factories.lt_callbacks_factory import get_callbacks
+from src.trainer.factories.optimizer_factory import get_optimizer
 from src.trainer.factories.sample_saver_factory import get_sample_saver
-from src.trainer.trainer_modules.binclass_task.binclass_loss_accuracy_csv_log_callback import BinclassLossAccuracyCsvCallback
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
-from src.trainer.trainer_modules.binclass_task.binclass_per_sample_csv_log_callback import BinclassPerSampleCsvCallback
 from src.trainer.factories.model_factory import get_model, get_inference_normalizer
 from src.util_functions.printc import printc
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
@@ -28,6 +25,8 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     loss_params = run_params['loss']
     sample_saver_params = run_params['sample_saver']
     flow_params = run_params['flow']
+    optimizer_params = run_params['optimizer']
+
 
     # --- Flow params
     run_train = flow_params['run_train']
@@ -54,7 +53,7 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
     # --- model, optimizer, loss
     model = get_model(model_params)
     criterion = get_criterion(loss_params)
-    optimizer = Adam(model.parameters())
+    optimizer = get_optimizer(optimizer_params, model)
     inference_normalizer = get_inference_normalizer(model_params)
 
     # --- Lightning wrapper module and callbacks

@@ -42,6 +42,11 @@
     "inference_normalizer": "sigmoid"
   },
 
+  "optimizer": {
+    "name": "adam",
+    "lr": 1e-3
+  },
+
   "loss": {
     "name": "bce_loss"
   },

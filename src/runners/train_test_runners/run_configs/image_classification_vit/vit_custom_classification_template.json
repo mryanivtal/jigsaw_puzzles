@@ -9,7 +9,7 @@
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
-    "batch_size": 64,
+    "batch_size": 32,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 10,
     "num_workers": 2
@@ -45,6 +45,11 @@
     "mlp_dim": 3072,
     "out_features": 1,
     "inference_normalizer": "sigmoid"
+  },
+
+  "optimizer": {
+    "name": "adam",
+    "lr": 1e-3
   },
 
   "loss": {
