@@ -5,11 +5,11 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_vitb16pretrainedpatch16_resize224_5x5",
+    "run_name": "jigsaw_vitb16pretrained_patch16_resize224_lr6e3_batch64_7x7",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
-    "batch_size": 32,
+    "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 10,
     "num_workers": 2
@@ -28,8 +28,8 @@
 
     "scrambler": {
       "mode": "different_for_all_samples",
-      "parts_x": 5,
-      "parts_y": 5,
+      "parts_x": 7,
+      "parts_y": 7,
       "permutation_type": "random"
     }
   },
@@ -42,7 +42,7 @@
 
   "optimizer": {
     "name": "adam",
-    "lr": 1e-3
+    "lr": 6e-3
   },
 
   "loss": {

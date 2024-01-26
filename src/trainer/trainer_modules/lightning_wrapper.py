@@ -12,10 +12,11 @@ class LightningWrapper(L.LightningModule):
     def __init__(self, model, optimizer, criterion, inference_normalizer):
         super(LightningWrapper, self).__init__()
 
-        if not is_debug_mode():
-            self.save_hyperparameters(ignore=['model', 'criterion'])
-        else:
-            printc.yellow('===== Running in debug mode! model saving may be partial! =======')
+        # TODO:Yaniv: check if required for checkpoint loading
+        # if not is_debug_mode():
+        #     self.save_hyperparameters(ignore=['model', 'criterion'])
+        # else:
+        #     printc.yellow('===== Running in debug mode! model saving may be partial! =======')
 
         self.model = model
         self.optimizer = optimizer
