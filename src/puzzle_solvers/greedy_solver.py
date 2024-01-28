@@ -322,13 +322,14 @@ class GreedySolver:
 
             relevant_ids = [r[0] for r in relevant_relations]
             relevant_probs = self.pair_probabilities[relevant_ids, relation]
+
             # sum_probabilities = sum_probabilities + (relevant_probs / np.sqrt(sum(relevant_probs)))     #TODO: consider
             sum_probabilities = sum_probabilities + relevant_probs      #TODO: consider
 
-
         best_idx = sum_probabilities.argmax()
+
         # best_prob = sum_probabilities.max() / np.sqrt(len(part_relations))      #TODO: consider
-        best_prob = sum_probabilities.max()      #TODO: consider
+        best_prob = sum_probabilities[best_idx]      #TODO: consider
 
         best_candidate = relevant_relations[best_idx][1][1]
 
