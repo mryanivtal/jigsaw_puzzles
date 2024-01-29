@@ -13,7 +13,8 @@ if __name__ == '__main__':
     parser.add_argument('--test_data', type=str, help='Test data folder path')
     args = parser.parse_args()
 
-    default_test_config = Path(__file__).parent / Path('run_configs/image_classification_vit_without_pos_emb/jigsaw_vitb16pretrainedpatch16_resize224_7x7.json')
+    default_test_config = Path(__file__).parent / Path(
+        'run_configs/image_classification_vit_without_pos_emb/jigsaw_vitb16pretrainedpatch16_resize224_7x7_noPosEmb.json')
 
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_vit/vit_custom_classification_template.json')
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_vit/vit_pretrained_classification_template.json')

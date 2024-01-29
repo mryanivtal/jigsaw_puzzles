@@ -6,7 +6,7 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_vitb16pretrained_patch16_resize224_lr6e3_batch64_7x7",
+    "run_name": "jigsaw_vitb16pretrained_patch16_resize224_lr6e3_batch64_7x7_noPosEmb",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
