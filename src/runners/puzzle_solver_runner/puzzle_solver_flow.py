@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import numpy as np
+import torch
 from tqdm import tqdm
 
 from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDataset
@@ -64,11 +66,8 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
 
         # --- Run solver, get proposed solved permutation
-        solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=False, max_iterations=20, stop_at_cluster_size=70).solve()
+        solved_permutation, solver_steps = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=False, max_iterations=20, stop_at_cluster_size=70).solve()
         solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
-
-        # solved_permutation = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=True, max_iterations=2, stop_at_cluster_size=70).solve()
-        # solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
         # --- Display outcomes
         # plain_image, _ = super(DogsVsCatsJigsawDataset, dataset).get_item(image_idx, for_display=True)
@@ -80,9 +79,44 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         solved_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x, solved_permutation)
         display_image(solved_image)
 
+        # --- display solver iterations and clusters
+        channels, image_y, image_x = solved_image.shape
+        part_size_y = int(image_y / scrambler_params['parts_y'])
+        part_size_x = int(image_x / scrambler_params['parts_x'])
+        display_solver_steps(index_to_spatial, part_size_x, part_size_y, parts_x, parts_y, scrambled_image, solver_steps)
 
         print()
 
+
+def display_solver_steps(index_to_spatial, part_size_x, part_size_y, parts_x, parts_y, scrambled_image, solver_steps):
+    for i, step in enumerate(solver_steps):
+        solved_permutation = step['reverse_permutation']
+        solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
+        solved_image = JigsawScrambler.create_jigsaw_tensor_deterministic(scrambled_image, parts_y, parts_x,
+                                                                          solved_permutation)
+        cluster_board = step['clusters_board']
+        step_main_cluster = np.bincount(cluster_board.astype(int).flatten()).argmax()
+
+        # --- cluster mask
+        channels, image_y, image_x = solved_image.shape
+
+        cluster_mask = torch.ones([image_y, image_x])
+
+        for y_idx in range(parts_y):
+            for x_idx in range(parts_x):
+                y_start = y_idx * part_size_y
+                y_end = (y_idx + 1) * part_size_y
+                x_start = x_idx * part_size_x
+                x_end = (x_idx + 1) * part_size_x
+
+                cluster_mask[y_start: y_end, x_start: x_end] = 0 if cluster_board[
+                                                                        y_idx, x_idx] == step_main_cluster else 1
+
+        cluster_mask = cluster_mask * 0.25
+        solved_image_clustered = solved_image.clone()
+        solved_image_clustered[0] = torch.minimum(solved_image_clustered[0] + cluster_mask,
+                                                  torch.ones_like(solved_image_clustered[0]))
+        display_image(solved_image_clustered)
 
 
 def display_patch_pred_samples(pair_patches, pair_probabilities, num_patches):

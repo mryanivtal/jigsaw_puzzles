@@ -5,7 +5,7 @@
   },
 
   "trainer": {
-    "run_name": "patchAdg_resnet18_resize320_10x10",
+    "run_name": "patchAdj_combined_resize320_10x10",
     "task": "patch_adjacence",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
@@ -29,11 +29,8 @@
   },
 
   "model": {
-    "name": "resnet18",
-    "pretrained": true,
-    "input_channels": 6,
-    "out_features": 5,
-    "inference_normalizer": "softmax"
+    "name": "combined_spatial_edge",
+    "inference_normalizer": "logits"
   },
 
   "optimizer": {

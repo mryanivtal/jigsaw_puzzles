@@ -2,21 +2,28 @@ import torch
 import torchvision
 from torchvision.models import ViT_B_16_Weights, VisionTransformer
 
-from src.models.vision_transformer_revised import vit_b_16_noemb as vit_b_16_without_pos_emb
-from src.models.vision_transformer_revised import VisionTransformer as VisionTransformerWithoutPosEmb
+from models.patch_adj_model import PatchAdjModel
+from src.models.vision_transformer_posemb_disabled import vit_b_16_noemb as vit_b_16_without_pos_emb
+from src.models.vision_transformer_posemb_disabled import VisionTransformer as VisionTransformerWithoutPosEmb
 
 
 def get_model(params: dict):
     if params['name'] == 'resnet18':
         model = get_resnet18(params)
+
     elif params['name'] == 'vit_b16_224':
         model = get_vit_b16_224(params)
     elif params['name'] == 'custom_vision_transformer':
         model = get_vision_transformer(params)
-    elif params['name'] == 'vit_b16_224_without_pos_emb':
-        model = get_vit_b16_224_without_pos_emb(params)
-    elif params['name'] == 'custom_vision_transformer_without_pos_emb':
-        model = get_vision_transformer_without_pos_emb(params)
+
+    elif params['name'] == 'combined_spatial_edge':
+        model = get_combined_spatial_edge(params)
+
+    # --- Vision transformers with their positional embedding disabled. Useless
+    # elif params['name'] == 'vit_b16_224_without_pos_emb':
+    #     model = get_vit_b16_224_without_pos_emb(params)
+    # elif params['name'] == 'custom_vision_transformer_without_pos_emb':
+    #     model = get_vision_transformer_without_pos_emb(params)
 
     else:
         raise NotImplementedError(f'Model {params["name"]} is not implemented')
@@ -35,6 +42,16 @@ def get_inference_normalizer(params: dict):
         raise NotImplementedError(f'Inference_normalizer {params["inference_normalizer"]} is not implemented')
 
 
+def get_combined_spatial_edge(params):
+    resnet_params = {
+        'input_channels': 6,
+        'out_features': 5,
+        'pretrained': True,
+        'checkpoint_path': None,
+    }
+    resnet = get_resnet18(resnet_params)
+
+    return PatchAdjModel(resnet)
 
 def get_resnet18(params):
     out_features = params.get('out_features', None)

@@ -36,7 +36,7 @@ Shifter steps: (Based on the cluster output)
 UNASSIGNED = -1000
 ASSIGNED = -2000
 class GreedySolver:
-    def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities, use_shifter=False, max_iterations: int=10, stop_at_cluster_size=None):
+    def __init__(self, size_y: int, size_x: int, pair_relations, pair_probabilities, use_shifter=False, min_iterations: int=2, max_iterations: int=10, stop_at_cluster_size=None):
         """
 
         :param size_y: num parts in jigsaw puzzle on y
@@ -63,9 +63,12 @@ class GreedySolver:
         self.slack_y = size_y
 
         self.max_iterations = max_iterations
+        self.min_iterations = min_iterations
         self.stop_at_cluster_size = stop_at_cluster_size
 
         self.parts_to_place: list = None
+
+        self.solve_steps_log = []
 
     def solve(self) -> dict:
         if self.use_shifter:
@@ -75,7 +78,7 @@ class GreedySolver:
             best_board = self.solve_with_placer()
 
         reverse_location = self._get_part_locations_from_board(best_board)
-        return reverse_location
+        return reverse_location, self.solve_steps_log
 
     def solve_with_placer(self):
         i = 0
@@ -105,8 +108,14 @@ class GreedySolver:
 
             print(f'{i}: Cluster size: {cluster_sizes[big_cluster_idx]}')
 
+            step_log = {
+                'clusters_board': self.cluster_board.copy(),
+                'reverse_permutation': self._get_part_locations_from_board(self.board)
+            }
+            self.solve_steps_log.append(step_log)
+
             # --- Stop criteria
-            if self.stop_at_cluster_size and biggest_cluster >= self.stop_at_cluster_size:
+            if self.stop_at_cluster_size and biggest_cluster >= self.stop_at_cluster_size and i >= self.min_iterations - 1:
                 break
             if i >= self.max_iterations:
                 break
@@ -140,8 +149,14 @@ class GreedySolver:
 
             print(f'{i}: Cluster size: {cluster_sizes[big_cluster_idx]}')
 
+            step_log = {
+                'clusters_board': self.cluster_board.copy(),
+                'reverse_permutation': self._get_part_locations_from_board(self.board)
+            }
+            self.solve_steps_log.append(step_log)
+
             # --- Stop criteria
-            if self.stop_at_cluster_size and biggest_cluster >= self.stop_at_cluster_size:
+            if self.stop_at_cluster_size and biggest_cluster >= self.stop_at_cluster_size and i >= self.min_iterations - 1:
                 break
             if i >= self.max_iterations:
                 break
@@ -324,12 +339,12 @@ class GreedySolver:
             relevant_probs = self.pair_probabilities[relevant_ids, relation]
 
             # sum_probabilities = sum_probabilities + (relevant_probs / np.sqrt(sum(relevant_probs)))     #TODO: consider
-            sum_probabilities = sum_probabilities + relevant_probs      #TODO: consider
+            sum_probabilities = sum_probabilities + relevant_probs
 
         best_idx = sum_probabilities.argmax()
 
         # best_prob = sum_probabilities.max() / np.sqrt(len(part_relations))      #TODO: consider
-        best_prob = sum_probabilities[best_idx]      #TODO: consider
+        best_prob = sum_probabilities[best_idx]
 
         best_candidate = relevant_relations[best_idx][1][1]
 
