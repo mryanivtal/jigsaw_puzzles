@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torchvision.models import ViT_B_16_Weights, VisionTransformer
 
-from models.patch_adj_model import PatchAdjModel
+from src.models.patch_adj_model import PatchAdjModel
 from src.models.vision_transformer_posemb_disabled import vit_b_16_noemb as vit_b_16_without_pos_emb
 from src.models.vision_transformer_posemb_disabled import VisionTransformer as VisionTransformerWithoutPosEmb
 
