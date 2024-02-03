@@ -12,19 +12,22 @@ class PatchAdjModel(nn.Module):
 
     def forward(self, batch):
         spatial_probs = self.spatial_model(batch)
-        edge_probs = self._calc_edge_probs(batch)
+
+        score_fn = self._calc_edge_adj_dissimilarity_score_a_above_b
+        edge_probs = self._calc_edge_probs(batch, score_fn)
+
         final_probs = edge_probs  # self.alpha * spatial_probs + (1 - self.alpha) * edge_probs
 
         return final_probs
 
-    def _calc_edge_probs(self, batch):
+    def _calc_edge_probs(self, batch, score_fn):
         a = batch[:, :3, :, :]
         b = batch[:, 3:, :, :]
 
-        a_above_b = self._calc_edge_adj_grad_score_a_above_b(a, b)
-        a_below_b = self._calc_edge_adj_grad_score_a_above_b(b, a)
-        a_left_of_b = self._calc_edge_adj_grad_score_a_above_b(a.transpose(2, 3), b.transpose(2, 3))
-        a_right_of_b = self._calc_edge_adj_grad_score_a_above_b(b.transpose(2, 3), a.transpose(2, 3))
+        a_above_b = score_fn(a, b)
+        a_below_b = score_fn(b, a)
+        a_left_of_b = score_fn(a.transpose(2, 3), b.transpose(2, 3))
+        a_right_of_b = score_fn(b.transpose(2, 3), a.transpose(2, 3))
 
         grad_probs = torch.stack([a_above_b, a_left_of_b, a_below_b, a_right_of_b], dim=-1)
         adj_probs = grad_probs #** 8
@@ -55,6 +58,22 @@ class PatchAdjModel(nn.Module):
         score = (a_to_b_score + b_to_a_score).sum(dim=[1, 2]) / (channels * k)
         score = 1 - torch.nn.functional.sigmoid((score - score.median()) * 12)
         return score
+
+    def _calc_edge_adj_dissimilarity_score_a_above_b(cls, a: torch.Tensor, b: torch.Tensor):
+        """
+        Gets two tensors of shape[batch x channels x 2 x K], predicts whether they are adgacent
+        Based on the paper "A fully automated greedy square jigsaw puzzle solver" by Pomeranz et. al.
+        :param a:
+        :param b:
+        :param dim: adjacence dimension
+        :return: float: logit
+        """
+        batch, channels, irrelevant, k = a.shape
+        # assert two == 2
+        assert a.shape == b.shape
+
+        score = (a[:, :, -1, :] - b[:, :, 0, :]).pow(2).sum(dim=[1, 2]).sqrt()
+        return 1 - score / 16
 
 
 
