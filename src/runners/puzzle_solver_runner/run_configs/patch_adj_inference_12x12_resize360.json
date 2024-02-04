@@ -1,6 +1,6 @@
 {
   "inference": {
-    "run_name": "inference_test",
+    "run_name": "inference_patchAdj_resnet_resize360_12x12_acc098.ckpt",
     "task": "patch_adj_inference",
     "add_timestamp_to_out_dir": true,
     "num_workers": 0
@@ -10,15 +10,15 @@
     "short_debug_run": false,
     "dataset_type": "patch_adj",
     "transforms": {
-      "resize_y": 300,
-      "resize_x": 300,
+      "resize_y": 360,
+      "resize_x": 360,
       "random_erasing": false
     },
 
     "scrambler": {
       "mode": "different_for_all_samples",
-      "parts_x": 10,
-      "parts_y": 10,
+      "parts_x": 12,
+      "parts_y": 12,
       "permutation_type": "random"
     }
   },
@@ -32,7 +32,7 @@
     "inference_normalizer": "softmax"
   },
 
-  "part_adj_ckpt_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\models\\patchAdj_resnet_resize300_10x10_acc094140.ckpt",
+  "part_adj_ckpt_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\models\\patchAdj_resnet_resize360_12x12_acc098.ckpt",
   "clean_inference_ckpt_path": ""
 
 }

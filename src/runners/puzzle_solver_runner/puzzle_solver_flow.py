@@ -8,7 +8,7 @@ from src.datasets.dogs_vs_cats_patch_infer_dataset import DogsVsCatsPatchInferDa
 from src.datasets.transform_factory import get_predict_transform
 from src.jigsaw_scrambler.jigsaw_scrambler import create_spatial_index_dicts, JigsawScrambler
 from src.puzzle_solvers.greedy_solver import GreedySolver
-from src.trainer.factories.model_factory import get_model
+from src.trainer.factories.model_factory import get_model, get_inference_normalizer
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
 from src.utils.image_utils import display_image
@@ -39,13 +39,13 @@ def execute_infer_flow(run_params, project_path, test_data_path):
     dataset = DogsVsCatsPatchInferDataset(test_data_path, scrambler_params, transform, transform_for_display)
 
     # --- Model
-    part_adj_model_params = run_params['models']['part_adj_params']
-    model = get_model(part_adj_model_params)
+    model_params = run_params['model']
+    inference_normalizer = get_inference_normalizer(model_params)
+    model = get_model(model_params)
 
-    patches_model_ckpt = run_params['models']['part_adj_ckpt_path']
-    l_module = LightningWrapper.load_from_checkpoint(patches_model_ckpt, model=model, optimizer=None, criterion=None)
+    patches_model_ckpt = run_params['part_adj_ckpt_path']
+    l_module = LightningWrapper.load_from_checkpoint(patches_model_ckpt, model=model, optimizer=None, criterion=None, inference_normalizer=inference_normalizer)
     l_module.eval()
-
 
     # --- Loop on scrambled images (received as blocks in tensor)
     correct_parts = 0

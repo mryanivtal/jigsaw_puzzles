@@ -68,7 +68,7 @@ def get_resnet18(params):
         model.conv1 = torch.nn.Conv2d(input_channels, model.conv1.out_channels, kernel_size=model.conv1.kernel_size, stride=model.conv1.stride, padding=model.conv1.padding, bias=False)
 
     if checkpoint_path is not None:
-        model.load_state_dict(torch.load(checkpoint_path))
+        model.load_state_dict(torch.load(checkpoint_path), map_location='cpu')
 
     return model
 

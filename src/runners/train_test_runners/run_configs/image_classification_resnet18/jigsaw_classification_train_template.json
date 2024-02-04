@@ -1,0 +1,59 @@
+{
+  "flow": {
+    "run_train": true,
+    "run_test": true,
+    "__start_from_lt_checkpoint": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\models\\jigsaw_resnet_2x2_224.ckpt"
+  },
+
+  "trainer": {
+    "run_name": "jigsaw_classification_template_2x2",
+    "task": "bin_class",
+    "add_timestamp_to_out_dir": true,
+    "max_epochs": 200,
+    "batch_size": 64,
+    "check_val_every_n_epoch": 1,
+    "early_stop_patience": 10,
+    "num_workers": 2
+  },
+
+  "dataset": {
+    "short_debug_run": true,
+    "dataset_type": "jigsaw",
+    "target_type": "probability",
+    "train_val_split_ratio": 0.8,
+    "transforms": {
+      "resize_y": 224,
+      "resize_x": 224,
+      "random_erasing": false
+    },
+
+    "scrambler": {
+      "mode": "different_for_all_samples",
+      "parts_x": 2,
+      "parts_y": 2,
+      "permutation_type": "random"
+    }
+  },
+
+  "model": {
+    "name": "resnet18",
+    "pretrained": true,
+    "input_channels": 3,
+    "out_features": 1,
+    "inference_normalizer": "sigmoid"
+  },
+
+  "optimizer": {
+    "name": "adam",
+    "lr": 1e-3
+  },
+
+  "loss": {
+    "name": "bce_loss"
+  },
+
+  "sample_saver": {
+    "name": "jigsaw",
+    "num_samples_to_save": 6
+  }
+}

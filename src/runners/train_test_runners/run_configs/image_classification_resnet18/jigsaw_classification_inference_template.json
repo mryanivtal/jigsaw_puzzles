@@ -1,11 +1,12 @@
 {
   "flow": {
-    "run_train": true,
-    "run_test": true
+    "run_train": false,
+    "run_test": true,
+    "start_from_lt_checkpoint": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\models\\jigsaw_resnet_2x2_224.ckpt"
   },
 
   "trainer": {
-    "run_name": "jigsaw_classification_template",
+    "run_name": "jigsaw_classification_template_2x2",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 200,
@@ -28,15 +29,15 @@
 
     "scrambler": {
       "mode": "different_for_all_samples",
-      "parts_x": 5,
-      "parts_y": 5,
+      "parts_x": 2,
+      "parts_y": 2,
       "permutation_type": "random"
     }
   },
 
   "model": {
     "name": "resnet18",
-    "pretrained": true,
+    "pretrained": false,
     "input_channels": 3,
     "out_features": 1,
     "inference_normalizer": "sigmoid"

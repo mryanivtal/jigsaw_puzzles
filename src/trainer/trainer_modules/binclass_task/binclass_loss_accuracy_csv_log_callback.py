@@ -57,6 +57,9 @@ class BinclassLossAccuracyCsvCallback(L.Callback):
             current_epoch = trainer.current_epoch
             self._report_metrics('validation', current_epoch, pl_module)
 
+    def on_test_start(self, trainer: "pl.Trainer", pl_module: "pl.LightningModule") -> None:
+        self._reset_train_data()
+
     def on_test_epoch_start(self, trainer: Trainer, pl_module: LightningModule) -> None:
         if self.log_test:
             self._reset_epoch_metrics('test')

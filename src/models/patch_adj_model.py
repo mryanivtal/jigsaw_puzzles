@@ -29,14 +29,9 @@ class PatchAdjModel(nn.Module):
         a_left_of_b = score_fn(a.transpose(2, 3), b.transpose(2, 3))
         a_right_of_b = score_fn(b.transpose(2, 3), a.transpose(2, 3))
 
-        grad_probs = torch.stack([a_above_b, a_left_of_b, a_below_b, a_right_of_b], dim=-1)
-        adj_probs = grad_probs #** 8
-        not_adj_prob = (1 - adj_probs).sum(dim=1) / 4
+        scores = torch.stack([a_above_b, a_left_of_b, a_below_b, a_right_of_b], dim=-1)
 
-        probs = torch.concat([adj_probs, not_adj_prob.unsqueeze(dim=1)], dim=1)
-        probs = torch.nn.functional.softmax(probs * 9, dim=1)
-
-        return probs
+        return scores
 
 
     @classmethod
@@ -73,7 +68,7 @@ class PatchAdjModel(nn.Module):
         assert a.shape == b.shape
 
         score = (a[:, :, -1, :] - b[:, :, 0, :]).pow(2).sum(dim=[1, 2]).sqrt()
-        return 1 - score / 16
+        return 1 - score / 4
 
 
 
