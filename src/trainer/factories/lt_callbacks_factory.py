@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping
+from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping, LearningRateMonitor
 
 from src.trainer.trainer_modules.binclass_task.binclass_loss_accuracy_csv_log_callback import BinclassLossAccuracyCsvCallback
 from src.trainer.trainer_modules.binclass_task.binclass_per_sample_csv_log_callback import BinclassPerSampleCsvCallback
@@ -22,7 +22,8 @@ def get_callbacks(params: dict, outputs_path: str):
             BinclassPerSampleCsvCallback(per_sample_test_csv_log_path, train=False, validation=False, test=True),
             ModelCheckpoint(save_top_k=8, dirpath=checkpoint_path, monitor='validation_loss',
                             filename='checkpoint_{epoch:02d}_{step:04d}{validation_loss:.5f}_{validation_accuracy:.5f}'),
-            EarlyStopping(monitor="validation_loss", mode="min", patience=params['early_stop_patience'])
+            EarlyStopping(monitor="validation_loss", mode="min", patience=params['early_stop_patience']),
+            LearningRateMonitor(logging_interval='step')
         ]
 
     elif params['task'] == 'patch_adjacence':
@@ -32,7 +33,8 @@ def get_callbacks(params: dict, outputs_path: str):
             PatchPerSampleCsvCallback(per_sample_test_csv_log_path, train=False, validation=False, test=True),
             ModelCheckpoint(save_top_k=8, dirpath=checkpoint_path, monitor='validation_loss',
                             filename='checkpoint_{epoch:02d}_{step:04d}{validation_loss:.5f}_{validation_accuracy:.5f}'),
-            EarlyStopping(monitor="validation_loss", mode="min", patience=params['early_stop_patience'])
+            EarlyStopping(monitor="validation_loss", mode="min", patience=params['early_stop_patience']),
+            LearningRateMonitor(logging_interval='step')
         ]
 
     else:
