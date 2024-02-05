@@ -2,6 +2,7 @@ import torch
 import torchvision
 from torchvision.models import ViT_B_16_Weights, VisionTransformer
 
+from models.cpvt import PCPVT
 from src.models.patch_adj_model import PatchAdjModel
 from src.models.vision_transformer_posemb_disabled import vit_b_16_noemb as vit_b_16_without_pos_emb
 from src.models.vision_transformer_posemb_disabled import VisionTransformer as VisionTransformerWithoutPosEmb
@@ -19,15 +20,28 @@ def get_model(params: dict):
     elif params['name'] == 'combined_spatial_edge':
         model = get_combined_spatial_edge(params)
 
+    elif params['name'] == 'pcpvt':
+        model = get_pcpvt(params)
+
     # --- Vision transformers with their positional embedding disabled. Useless
     # elif params['name'] == 'vit_b16_224_without_pos_emb':
     #     model = get_vit_b16_224_without_pos_emb(params)
+
     # elif params['name'] == 'custom_vision_transformer_without_pos_emb':
     #     model = get_vision_transformer_without_pos_emb(params)
 
     else:
         raise NotImplementedError(f'Model {params["name"]} is not implemented')
 
+    return model
+
+
+def get_pcpvt(params: dict):
+    img_size = params['img_size']
+    patch_size = params['patch_size']
+    out_features = params['out_features']
+
+    model = PCPVT(img_size=img_size, patch_size=patch_size, in_chans=int(3), num_classes=out_features)
     return model
 
 
