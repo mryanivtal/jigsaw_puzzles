@@ -18,7 +18,7 @@ if __name__ == '__main__':
     # default_test_config = Path(__file__).parent / Path('run_configs/patch_adjacence_resnet18/patch_adg_resnet18_resize360_12x12_lr2e3.json')
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_resnet18/jigsaw_classification_inference_template.json')
     default_test_config = Path(__file__).parent / Path(
-        'run_configs/image_classification_cpvt/pcpvt_resize224_patch4_lr1e3_8x8_allrandom.json')
+        'run_configs/image_classification_cpvt/pcpvtSmallPretrained_resize224_patch4_lr1e3_plainImage.json')
 
 
     run_config_path = args.run_config if args.run_config is not None else default_test_config

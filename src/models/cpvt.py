@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from functools import partial
 
+from timm.data import IMAGENET_INCEPTION_MEAN, IMAGENET_INCEPTION_STD
 from timm.models.layers import DropPath, to_2tuple, trunc_normal_
 from timm.models.registry import register_model
 from timm.models.vision_transformer import _cfg
@@ -445,6 +446,29 @@ def pcpvt_small_v0(pretrained=False, **kwargs):
         norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 4, 6, 3], sr_ratios=[8, 4, 2, 1],
         **kwargs)
     model.default_cfg = _cfg()
+    return model
+
+
+@register_model
+def pcpvt_small_v0_numclasses(num_classes=1000, pretrained=False, **kwargs):
+    model = CPVTV2(
+        patch_size=4, embed_dims=[64, 128, 320, 512], num_heads=[1, 2, 5, 8], mlp_ratios=[8, 8, 4, 4], qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), depths=[3, 4, 6, 3], sr_ratios=[8, 4, 2, 1], num_classes=num_classes,
+        **kwargs)
+
+    model.default_cfg = {
+        'url': '',
+        'num_classes': num_classes,
+        'input_size': (3, 224, 224),
+        'pool_size': None,
+        'crop_pct': 0.9,
+        'interpolation': 'bicubic',
+        'fixed_input_size': True,
+        'mean': IMAGENET_INCEPTION_MEAN,
+        'std': IMAGENET_INCEPTION_STD,
+        'first_conv': 'patch_embed.proj',
+        'classifier': 'head',
+    }
     return model
 
 

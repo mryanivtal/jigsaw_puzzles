@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torchvision.models import ViT_B_16_Weights, VisionTransformer
 
-from src.models.cpvt import PCPVT
+from src.models.cpvt import PCPVT, pcpvt_small_v0_numclasses, pcpvt_small_v0
 from src.models.patch_adj_model import PatchAdjModel
 from src.models.vision_transformer_posemb_disabled import vit_b_16_noemb as vit_b_16_without_pos_emb
 from src.models.vision_transformer_posemb_disabled import VisionTransformer as VisionTransformerWithoutPosEmb
@@ -14,6 +14,7 @@ def get_model(params: dict):
 
     elif params['name'] == 'vit_b16_224':
         model = get_vit_b16_224(params)
+
     elif params['name'] == 'custom_vision_transformer':
         model = get_vision_transformer(params)
 
@@ -22,6 +23,9 @@ def get_model(params: dict):
 
     elif params['name'] == 'pcpvt':
         model = get_pcpvt(params)
+
+    elif params['name'] == 'pcpvt_small':
+        model = get_pcpvt_small(params)
 
     # --- Vision transformers with their positional embedding disabled. Useless
     # elif params['name'] == 'vit_b16_224_without_pos_emb':
@@ -40,10 +44,31 @@ def get_pcpvt(params: dict):
     img_size = params['img_size']
     patch_size = params['patch_size']
     out_features = params['out_features']
+    checkpoint_path = params.get('checkpoint_path', None)
 
-    model = PCPVT(img_size=img_size, patch_size=patch_size, in_chans=int(3), num_classes=out_features)
+    model = PCPVT(img_size=224, patch_size=patch_size, in_chans=int(3), num_classes=out_features)
+
+    if checkpoint_path:
+        state_dict = torch.load(checkpoint_path, map_location='cpu')
+        model.load_state_dict(state_dict)
+
     return model
 
+def get_pcpvt_small(params: dict):
+    out_features = params['out_features']
+    checkpoint_path = params.get('checkpoint_path', None)
+
+    model = pcpvt_small_v0()
+
+    if checkpoint_path:
+        state_dict = torch.load(checkpoint_path, map_location='cpu')
+        model.load_state_dict(state_dict)
+
+    if out_features is not None:
+        head_in_features = model.head.in_features
+        model.head = torch.nn.Sequential(torch.nn.Linear(in_features=head_in_features, out_features=out_features))
+
+    return model
 
 def get_inference_normalizer(params: dict):
     if params['inference_normalizer'] == 'softmax':
