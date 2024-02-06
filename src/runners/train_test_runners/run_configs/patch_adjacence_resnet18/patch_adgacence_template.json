@@ -37,7 +37,7 @@
   },
 
   "optimizer": {
-    "name": "adam",
+    "name": "adamW",
     "lr": 1e-3
   },
 
