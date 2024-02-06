@@ -6,7 +6,7 @@
   },
 
   "trainer": {
-    "run_name": "pcpvt_resize224_patch4_lr1e3_plainImage",
+    "run_name": "pcpvt_resize224_patch4_8x8_allrandom",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 400,
@@ -17,8 +17,8 @@
   },
 
   "dataset": {
-    "short_debug_run": false,
-    "dataset_type": "plain",
+    "short_debug_run": true,
+    "dataset_type": "jigsaw",
     "target_type": "probability",
     "train_val_split_ratio": 0.8,
     "transforms": {
@@ -45,8 +45,9 @@
   },
 
   "optimizer": {
-    "name": "adamW",
-    "lr": 1e-3
+    "name": "SGD",
+    "lr": 2e-3,
+    "momentum": 0.9
   },
 
   "loss": {

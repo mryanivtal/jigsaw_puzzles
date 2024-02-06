@@ -6,7 +6,7 @@
   },
 
   "trainer": {
-    "run_name": "pcpvt_resize224_patch4_lr2e3_sgd09_plainImage",
+    "run_name": "pcpvt_resize224_patch4_plainImage",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 400,

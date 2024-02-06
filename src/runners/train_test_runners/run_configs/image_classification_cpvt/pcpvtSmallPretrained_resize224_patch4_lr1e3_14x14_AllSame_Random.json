@@ -6,18 +6,18 @@
   },
 
   "trainer": {
-    "run_name": "pcpvt_resize224_patch4_lr1e3_8x8_allrandom",
+    "run_name": "pcpvtSmallPretrained_resize224_patch4_lr1e3_14x14_AllSame_Random",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 400,
-    "batch_size": 128,
+    "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 30,
     "num_workers": 2
   },
 
   "dataset": {
-    "short_debug_run": true,
+    "short_debug_run": false,
     "dataset_type": "jigsaw",
     "target_type": "probability",
     "train_val_split_ratio": 0.8,
@@ -28,19 +28,17 @@
     },
 
     "scrambler": {
-      "mode": "different_for_all_samples",
-      "parts_x": 8,
-      "parts_y": 8,
+      "mode": "same_for_all_samples",
+      "parts_x": 14,
+      "parts_y": 14,
       "permutation_type": "random"
     }
   },
 
   "model": {
-    "name": "pcpvt",
-    "img_size": 224,
-    "patch_size": 4,
+    "name": "pcpvt_small",
     "out_features": 1,
-    "__pretrained": true,
+    "checkpoint_path": "/content/models/pcpvt_small.pth",
     "inference_normalizer": "sigmoid"
   },
 
