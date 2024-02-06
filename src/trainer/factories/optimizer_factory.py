@@ -10,7 +10,7 @@ def get_optimizer(params: dict, model):
 
     elif params['name'] == 'SGD':
         lr = params.get('lr', 1e-3)
-        momentum = params.get('momentum', 0)
+        momentum = params.get('momentum', 0.9)
         optimizer = SGD(model.parameters(), lr=lr, momentum=momentum)
 
     else:

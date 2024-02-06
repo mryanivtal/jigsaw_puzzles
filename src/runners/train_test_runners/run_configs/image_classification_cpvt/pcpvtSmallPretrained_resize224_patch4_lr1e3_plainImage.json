@@ -43,8 +43,9 @@
   },
 
   "optimizer": {
-    "name": "adamW",
-    "lr": 1e-3
+    "name": "SGD",
+    "lr": 2e-3,
+    "momentum": 0.9
   },
 
   "loss": {
