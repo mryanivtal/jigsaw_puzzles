@@ -6,19 +6,19 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_pcpvt_resize224_patch14_lr3e3_8x8",
+    "run_name": "pcpvt_resize224_patch4_lr1e3_plainImage",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
-    "max_epochs": 500,
+    "max_epochs": 400,
     "batch_size": 128,
     "check_val_every_n_epoch": 1,
-    "early_stop_patience": 40,
+    "early_stop_patience": 30,
     "num_workers": 2
   },
 
   "dataset": {
     "short_debug_run": false,
-    "dataset_type": "jigsaw",
+    "dataset_type": "plain",
     "target_type": "probability",
     "train_val_split_ratio": 0.8,
     "transforms": {
@@ -38,7 +38,7 @@
   "model": {
     "name": "pcpvt",
     "img_size": 224,
-    "patch_size": 14,
+    "patch_size": 4,
     "out_features": 1,
     "__pretrained": true,
     "inference_normalizer": "sigmoid"
@@ -46,7 +46,7 @@
 
   "optimizer": {
     "name": "adam",
-    "lr": 3e-3
+    "lr": 1e-3
   },
 
   "loss": {

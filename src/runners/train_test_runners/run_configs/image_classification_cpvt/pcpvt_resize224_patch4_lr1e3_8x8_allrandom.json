@@ -6,13 +6,13 @@
   },
 
   "trainer": {
-    "run_name": "jigsaw_pcpvt_resize224_patch4_lr1e3_8x8",
+    "run_name": "pcpvt_resize224_patch4_lr1e3_8x8_allrandom",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
-    "max_epochs": 500,
+    "max_epochs": 400,
     "batch_size": 128,
     "check_val_every_n_epoch": 1,
-    "early_stop_patience": 40,
+    "early_stop_patience": 30,
     "num_workers": 2
   },
 
@@ -29,8 +29,8 @@
 
     "scrambler": {
       "mode": "different_for_all_samples",
-      "parts_x": 7,
-      "parts_y": 7,
+      "parts_x": 8,
+      "parts_y": 8,
       "permutation_type": "random"
     }
   },
@@ -38,7 +38,7 @@
   "model": {
     "name": "pcpvt",
     "img_size": 224,
-    "patch_size": 8,
+    "patch_size": 4,
     "out_features": 1,
     "__pretrained": true,
     "inference_normalizer": "sigmoid"
