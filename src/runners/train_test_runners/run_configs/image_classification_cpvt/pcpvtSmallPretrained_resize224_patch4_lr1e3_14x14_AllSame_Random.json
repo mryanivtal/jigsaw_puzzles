@@ -12,7 +12,7 @@
     "max_epochs": 400,
     "batch_size": 64,
     "check_val_every_n_epoch": 1,
-    "early_stop_patience": 30,
+    "early_stop_patience": 60,
     "num_workers": 2
   },
 
