@@ -10,7 +10,7 @@
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 400,
-    "batch_size": 128,
+    "batch_size": 64,
     "check_val_every_n_epoch": 1,
     "early_stop_patience": 30,
     "num_workers": 2
@@ -38,7 +38,7 @@
   "model": {
     "name": "pcpvt_small",
     "out_features": 1,
-    "checkpoint_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\models\\pcpvt_small.pth",
+    "checkpoint_path": "/content/models/pcpvt_small.pth",
     "inference_normalizer": "sigmoid"
   },
 
