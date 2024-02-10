@@ -1,0 +1,52 @@
+{
+  "flow": {
+    "run_train": true,
+    "run_test": true,
+    "_start_from_lt_checkpoint": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\outputs\\model_8x8.ckpt"
+  },
+  "trainer": {
+    "run_name": "pcpvtSmallPretrained_resize224_patch4_lr1e3_56x56_AllDifferent_Random",
+    "task": "bin_class",
+    "add_timestamp_to_out_dir": true,
+    "max_epochs": 400,
+    "batch_size": 64,
+    "check_val_every_n_epoch": 1,
+    "early_stop_patience": 50,
+    "num_workers": 8
+  },
+  "dataset": {
+    "short_debug_run": false,
+    "dataset_type": "jigsaw",
+    "target_type": "probability",
+    "train_val_split_ratio": 0.8,
+    "transforms": {
+      "resize_y": 224,
+      "resize_x": 224,
+      "random_erasing": false
+    },
+    "scrambler": {
+      "mode": "different_for_all_samples",
+      "parts_x": 56,
+      "parts_y": 56,
+      "permutation_type": "random"
+    }
+  },
+  "model": {
+    "name": "pcpvt_small",
+    "out_features": 1,
+    "checkpoint_path": "/content/models/pcpvt_small.pth",
+    "inference_normalizer": "sigmoid"
+  },
+  "optimizer": {
+    "name": "SGD",
+    "lr": 0.002,
+    "momentum": 0.9
+  },
+  "loss": {
+    "name": "bce_loss"
+  },
+  "sample_saver": {
+    "name": "plain",
+    "num_samples_to_save": 6
+  }
+}
