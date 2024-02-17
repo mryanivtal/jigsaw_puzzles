@@ -40,12 +40,14 @@
     "pretrained": false,
     "input_channels": 3,
     "out_features": 1,
-    "inference_normalizer": "sigmoid"
+    "inference_normalizer": "sigmoid",
+    "freeze_feature_layers": false
   },
 
   "optimizer": {
     "name": "adamW",
-    "lr": 1e-3
+    "lr": 1e-3,
+    "lr_scheduler": "cos"
   },
 
   "loss": {

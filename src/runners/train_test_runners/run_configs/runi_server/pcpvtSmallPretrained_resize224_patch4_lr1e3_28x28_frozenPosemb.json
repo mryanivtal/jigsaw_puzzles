@@ -5,7 +5,7 @@
     "_start_from_lt_checkpoint": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\outputs\\model_8x8.ckpt"
   },
   "trainer": {
-    "run_name": "pcpvtSmallPretrained_resize224_patch4_lr1e3_56x56_AllDifferent_Random",
+    "run_name": "pcpvtSmallPretrained_resize224_patch4_lr1e3_28x28_frozenPosemb",
     "task": "bin_class",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 400,
@@ -35,7 +35,9 @@
     "name": "pcpvt_small",
     "out_features": 1,
     "checkpoint_path": "/home/mlds_user/yaniv/models/pcpvt_small.pth",
-    "inference_normalizer": "sigmoid"
+    "inference_normalizer": "sigmoid",
+    "freeze_pos_embedding": true,
+    "freeze_feature_and_embed_blocks": true
   },
   "optimizer": {
     "name": "SGD",

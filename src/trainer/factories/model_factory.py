@@ -2,7 +2,7 @@ import torch
 import torchvision
 from torchvision.models import ViT_B_16_Weights, VisionTransformer
 
-from src.models.cpvt import PCPVT, pcpvt_small_v0_numclasses, pcpvt_small_v0
+from src.models.cpvt import PCPVT, pcpvt_small_v0
 from src.models.patch_adj_model import PatchAdjModel
 from src.models.vision_transformer_posemb_disabled import vit_b_16_noemb as vit_b_16_without_pos_emb
 from src.models.vision_transformer_posemb_disabled import VisionTransformer as VisionTransformerWithoutPosEmb
@@ -57,6 +57,8 @@ def get_pcpvt(params: dict):
 def get_pcpvt_small(params: dict):
     out_features = params['out_features']
     checkpoint_path = params.get('checkpoint_path', None)
+    freeze_pos_embedding = params.get('freeze_pos_embedding', None)
+    freeze_feature_and_embed_blocks = params.get('freeze_feature_and_embed_blocks', None)
 
     model = pcpvt_small_v0()
 
@@ -67,6 +69,18 @@ def get_pcpvt_small(params: dict):
     if out_features is not None:
         head_in_features = model.head.in_features
         model.head = torch.nn.Sequential(torch.nn.Linear(in_features=head_in_features, out_features=out_features))
+
+    if freeze_pos_embedding:
+        print('Disabling grads for positional embedding layers!')
+        for name, para in model.named_parameters():
+            if name.startswith('pos_block'):
+                para.requires_grad = False
+
+    if freeze_feature_and_embed_blocks:
+        print('Disabling grads for feature and image embedding layers!')
+        for name, para in model.named_parameters():
+            if name.startswith('patch_embeds') or name.startswith('blocks'):
+                para.requires_grad = False
 
     return model
 
@@ -97,6 +111,7 @@ def get_resnet18(params):
     pretrained = params.get('pretrained', False)
     checkpoint_path = params.get('checkpoint_path', None)
     input_channels = params.get('input_channels', None)
+    freeze_feature_layers = params.get('freeze_feature_layers', None)
 
     model = torchvision.models.resnet18(pretrained=pretrained)
 
@@ -108,6 +123,12 @@ def get_resnet18(params):
 
     if checkpoint_path is not None:
         model.load_state_dict(torch.load(checkpoint_path), map_location='cpu')
+
+    if freeze_feature_layers:
+        print('Disabling grads for all non-classification layers!')
+        for name, para in model.named_parameters():
+            if not name.startswith('fc'):
+                para.requires_grad = False
 
     return model
 
