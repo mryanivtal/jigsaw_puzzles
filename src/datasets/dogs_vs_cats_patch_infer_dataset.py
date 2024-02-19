@@ -6,9 +6,10 @@ from src.datasets.dogs_vs_cats_jigsaw_dataset import DogsVsCatsJigsawDataset
 
 
 class DogsVsCatsPatchInferDataset(DogsVsCatsJigsawDataset):
-    def __init__(self, images_path: str, scrambler_params: dict,  transform=None, transform_for_display=None, shuffle=False, batch=True):
+    def __init__(self, images_path: str, scrambler_params: dict,  transform=None, transform_for_display=None, shuffle=False, batch=True, concat_dim=0):
         super(DogsVsCatsPatchInferDataset, self).__init__(images_path, scrambler_params, target='reverse_permutation', transform=transform, transform_for_display=transform_for_display, shuffle=shuffle, seed_scrambler=True)
         self.batch = batch
+        self._concat_dim = concat_dim
 
     def get_item(self, item, for_display: bool=False) -> tuple[torch.Tensor, dict]:
         image, sample_metadata = super(DogsVsCatsPatchInferDataset, self).get_item(item, for_display=for_display)
@@ -17,7 +18,10 @@ class DogsVsCatsPatchInferDataset(DogsVsCatsJigsawDataset):
 
         patch_images = [patch['patch'] for patch in item_patches]
         patch_pairs = [[a, b] for idx, a in enumerate(patch_images) for b in patch_images[idx + 1:]]
-        patch_pairs = [torch.concat(pair, dim=0) for pair in patch_pairs]
+        patch_pairs = [torch.concat(pair, dim=self._concat_dim) for pair in patch_pairs]
+
+        if self._concat_dim == 1:
+            patch_pairs = [torch.concat([sample_data, torch.zeros_like(sample_data)], dim=2) for sample_data in patch_pairs]
 
         if self.batch:
             patch_pairs = torch.stack(patch_pairs)

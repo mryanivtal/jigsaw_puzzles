@@ -7,10 +7,11 @@ from src.datasets.dogs_vs_cats_dataset import DogsVsCatsDataset
 
 
 class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
-    def __init__(self, images_path: str, patch_size_x: int, patch_size_y: int, transform=None, transform_for_display=None, shuffle=False):
+    def __init__(self, images_path: str, patch_size_x: int, patch_size_y: int, transform=None, transform_for_display=None, shuffle=False, concat_dim=0):
         super(DogsVsCatsPatchTrainDataset, self).__init__(images_path, transform, transform_for_display=transform_for_display, shuffle=shuffle)
         self.patch_size_x = int(patch_size_x)
         self.patch_size_y = int(patch_size_y)
+        self._concat_dim = concat_dim
         _, self.image_size_y, self.image_size_x = super(DogsVsCatsPatchTrainDataset, self).get_item(0)[0].shape
 
     @classmethod
@@ -52,7 +53,9 @@ class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
 
         # --- Concatenate patches for display
         if not for_display:
-            sample_data = torch.concat(patches, dim=0)
+            sample_data = torch.concat(patches, dim=self._concat_dim)
+            if self._concat_dim == 1:
+                sample_data = torch.concat([sample_data, torch.zeros_like(sample_data)], dim=2)
         else:
             sample_data = self._concatenate_for_display(label, patches)
 

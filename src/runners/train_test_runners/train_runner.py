@@ -14,12 +14,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_vit/vit_custom_classification_template.json')
-    # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_vit/vit_pretrained_classification_template.json')
-    # default_test_config = Path(__file__).parent / Path('run_configs/patch_adjacence_resnet18/patch_adg_resnet18_resize360_12x12_lr2e3.json')
+    # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_cpvt/pcpvtSmallPretrained_template.json')
     # default_test_config = Path(__file__).parent / Path('run_configs/image_classification_resnet18/jigsaw_classification_inference_template.json')
-    default_test_config = Path(__file__).parent / Path(
-        'run_configs/image_classification_cpvt/pcpvtSmallPretrained_resize224_patch4_lr1e3_plainImage.json')
-
+    default_test_config = Path(__file__).parent / Path('run_configs/patch_adjacence_cpvt/patch_adg_cpvt_resize224_14x14_lr2e3.json')
 
     run_config_path = args.run_config if args.run_config is not None else default_test_config
     project_path = args.project_path if args.project_path is not None else env_constants.PROJECT_PATH
@@ -29,8 +26,4 @@ if __name__ == '__main__':
     run_params = load_dict_from_json(run_config_path)
 
     execute_train_flow(run_params, project_path, train_data_path, test_data_path)
-
-
-
-
 

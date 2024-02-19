@@ -26,8 +26,8 @@
     },
     "scrambler": {
       "mode": "different_for_all_samples",
-      "parts_x": 56,
-      "parts_y": 56,
+      "parts_x": 3,
+      "parts_y": 3,
       "permutation_type": "random"
     }
   },
@@ -49,7 +49,7 @@
     "name": "bce_loss"
   },
   "sample_saver": {
-    "name": "plain",
+    "name": "jigsaw",
     "num_samples_to_save": 6
   }
 }

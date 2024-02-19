@@ -52,9 +52,10 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
 
     # --- model, optimizer, loss
     model = get_model(model_params)
+    inference_normalizer = get_inference_normalizer(model_params)
+
     criterion = get_criterion(loss_params)
     optimizer = get_optimizer(optimizer_params, model)
-    inference_normalizer = get_inference_normalizer(model_params)
 
     # --- Lightning wrapper module and callbacks
     if not start_from_lt_checkpoint:

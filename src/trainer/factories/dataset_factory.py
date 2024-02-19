@@ -76,6 +76,7 @@ def _get_patch_adj_datasets(dataset_params, train_data_path, test_data_path) -> 
     # --- fix transform resize params so images can be divided to requested blocks
     parts_x = dataset_params['parts_x']
     parts_y = dataset_params['parts_y']
+    concat_dim = dataset_params.get('concat_dim', 0)
 
     dataset_params['transforms']['resize_x'] = round(dataset_params['transforms']['resize_x'] / parts_x) * parts_x
     dataset_params['transforms']['resize_y'] = round(dataset_params['transforms']['resize_y'] / parts_y) * parts_y
@@ -90,8 +91,8 @@ def _get_patch_adj_datasets(dataset_params, train_data_path, test_data_path) -> 
     predict_transform_for_display = get_predict_transform(transform_params, normalize=False)
 
     # --- Datasets
-    train_val_dataset = DogsVsCatsPatchTrainDataset(train_data_path, patch_size_x=patch_size_x, patch_size_y=patch_size_y, transform=train_transform, transform_for_display=train_transform_for_display, shuffle=True)
-    test_dataset = DogsVsCatsPatchTrainDataset(test_data_path, patch_size_x=patch_size_x, patch_size_y=patch_size_y, transform=predict_transform, transform_for_display=predict_transform_for_display, shuffle=False)
+    train_val_dataset = DogsVsCatsPatchTrainDataset(train_data_path, patch_size_x=patch_size_x, patch_size_y=patch_size_y, transform=train_transform, transform_for_display=train_transform_for_display, shuffle=True, concat_dim=concat_dim)
+    test_dataset = DogsVsCatsPatchTrainDataset(test_data_path, patch_size_x=patch_size_x, patch_size_y=patch_size_y, transform=predict_transform, transform_for_display=predict_transform_for_display, shuffle=False, concat_dim=concat_dim)
 
     return train_val_dataset, test_dataset
 
