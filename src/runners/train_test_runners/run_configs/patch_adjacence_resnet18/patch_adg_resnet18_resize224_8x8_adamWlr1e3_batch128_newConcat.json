@@ -33,7 +33,7 @@
   "model": {
     "name": "resnet18",
     "pretrained": true,
-    "input_channels": 6,
+    "input_channels": 3,
     "out_features": 5,
     "inference_normalizer": "softmax"
   },
