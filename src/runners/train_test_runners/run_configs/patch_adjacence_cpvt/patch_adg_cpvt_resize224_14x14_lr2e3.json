@@ -21,7 +21,6 @@
     "parts_x": 14,
     "parts_y": 14,
     "train_val_split_ratio": 0.8,
-    "concat_dim": 1,
     "transforms": {
       "resize_y": 224,
       "resize_x": 224,
@@ -31,15 +30,17 @@
 
   "model": {
     "name": "pcpvt",
-    "img_size": 32,
+    "img_size": 16,
     "patch_size": 4,
+    "in_features": 6,
     "out_features": 5,
     "inference_normalizer": "softmax"
   },
 
   "optimizer": {
-    "name": "adamW",
-    "lr": 2e-3
+    "name": "SGD",
+    "lr": 2e-3,
+    "momentum": 0.9
   },
 
   "loss": {

@@ -5,7 +5,7 @@
   },
 
   "trainer": {
-    "run_name": "patch_adg_resnet18_resize224_14x14_SGDlr2e3",
+    "run_name": "patch_adg_cpvt_resize224_14x14_lr2e3",
     "task": "patch_adjacence",
     "add_timestamp_to_out_dir": true,
     "max_epochs": 400,
@@ -14,7 +14,6 @@
     "early_stop_patience": 25,
     "num_workers": 3
   },
-
 
   "dataset": {
     "short_debug_run": false,
@@ -30,16 +29,17 @@
   },
 
   "model": {
-    "name": "resnet18",
-    "pretrained": true,
-    "input_channels": 6,
+    "name": "pcpvt",
+    "img_size": 16,
+    "patch_size": 4,
+    "in_features": 6,
     "out_features": 5,
     "inference_normalizer": "softmax"
   },
 
   "optimizer": {
     "name": "SGD",
-    "lr": 0.002,
+    "lr": 2e-3,
     "momentum": 0.9
   },
 

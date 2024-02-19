@@ -43,10 +43,11 @@ def get_model(params: dict):
 def get_pcpvt(params: dict):
     img_size = params.get('img_size', 224)
     patch_size = params['patch_size']
+    in_features = params['in_features']
     out_features = params['out_features']
     checkpoint_path = params.get('checkpoint_path', None)
 
-    model = PCPVT(img_size=img_size, patch_size=patch_size, in_chans=int(3), num_classes=out_features)
+    model = PCPVT(img_size=img_size, patch_size=patch_size, in_chans=int(in_features), num_classes=out_features)
 
     if checkpoint_path:
         state_dict = torch.load(checkpoint_path, map_location='cpu')

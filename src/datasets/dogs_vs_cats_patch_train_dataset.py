@@ -54,8 +54,6 @@ class DogsVsCatsPatchTrainDataset(DogsVsCatsDataset):
         # --- Concatenate patches for display
         if not for_display:
             sample_data = torch.concat(patches, dim=self._concat_dim)
-            if self._concat_dim == 1:
-                sample_data = torch.concat([sample_data, torch.zeros_like(sample_data)], dim=2)
         else:
             sample_data = self._concatenate_for_display(label, patches)
 
