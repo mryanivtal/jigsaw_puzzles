@@ -18,7 +18,17 @@ class DogsVsCatsPatchInferDataset(DogsVsCatsJigsawDataset):
 
         patch_images = [patch['patch'] for patch in item_patches]
         patch_pairs = [[a, b] for idx, a in enumerate(patch_images) for b in patch_images[idx + 1:]]
-        patch_pairs = [torch.concat(pair, dim=0) for pair in patch_pairs]
+        if self._concat_dim == 0:
+            patch_pairs = [torch.concat(pair, dim=0) for pair in patch_pairs]
+        else:
+            new_patch_pairs = []
+            for i, pair in enumerate(patch_pairs):
+                top = torch.concat(pair, dim=2)
+                bottom = torch.concat(list(pair.__reversed__()), dim=2)
+                sample_data = torch.concat([top, bottom], dim=1)
+                new_patch_pairs.append(sample_data)
+
+            patch_pairs = new_patch_pairs
 
         if self.batch:
             patch_pairs = torch.stack(patch_pairs)

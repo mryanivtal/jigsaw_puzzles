@@ -1,0 +1,38 @@
+{
+  "inference": {
+    "run_name": "inference_patchAdj_resnet_resize448_14x14_acc0981.ckpt",
+    "task": "patch_adj_inference",
+    "add_timestamp_to_out_dir": true,
+    "num_workers": 0
+  },
+
+  "dataset": {
+    "short_debug_run": false,
+    "dataset_type": "patch_adj",
+    "transforms": {
+      "resize_y": 448,
+      "resize_x": 448,
+      "random_erasing": false
+    },
+
+    "scrambler": {
+      "mode": "different_for_all_samples",
+      "parts_x": 14,
+      "parts_y": 14,
+      "permutation_type": "random"
+    }
+  },
+
+  "model": {
+    "name": "resnet18",
+    "pretrained": true,
+    "input_channels": 3,
+    "out_features": 5,
+    "_output_type": "plain",
+    "inference_normalizer": "softmax"
+  },
+
+  "part_adj_ckpt_path": "D:\\docs\\Study\\DSML_IDC\\Final project\\project\\models\\patch_adj_resize448_14x14_acc0981.ckpt",
+  "clean_inference_ckpt_path": ""
+
+}

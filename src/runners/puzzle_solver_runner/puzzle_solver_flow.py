@@ -36,7 +36,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
 
     # --- Test Dataset
     scrambler_params = dataset_params['scrambler']
-    dataset = DogsVsCatsPatchInferDataset(test_data_path, scrambler_params, transform, transform_for_display)
+    dataset = DogsVsCatsPatchInferDataset(test_data_path, scrambler_params, transform, transform_for_display, concat_dim=9)
 
     # --- Model
     model_params = run_params['model']
@@ -52,6 +52,7 @@ def execute_infer_flow(run_params, project_path, test_data_path):
     total_parts = 0
 
     for image_idx in tqdm(range(len(dataset))):
+        image_idx += 1
         sample = dataset[image_idx]
         target_permutation = sample[1]['target']
 
@@ -59,14 +60,24 @@ def execute_infer_flow(run_params, project_path, test_data_path):
         pair_relations = sample[0][1]
 
         # --- Run inference on all pairs in image
-        pair_probabilities = l_module(pair_patches).detach().numpy()
+        splits = 25
+        num_items = int(np.ceil(pair_patches.shape[0] / splits))
+        ranges = [(i*num_items, (i+1)*num_items) for i in range(splits)]
+
+        pair_probabilities = None
+        for (a, b) in ranges:
+            batch_pair_probabilities = l_module(pair_patches[a:b, ...]).detach().numpy()
+            pair_probabilities = batch_pair_probabilities if pair_probabilities is None else np.concatenate((pair_probabilities, batch_pair_probabilities), axis=0)
+            del batch_pair_probabilities
+
+        # pair_probabilities = l_module(pair_patches).detach().numpy()
 
         # --- prep data for solver - convert spatial part representation to index
         spatial_to_index, index_to_spatial = create_spatial_index_dicts(parts_y, parts_x)
         pair_relations = [(spatial_to_index[pair[0]], spatial_to_index[pair[1]]) for pair in pair_relations]
 
         # --- Run solver, get proposed solved permutation
-        solved_permutation, solver_steps = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=False, max_iterations=20, stop_at_cluster_size=70).solve()
+        solved_permutation, solver_steps = GreedySolver(parts_y, parts_x, pair_relations, pair_probabilities, use_shifter=False, max_iterations=10, stop_at_cluster_size=170).solve()
         solved_permutation = {index_to_spatial[i]: solved_permutation[i] for i in solved_permutation.keys()}
 
         # --- Display outcomes
