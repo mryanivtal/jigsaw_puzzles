@@ -91,7 +91,7 @@ def execute_train_flow(run_params: dict, project_path: Union[str, Path], train_d
 
     if run_test:
         printc.blue('Starting test ')
-        test_results = trainer.test(model=l_module, dataloaders=test_dataloader, ckpt_path='best')
+        test_results = trainer.test(model=l_module, dataloaders=test_dataloader)
         save_dict_to_json(test_results, Path(outputs_path) / Path('test_results.json'))
 
 
