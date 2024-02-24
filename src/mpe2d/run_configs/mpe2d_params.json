@@ -1,0 +1,31 @@
+{
+  "trainer": {
+    "run_name": "mpe2d_14x14",
+    "task": "patch_adjacence",
+    "add_timestamp_to_out_dir": true
+  },
+  "dataset": {
+    "short_debug_run": false,
+    "dataset_type": "jigsaw",
+    "target_type": "original_image",
+    "train_val_split_ratio": 0.8,
+    "transforms": {
+      "resize_y": 224,
+      "resize_x": 224,
+      "random_erasing": false
+    },
+
+    "scrambler": {
+      "mode": "different_for_all_samples",
+      "parts_x": 56,
+      "parts_y": 56,
+      "permutation_type": "random"
+    }
+  },
+
+
+  "sample_saver": {
+    "name": "jigsaw",
+    "num_samples_to_save": 6
+  }
+}
