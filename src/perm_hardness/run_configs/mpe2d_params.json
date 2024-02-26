@@ -17,8 +17,8 @@
 
     "scrambler": {
       "mode": "different_for_all_samples",
-      "parts_x": 56,
-      "parts_y": 56,
+      "parts_x": 2,
+      "parts_y": 2,
       "permutation_type": "random"
     }
   },

@@ -11,7 +11,7 @@ from src.puzzle_solvers.greedy_solver import GreedySolver
 from src.trainer.factories.model_factory import get_model, get_inference_normalizer
 from src.trainer.trainer_modules.lightning_wrapper import LightningWrapper
 from src.util_functions.util_functions import create_output_dir, save_dict_to_json
-from src.utils.image_utils import display_image
+from util_functions.image_utils import display_image
 
 
 def execute_infer_flow(run_params, project_path, test_data_path):

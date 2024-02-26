@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 
-from src.mpe2d.mpe2d_flow import execute_mpe2d_flow
+from src.perm_hardness.mpe2d_flow import execute_mpe2d_flow
 from src import env_constants
 from src.util_functions.util_functions import load_dict_from_json
 
