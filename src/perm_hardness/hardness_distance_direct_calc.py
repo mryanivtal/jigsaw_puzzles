@@ -81,7 +81,16 @@ if __name__ == '__main__':
     l2_pair_dists_w2 = []
     linf_pair_dists_w2 = []
 
+    l1_pair_dists_w4 = []
+    l2_pair_dists_w4 = []
+    linf_pair_dists_w4 = []
+
+    l1_pair_dists_w8 = []
+    l2_pair_dists_w8 = []
+    linf_pair_dists_w8 = []
+
     part_options = [1, 2, 4, 7, 14, 28, 56, 112, 224]
+    # part_options = [112]
 
     for num_parts in part_options:
         scrambler_params['parts_x'] = num_parts
@@ -118,6 +127,14 @@ if __name__ == '__main__':
         l2_pair_dist_w2 = 0
         linf_pair_dist_w2 = 0
 
+        l1_pair_dist_w4 = 0
+        l2_pair_dist_w4 = 0
+        linf_pair_dist_w4 = 0
+
+        l1_pair_dist_w8 = 0
+        l2_pair_dist_w8 = 0
+        linf_pair_dist_w8 = 0
+
         count = 0
 
         for pix in tqdm(range(pixel_locs.shape[0] - 1)):
@@ -141,17 +158,31 @@ if __name__ == '__main__':
             x_dist_w2 = x_dist / (np.abs(temp[:, 0]) + 1)**2
             y_dist_w2 = y_dist / (np.abs(temp[:, 1]) + 1)**2
 
+            x_dist_w4 = x_dist / (np.abs(temp[:, 0]) + 1)**4
+            y_dist_w4 = y_dist / (np.abs(temp[:, 1]) + 1)**4
+
+            x_dist_w8 = x_dist / (np.abs(temp[:, 0]) + 1)**8
+            y_dist_w8 = y_dist / (np.abs(temp[:, 1]) + 1)**8
+
             l1_pair_dist = (count / new_count) * l1_pair_dist + (1 - count/new_count) * (np.abs(x_dist) + np.abs(y_dist)).mean()
             l2_pair_dist = (count / new_count) * l2_pair_dist + (1 - count/new_count) * np.sqrt((x_dist) **2 + (y_dist) **2).mean()
             linf_pair_dist = (count / new_count) * linf_pair_dist + (1 - count/new_count) * np.maximum(np.abs(x_dist), np.abs(y_dist)).mean()
 
-            l1_pair_dist_w = (count / new_count) * l1_pair_dist + (1 - count/new_count) * (np.abs(x_dist_w) + np.abs(y_dist_w)).mean()
-            l2_pair_dist_w = (count / new_count) * l2_pair_dist + (1 - count/new_count) * np.sqrt((x_dist_w) ** 2 + (y_dist_w) ** 2).mean()
-            linf_pair_dist_w = (count / new_count) * linf_pair_dist + (1 - count/new_count) * np.maximum(np.abs(x_dist_w), np.abs(y_dist_w)).mean()
+            l1_pair_dist_w = (count / new_count) * l1_pair_dist_w + (1 - count/new_count) * (np.abs(x_dist_w) + np.abs(y_dist_w)).mean()
+            l2_pair_dist_w = (count / new_count) * l2_pair_dist_w + (1 - count/new_count) * np.sqrt((x_dist_w) ** 2 + (y_dist_w) ** 2).mean()
+            linf_pair_dist_w = (count / new_count) * linf_pair_dist_w + (1 - count/new_count) * np.maximum(np.abs(x_dist_w), np.abs(y_dist_w)).mean()
 
-            l1_pair_dist_w2 = (count / new_count) * l1_pair_dist + (1 - count/new_count) * (np.abs(x_dist_w2) + np.abs(y_dist_w2)).mean()
-            l2_pair_dist_w2 = (count / new_count) * l2_pair_dist + (1 - count/new_count) * np.sqrt((x_dist_w2) ** 2 + (y_dist_w2) ** 2).mean()
-            linf_pair_dist_w2 = (count / new_count) * linf_pair_dist + (1 - count/new_count) * np.maximum(np.abs(x_dist_w2), np.abs(y_dist_w2)).mean()
+            l1_pair_dist_w2 = (count / new_count) * l1_pair_dist_w2 + (1 - count/new_count) * (np.abs(x_dist_w2) + np.abs(y_dist_w2)).mean()
+            l2_pair_dist_w2 = (count / new_count) * l2_pair_dist_w2 + (1 - count/new_count) * np.sqrt((x_dist_w2) ** 2 + (y_dist_w2) ** 2).mean()
+            linf_pair_dist_w2 = (count / new_count) * linf_pair_dist_w2 + (1 - count/new_count) * np.maximum(np.abs(x_dist_w2), np.abs(y_dist_w2)).mean()
+
+            l1_pair_dist_w4 = (count / new_count) * l1_pair_dist_w4 + (1 - count/new_count) * (np.abs(x_dist_w4) + np.abs(y_dist_w4)).mean()
+            l2_pair_dist_w4 = (count / new_count) * l2_pair_dist_w4 + (1 - count/new_count) * np.sqrt((x_dist_w4) ** 2 + (y_dist_w4) ** 2).mean()
+            linf_pair_dist_w4 = (count / new_count) * linf_pair_dist_w4 + (1 - count/new_count) * np.maximum(np.abs(x_dist_w4), np.abs(y_dist_w4)).mean()
+
+            l1_pair_dist_w8 = (count / new_count) * l1_pair_dist_w8 + (1 - count/new_count) * (np.abs(x_dist_w8) + np.abs(y_dist_w8)).mean()
+            l2_pair_dist_w8 = (count / new_count) * l2_pair_dist_w8 + (1 - count/new_count) * np.sqrt((x_dist_w8) ** 2 + (y_dist_w8) ** 2).mean()
+            linf_pair_dist_w8 = (count / new_count) * linf_pair_dist_w8 + (1 - count/new_count) * np.maximum(np.abs(x_dist_w8), np.abs(y_dist_w8)).mean()
 
             count = new_count
 
@@ -167,18 +198,26 @@ if __name__ == '__main__':
         l2_pair_dists_w2.append(l2_pair_dist_w2)
         linf_pair_dists_w2.append(linf_pair_dist_w2)
 
-        # --- Pixel self- shift distances
-        l1_dist_m = np.abs(pixel_locs[:, 0] - pixel_locs[:, 2]) + np.abs(pixel_locs[:, 1] - pixel_locs[:, 3])
-        l1_dist_sum.append(l1_dist_m.sum())
-        l1_dist_std.append(l1_dist_m.std())
+        l1_pair_dists_w4.append(l1_pair_dist_w4)
+        l2_pair_dists_w4.append(l2_pair_dist_w4)
+        linf_pair_dists_w4.append(linf_pair_dist_w4)
 
-        l2_dist_m = np.sqrt((pixel_locs[:, 0] - pixel_locs[:, 2])**2 + (pixel_locs[:, 1] - pixel_locs[:, 3]) ** 2)
-        l2_dist_sum.append(l2_dist_m.sum())
-        l2_dist_std.append(l2_dist_m.std())
+        l1_pair_dists_w8.append(l1_pair_dist_w8)
+        l2_pair_dists_w8.append(l2_pair_dist_w8)
+        linf_pair_dists_w8.append(linf_pair_dist_w8)
 
-        linf_dist_m = np.maximum(np.abs(pixel_locs[:, 0] - pixel_locs[:, 2]), np.abs(pixel_locs[:, 1] - pixel_locs[:, 3]))
-        linf_dist_sum.append(linf_dist_m.sum())
-        linf_dist_std.append(linf_dist_m.std())
+        # # --- Pixel self- shift distances
+        # l1_dist_m = np.abs(pixel_locs[:, 0] - pixel_locs[:, 2]) + np.abs(pixel_locs[:, 1] - pixel_locs[:, 3])
+        # l1_dist_sum.append(l1_dist_m.sum())
+        # l1_dist_std.append(l1_dist_m.std())
+        #
+        # l2_dist_m = np.sqrt((pixel_locs[:, 0] - pixel_locs[:, 2])**2 + (pixel_locs[:, 1] - pixel_locs[:, 3]) ** 2)
+        # l2_dist_sum.append(l2_dist_m.sum())
+        # l2_dist_std.append(l2_dist_m.std())
+        #
+        # linf_dist_m = np.maximum(np.abs(pixel_locs[:, 0] - pixel_locs[:, 2]), np.abs(pixel_locs[:, 1] - pixel_locs[:, 3]))
+        # linf_dist_sum.append(linf_dist_m.sum())
+        # linf_dist_std.append(linf_dist_m.std())
 
     print()
 
@@ -198,9 +237,17 @@ if __name__ == '__main__':
     df['l2_pair_dists_w2'] = l2_pair_dists_w2
     df['linf_pair_dists_w2'] = linf_pair_dists_w2
 
-    df['l1_shift_dist'] = l1_dist_sum
-    df['l2_shift_dist'] = l2_dist_sum
-    df['linf_shift_dist'] = linf_dist_sum
+    df['l1_pair_dists_w4'] = l1_pair_dists_w4
+    df['l2_pair_dists_w4'] = l2_pair_dists_w4
+    df['linf_pair_dists_w4'] = linf_pair_dists_w4
+
+    df['l1_pair_dists_w8'] = l1_pair_dists_w8
+    df['l2_pair_dists_w8'] = l2_pair_dists_w8
+    df['linf_pair_dists_w8'] = linf_pair_dists_w8
+
+    # df['l1_shift_dist'] = l1_dist_sum
+    # df['l2_shift_dist'] = l2_dist_sum
+    # df['linf_shift_dist'] = linf_dist_sum
 
     df.to_csv(r'D:\docs\Study\DSML_IDC\Final project\project\final_paper\analysis_notebook\data\perm_hardness_table_new.csv')
 
