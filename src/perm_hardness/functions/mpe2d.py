@@ -4,6 +4,7 @@ import numpy as np
 def mpe2d(image, emb_dim=2, grain_size=2, stride=1) -> float:
     """
     Multiscale permutation entropy 2D
+    From article: Multiscale permutation entropy for two-dimensional patterns, by Cristina Morela,b, Anne Humeau-Heurtier
     :param emb_dim: embedding dimension
     :param grain_size: grain size for coarse grain phase
     :param image: image to claculate
